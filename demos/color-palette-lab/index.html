@@ -1,0 +1,466 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="A standalone HTML demo for generating color palettes.">
+    <title>Color Palette Lab</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f7f4ee;
+        --surface: #ffffff;
+        --ink: #1f2933;
+        --muted: #697586;
+        --line: #ddd6cb;
+        --accent: #0f766e;
+        --accent-dark: #115e59;
+        font-family:
+          Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+          sans-serif;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        min-height: 100vh;
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+      }
+
+      button,
+      input {
+        font: inherit;
+      }
+
+      .app {
+        width: min(1120px, calc(100% - 32px));
+        margin: 0 auto;
+        padding: 34px 0 48px;
+      }
+
+      .topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding-bottom: 28px;
+      }
+
+      .back {
+        color: var(--accent-dark);
+        font-size: 0.94rem;
+        font-weight: 750;
+        text-decoration: none;
+      }
+
+      .topbar span {
+        color: var(--muted);
+        font-size: 0.92rem;
+      }
+
+      .hero {
+        display: grid;
+        grid-template-columns: minmax(0, 0.88fr) minmax(320px, 1.12fr);
+        gap: 36px;
+        align-items: end;
+        padding: 36px 0 42px;
+        border-top: 1px solid var(--line);
+      }
+
+      h1,
+      h2,
+      p {
+        margin-top: 0;
+      }
+
+      h1 {
+        margin-bottom: 16px;
+        font-size: clamp(2.5rem, 7vw, 5.8rem);
+        line-height: 0.92;
+        letter-spacing: 0;
+      }
+
+      .lede {
+        max-width: 560px;
+        margin-bottom: 0;
+        color: var(--muted);
+        font-size: 1.08rem;
+        line-height: 1.65;
+      }
+
+      .controls {
+        display: grid;
+        gap: 18px;
+        padding: 20px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.76);
+      }
+
+      .field {
+        display: grid;
+        gap: 8px;
+      }
+
+      label {
+        color: var(--muted);
+        font-size: 0.82rem;
+        font-weight: 800;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+      }
+
+      .control-row {
+        display: grid;
+        grid-template-columns: 72px 1fr;
+        gap: 12px;
+        align-items: center;
+      }
+
+      input[type="color"] {
+        width: 72px;
+        height: 44px;
+        padding: 0;
+        overflow: hidden;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: transparent;
+      }
+
+      input[type="range"] {
+        width: 100%;
+        accent-color: var(--accent);
+      }
+
+      .button-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      button {
+        min-height: 42px;
+        padding: 0 16px;
+        border: 1px solid var(--accent);
+        border-radius: 8px;
+        background: var(--accent);
+        color: #ffffff;
+        cursor: pointer;
+        font-weight: 800;
+      }
+
+      button.secondary {
+        background: transparent;
+        color: var(--accent-dark);
+      }
+
+      .palette {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        min-height: 260px;
+        overflow: hidden;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+      }
+
+      .swatch {
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        gap: 8px;
+        min-width: 0;
+        padding: 18px;
+        color: #111827;
+      }
+
+      .swatch.dark {
+        color: #ffffff;
+      }
+
+      .swatch strong,
+      .swatch span {
+        width: fit-content;
+        max-width: 100%;
+        padding: 5px 8px;
+        border-radius: 6px;
+        background: rgba(255, 255, 255, 0.76);
+        overflow-wrap: anywhere;
+      }
+
+      .swatch.dark strong,
+      .swatch.dark span {
+        background: rgba(0, 0, 0, 0.28);
+      }
+
+      .preview {
+        display: grid;
+        grid-template-columns: 0.8fr 1.2fr;
+        gap: 0;
+        overflow: hidden;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #ffffff;
+      }
+
+      .preview-sidebar {
+        min-height: 280px;
+        padding: 24px;
+      }
+
+      .preview-main {
+        display: grid;
+        gap: 18px;
+        align-content: center;
+        padding: 28px;
+      }
+
+      .metric-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 12px;
+      }
+
+      .metric,
+      .panel {
+        min-width: 0;
+        border-radius: 8px;
+        padding: 16px;
+      }
+
+      .metric strong {
+        display: block;
+        margin-top: 8px;
+        font-size: 1.45rem;
+      }
+
+      .panel {
+        min-height: 112px;
+      }
+
+      @media (max-width: 820px) {
+        .hero,
+        .preview {
+          grid-template-columns: 1fr;
+        }
+
+        .palette {
+          grid-template-columns: 1fr;
+        }
+
+        .swatch {
+          min-height: 92px;
+        }
+      }
+
+      @media (max-width: 560px) {
+        .app {
+          width: min(100% - 24px, 1120px);
+        }
+
+        .topbar {
+          align-items: flex-start;
+          flex-direction: column;
+        }
+
+        .metric-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="app">
+      <nav class="topbar" aria-label="Demo navigation">
+        <a class="back" href="/">Back to demos</a>
+        <span>Standalone HTML demo</span>
+      </nav>
+
+      <section class="hero">
+        <div>
+          <h1>Color Palette Lab</h1>
+          <p class="lede">
+            Pick a seed color, tune the spread, and generate a five-color palette with a live product UI preview.
+          </p>
+        </div>
+
+        <form class="controls" id="controls">
+          <div class="field">
+            <label for="seed">Seed color</label>
+            <div class="control-row">
+              <input id="seed" name="seed" type="color" value="#0f766e">
+              <span id="seedValue">#0F766E</span>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="spread">Palette spread</label>
+            <input id="spread" name="spread" type="range" min="20" max="120" value="72">
+          </div>
+
+          <div class="button-row">
+            <button type="button" id="randomize">Randomize</button>
+            <button type="button" class="secondary" id="copy">Copy palette</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="palette" id="palette" aria-label="Generated color palette"></section>
+
+      <section class="preview" id="preview" aria-label="Palette preview">
+        <aside class="preview-sidebar">
+          <h2>Launch Board</h2>
+          <p>Palette colors are applied across navigation, metrics, and content panels.</p>
+        </aside>
+        <div class="preview-main">
+          <div class="metric-grid">
+            <div class="metric">
+              Active tasks
+              <strong>18</strong>
+            </div>
+            <div class="metric">
+              Reviews
+              <strong>7</strong>
+            </div>
+            <div class="metric">
+              Shipped
+              <strong>42</strong>
+            </div>
+          </div>
+          <div class="panel">
+            <h2>Palette preview</h2>
+            <p>The generated colors keep the interface varied while preserving enough contrast for practical use.</p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      const seed = document.querySelector("#seed");
+      const seedValue = document.querySelector("#seedValue");
+      const spread = document.querySelector("#spread");
+      const palette = document.querySelector("#palette");
+      const preview = document.querySelector("#preview");
+      const randomize = document.querySelector("#randomize");
+      const copy = document.querySelector("#copy");
+
+      function hexToHsl(hex) {
+        const value = hex.replace("#", "");
+        const r = parseInt(value.slice(0, 2), 16) / 255;
+        const g = parseInt(value.slice(2, 4), 16) / 255;
+        const b = parseInt(value.slice(4, 6), 16) / 255;
+        const max = Math.max(r, g, b);
+        const min = Math.min(r, g, b);
+        let h = 0;
+        let s = 0;
+        const l = (max + min) / 2;
+
+        if (max !== min) {
+          const d = max - min;
+          s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+          if (max === r) h = (g - b) / d + (g < b ? 6 : 0);
+          if (max === g) h = (b - r) / d + 2;
+          if (max === b) h = (r - g) / d + 4;
+          h *= 60;
+        }
+
+        return [h, s * 100, l * 100];
+      }
+
+      function hslToHex(h, s, l) {
+        const normalizedH = ((h % 360) + 360) % 360;
+        const sat = s / 100;
+        const light = l / 100;
+        const c = (1 - Math.abs(2 * light - 1)) * sat;
+        const x = c * (1 - Math.abs(((normalizedH / 60) % 2) - 1));
+        const m = light - c / 2;
+        let r = 0;
+        let g = 0;
+        let b = 0;
+
+        if (normalizedH < 60) [r, g, b] = [c, x, 0];
+        else if (normalizedH < 120) [r, g, b] = [x, c, 0];
+        else if (normalizedH < 180) [r, g, b] = [0, c, x];
+        else if (normalizedH < 240) [r, g, b] = [0, x, c];
+        else if (normalizedH < 300) [r, g, b] = [x, 0, c];
+        else [r, g, b] = [c, 0, x];
+
+        return [r, g, b]
+          .map((channel) => Math.round((channel + m) * 255).toString(16).padStart(2, "0"))
+          .join("")
+          .toUpperCase()
+          .padStart(6, "0")
+          .replace(/^/, "#");
+      }
+
+      function isDark(hex) {
+        const value = hex.replace("#", "");
+        const r = parseInt(value.slice(0, 2), 16);
+        const g = parseInt(value.slice(2, 4), 16);
+        const b = parseInt(value.slice(4, 6), 16);
+        return (r * 299 + g * 587 + b * 114) / 1000 < 132;
+      }
+
+      function buildPalette() {
+        const [h, s, l] = hexToHsl(seed.value);
+        const range = Number(spread.value);
+        return [
+          hslToHex(h - range, Math.min(s + 12, 78), Math.max(l - 14, 24)),
+          hslToHex(h - range / 2, Math.min(s + 8, 74), Math.min(l + 4, 72)),
+          hslToHex(h, Math.min(Math.max(s, 36), 76), Math.min(Math.max(l, 34), 66)),
+          hslToHex(h + range / 2, Math.min(s + 16, 82), Math.max(l - 8, 28)),
+          hslToHex(h + range, Math.max(s - 4, 34), Math.min(l + 18, 84)),
+        ];
+      }
+
+      function render() {
+        const colors = buildPalette();
+        seedValue.textContent = seed.value.toUpperCase();
+        palette.innerHTML = colors
+          .map(
+            (color, index) => `
+              <button class="swatch ${isDark(color) ? "dark" : ""}" type="button" style="background: ${color}" data-color="${color}">
+                <strong>${color}</strong>
+                <span>Color ${index + 1}</span>
+              </button>
+            `,
+          )
+          .join("");
+
+        const [one, two, three, four, five] = colors;
+        preview.querySelector(".preview-sidebar").style.background = one;
+        preview.querySelector(".preview-sidebar").style.color = isDark(one) ? "#ffffff" : "#111827";
+        preview.querySelectorAll(".metric").forEach((metric, index) => {
+          metric.style.background = [five, two, four][index];
+          metric.style.color = isDark([five, two, four][index]) ? "#ffffff" : "#111827";
+        });
+        preview.querySelector(".panel").style.background = three;
+        preview.querySelector(".panel").style.color = isDark(three) ? "#ffffff" : "#111827";
+      }
+
+      seed.addEventListener("input", render);
+      spread.addEventListener("input", render);
+      randomize.addEventListener("click", () => {
+        seed.value = hslToHex(Math.random() * 360, 48 + Math.random() * 30, 34 + Math.random() * 24);
+        spread.value = String(32 + Math.round(Math.random() * 86));
+        render();
+      });
+      palette.addEventListener("click", (event) => {
+        const swatch = event.target.closest(".swatch");
+        if (swatch) navigator.clipboard?.writeText(swatch.dataset.color);
+      });
+      copy.addEventListener("click", () => {
+        navigator.clipboard?.writeText(buildPalette().join(", "));
+        copy.textContent = "Copied";
+        window.setTimeout(() => {
+          copy.textContent = "Copy palette";
+        }, 1200);
+      });
+
+      render();
+    </script>
+  </body>
+</html>
