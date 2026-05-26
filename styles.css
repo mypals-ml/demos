@@ -137,6 +137,27 @@ h1 {
   background: var(--gold);
 }
 
+.task-icon {
+  gap: 5px;
+  padding: 8px;
+}
+
+.task-icon span {
+  border-radius: 999px;
+}
+
+.task-icon span:nth-child(1) {
+  background: var(--blue);
+}
+
+.task-icon span:nth-child(2) {
+  background: var(--accent);
+}
+
+.task-icon span:nth-child(3) {
+  background: var(--coral);
+}
+
 .demo-copy {
   display: grid;
   gap: 6px;

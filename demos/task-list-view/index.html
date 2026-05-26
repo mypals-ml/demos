@@ -1,0 +1,749 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="A mobile task list view with five tabbed design styles.">
+    <title>Task List View</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --page: #eef2f0;
+        --ink: #17202a;
+        --muted: #657184;
+        --line: #dce2e0;
+        --surface: #ffffff;
+        --green: #17806d;
+        --blue: #286eb8;
+        --red: #c84646;
+        --amber: #ad6b12;
+        --violet: #7257b5;
+        font-family:
+          Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+          sans-serif;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        min-height: 100vh;
+        margin: 0;
+        background:
+          radial-gradient(circle at 18% 10%, rgba(23, 128, 109, 0.16), transparent 28%),
+          linear-gradient(135deg, #f8faf9 0%, var(--page) 46%, #e7edf4 100%);
+        color: var(--ink);
+      }
+
+      button {
+        font: inherit;
+      }
+
+      .app {
+        width: min(1120px, calc(100% - 32px));
+        margin: 0 auto;
+        padding: 30px 0 52px;
+      }
+
+      .topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding-bottom: 26px;
+      }
+
+      .back {
+        color: #115f53;
+        font-size: 0.94rem;
+        font-weight: 780;
+        text-decoration: none;
+      }
+
+      .topbar span {
+        color: var(--muted);
+        font-size: 0.92rem;
+      }
+
+      .workspace {
+        display: grid;
+        grid-template-columns: minmax(280px, 0.84fr) minmax(320px, 430px);
+        gap: 42px;
+        align-items: center;
+        padding-top: 24px;
+        border-top: 1px solid var(--line);
+      }
+
+      h1,
+      h2,
+      p {
+        margin-top: 0;
+      }
+
+      h1 {
+        max-width: 760px;
+        margin-bottom: 18px;
+        font-size: clamp(2.6rem, 7vw, 5.7rem);
+        line-height: 0.92;
+        letter-spacing: 0;
+      }
+
+      .lede {
+        max-width: 620px;
+        margin-bottom: 26px;
+        color: var(--muted);
+        font-size: 1.08rem;
+        line-height: 1.65;
+      }
+
+      .style-tabs {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      .style-tab {
+        min-height: 42px;
+        padding: 0 14px;
+        border: 1px solid rgba(23, 32, 42, 0.14);
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.7);
+        color: #263441;
+        cursor: pointer;
+        font-size: 0.9rem;
+        font-weight: 800;
+      }
+
+      .style-tab[aria-selected="true"] {
+        border-color: transparent;
+        background: #17202a;
+        color: #ffffff;
+      }
+
+      .phone-wrap {
+        justify-self: center;
+        width: min(100%, 390px);
+      }
+
+      .phone {
+        min-height: 760px;
+        overflow: hidden;
+        border: 10px solid #111827;
+        border-radius: 34px;
+        background: var(--surface);
+        box-shadow: 0 28px 72px rgba(17, 24, 39, 0.22);
+      }
+
+      .screen {
+        display: none;
+        min-height: 740px;
+        padding: 18px;
+      }
+
+      .screen.active {
+        display: flex;
+        flex-direction: column;
+      }
+
+      .screen-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 10px 2px 18px;
+      }
+
+      .screen-kicker {
+        margin-bottom: 5px;
+        color: inherit;
+        font-size: 0.76rem;
+        font-weight: 850;
+        letter-spacing: 0.08em;
+        opacity: 0.68;
+        text-transform: uppercase;
+      }
+
+      .screen-title {
+        margin: 0;
+        font-size: 1.68rem;
+        line-height: 1.05;
+      }
+
+      .count-pill {
+        flex: 0 0 auto;
+        min-width: 58px;
+        padding: 8px 10px;
+        border-radius: 8px;
+        text-align: center;
+        font-size: 0.78rem;
+        font-weight: 850;
+      }
+
+      .toolbar {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 10px;
+        align-items: center;
+        margin-bottom: 16px;
+      }
+
+      .search {
+        min-width: 0;
+        padding: 12px 13px;
+        border-radius: 8px;
+        font-size: 0.92rem;
+        font-weight: 720;
+      }
+
+      .filter {
+        display: inline-grid;
+        place-items: center;
+        width: 44px;
+        height: 44px;
+        border-radius: 8px;
+        font-weight: 900;
+      }
+
+      .task-list {
+        display: grid;
+        gap: 12px;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+      }
+
+      .task {
+        min-width: 0;
+        border-radius: 8px;
+      }
+
+      .task-main {
+        display: grid;
+        gap: 11px;
+        padding: 14px;
+      }
+
+      .task-top,
+      .task-meta {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+      }
+
+      .task-title {
+        min-width: 0;
+        margin: 0;
+        font-size: 1rem;
+        line-height: 1.32;
+      }
+
+      .status {
+        flex: 0 0 auto;
+        padding: 6px 9px;
+        border-radius: 999px;
+        font-size: 0.72rem;
+        font-weight: 850;
+      }
+
+      .assignees {
+        display: flex;
+        min-width: 88px;
+      }
+
+      .avatar {
+        display: inline-grid;
+        place-items: center;
+        width: 30px;
+        height: 30px;
+        margin-right: -5px;
+        border: 2px solid currentColor;
+        border-radius: 50%;
+        font-size: 0.68rem;
+        font-weight: 900;
+      }
+
+      .due {
+        color: inherit;
+        font-size: 0.78rem;
+        font-weight: 780;
+        opacity: 0.7;
+      }
+
+      .classic {
+        background: #f8fafc;
+        color: #1f2937;
+      }
+
+      .classic .count-pill,
+      .classic .filter {
+        background: #1f2937;
+        color: #ffffff;
+      }
+
+      .classic .search,
+      .classic .task {
+        border: 1px solid #d9e1e8;
+        background: #ffffff;
+      }
+
+      .classic .status.todo {
+        background: #e8edf3;
+        color: #425466;
+      }
+
+      .classic .status.progress {
+        background: #dbeafe;
+        color: #1d4e89;
+      }
+
+      .classic .status.done {
+        background: #d9f5e5;
+        color: #166534;
+      }
+
+      .color-blocks {
+        background: #14213d;
+        color: #ffffff;
+      }
+
+      .color-blocks .search,
+      .color-blocks .count-pill,
+      .color-blocks .filter {
+        background: rgba(255, 255, 255, 0.12);
+        color: #ffffff;
+      }
+
+      .color-blocks .task {
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        background: #ffffff;
+        color: #182235;
+      }
+
+      .color-blocks .task:nth-child(2) {
+        background: #fef3c7;
+      }
+
+      .color-blocks .task:nth-child(3) {
+        background: #dbeafe;
+      }
+
+      .color-blocks .task:nth-child(4) {
+        background: #dcfce7;
+      }
+
+      .color-blocks .status {
+        background: #14213d;
+        color: #ffffff;
+      }
+
+      .kanban {
+        background: #f6f1e8;
+        color: #2f251d;
+      }
+
+      .kanban .search,
+      .kanban .filter {
+        border: 1px solid #d8c9b6;
+        background: #fffaf1;
+      }
+
+      .kanban .count-pill {
+        background: #ad6b12;
+        color: #ffffff;
+      }
+
+      .kanban .task {
+        border-left: 6px solid #ad6b12;
+        background: #fffaf1;
+        box-shadow: 0 10px 24px rgba(90, 63, 37, 0.12);
+      }
+
+      .kanban .task:nth-child(2) {
+        border-left-color: #17806d;
+      }
+
+      .kanban .task:nth-child(3) {
+        border-left-color: #286eb8;
+      }
+
+      .kanban .task:nth-child(4) {
+        border-left-color: #c84646;
+      }
+
+      .kanban .status {
+        background: #f1dfc8;
+        color: #6f4309;
+      }
+
+      .focus {
+        background: #fdfdf9;
+        color: #111827;
+      }
+
+      .focus .screen-header {
+        border-bottom: 1px solid #e5e7eb;
+      }
+
+      .focus .count-pill {
+        background: #111827;
+        color: #ffffff;
+      }
+
+      .focus .search,
+      .focus .filter,
+      .focus .task {
+        border: 1px solid #e5e7eb;
+        background: #ffffff;
+      }
+
+      .focus .task-main {
+        grid-template-columns: 8px 1fr;
+      }
+
+      .focus .task-main::before {
+        content: "";
+        width: 8px;
+        border-radius: 999px;
+        background: #111827;
+      }
+
+      .focus .task-content {
+        display: grid;
+        gap: 11px;
+        min-width: 0;
+      }
+
+      .focus .status {
+        background: #eef2ff;
+        color: #5145a5;
+      }
+
+      .neon {
+        background: #101014;
+        color: #f8fafc;
+      }
+
+      .neon .search,
+      .neon .filter,
+      .neon .count-pill {
+        border: 1px solid rgba(80, 220, 190, 0.38);
+        background: rgba(80, 220, 190, 0.1);
+        color: #b9fff0;
+      }
+
+      .neon .task {
+        border: 1px solid rgba(185, 255, 240, 0.18);
+        background: #191b21;
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.03);
+      }
+
+      .neon .status {
+        background: #b9fff0;
+        color: #101014;
+      }
+
+      .bottom-bar {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 8px;
+        margin-top: auto;
+        padding-top: 16px;
+      }
+
+      .nav-dot {
+        display: grid;
+        place-items: center;
+        min-height: 42px;
+        border-radius: 8px;
+        font-size: 0.78rem;
+        font-weight: 850;
+      }
+
+      .classic .nav-dot,
+      .focus .nav-dot {
+        background: #eef2f5;
+        color: #435266;
+      }
+
+      .classic .nav-dot.active,
+      .focus .nav-dot.active {
+        background: #17202a;
+        color: #ffffff;
+      }
+
+      .color-blocks .nav-dot,
+      .neon .nav-dot {
+        background: rgba(255, 255, 255, 0.1);
+        color: #ffffff;
+      }
+
+      .color-blocks .nav-dot.active,
+      .neon .nav-dot.active {
+        background: #ffffff;
+        color: #17202a;
+      }
+
+      .kanban .nav-dot {
+        background: #eadac7;
+        color: #5d4031;
+      }
+
+      .kanban .nav-dot.active {
+        background: #5d4031;
+        color: #fffaf1;
+      }
+
+      @media (max-width: 860px) {
+        .workspace {
+          grid-template-columns: 1fr;
+          gap: 30px;
+        }
+
+        .phone-wrap {
+          justify-self: start;
+        }
+      }
+
+      @media (max-width: 540px) {
+        .app {
+          width: min(100% - 20px, 1120px);
+          padding-top: 22px;
+        }
+
+        .topbar {
+          align-items: flex-start;
+          flex-direction: column;
+        }
+
+        .style-tabs {
+          display: grid;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .style-tab {
+          padding: 0 10px;
+          font-size: 0.84rem;
+        }
+
+        .phone {
+          min-height: 704px;
+          border-width: 7px;
+          border-radius: 28px;
+        }
+
+        .screen {
+          min-height: 690px;
+          padding: 14px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="app">
+      <nav class="topbar" aria-label="Demo navigation">
+        <a class="back" href="/">Back to demos</a>
+        <span>Standalone HTML demo</span>
+      </nav>
+
+      <section class="workspace" aria-labelledby="page-title">
+        <div>
+          <h1 id="page-title">Task List View</h1>
+          <p class="lede">
+            A mobile task board with the fields people scan first: title, status, and assignees.
+            Switch tabs to compare five different visual treatments.
+          </p>
+          <div class="style-tabs" role="tablist" aria-label="Task list styles">
+            <button class="style-tab" type="button" role="tab" aria-selected="true" aria-controls="classic" id="tab-classic" data-target="classic">Classic</button>
+            <button class="style-tab" type="button" role="tab" aria-selected="false" aria-controls="color-blocks" id="tab-color-blocks" data-target="color-blocks">Color Blocks</button>
+            <button class="style-tab" type="button" role="tab" aria-selected="false" aria-controls="kanban" id="tab-kanban" data-target="kanban">Kanban</button>
+            <button class="style-tab" type="button" role="tab" aria-selected="false" aria-controls="focus" id="tab-focus" data-target="focus">Focus</button>
+            <button class="style-tab" type="button" role="tab" aria-selected="false" aria-controls="neon" id="tab-neon" data-target="neon">Neon</button>
+          </div>
+        </div>
+
+        <div class="phone-wrap">
+          <div class="phone" aria-live="polite">
+            <section class="screen classic active" id="classic" role="tabpanel" aria-labelledby="tab-classic">
+              <div class="screen-header">
+                <div>
+                  <p class="screen-kicker">Today</p>
+                  <h2 class="screen-title">Team Tasks</h2>
+                </div>
+                <div class="count-pill">8 open</div>
+              </div>
+              <div class="toolbar">
+                <div class="search">Search tasks</div>
+                <div class="filter" aria-hidden="true">F</div>
+              </div>
+              <ul class="task-list"></ul>
+              <div class="bottom-bar" aria-hidden="true">
+                <span class="nav-dot active">Tasks</span>
+                <span class="nav-dot">Plan</span>
+                <span class="nav-dot">Team</span>
+                <span class="nav-dot">Me</span>
+              </div>
+            </section>
+
+            <section class="screen color-blocks" id="color-blocks" role="tabpanel" aria-labelledby="tab-color-blocks">
+              <div class="screen-header">
+                <div>
+                  <p class="screen-kicker">Launch room</p>
+                  <h2 class="screen-title">Priority Stack</h2>
+                </div>
+                <div class="count-pill">5 due</div>
+              </div>
+              <div class="toolbar">
+                <div class="search">Filter by owner</div>
+                <div class="filter" aria-hidden="true">S</div>
+              </div>
+              <ul class="task-list"></ul>
+              <div class="bottom-bar" aria-hidden="true">
+                <span class="nav-dot active">List</span>
+                <span class="nav-dot">Brief</span>
+                <span class="nav-dot">Files</span>
+                <span class="nav-dot">Stats</span>
+              </div>
+            </section>
+
+            <section class="screen kanban" id="kanban" role="tabpanel" aria-labelledby="tab-kanban">
+              <div class="screen-header">
+                <div>
+                  <p class="screen-kicker">Sprint lane</p>
+                  <h2 class="screen-title">Board Cards</h2>
+                </div>
+                <div class="count-pill">3 hot</div>
+              </div>
+              <div class="toolbar">
+                <div class="search">Stage: active</div>
+                <div class="filter" aria-hidden="true">K</div>
+              </div>
+              <ul class="task-list"></ul>
+              <div class="bottom-bar" aria-hidden="true">
+                <span class="nav-dot active">Flow</span>
+                <span class="nav-dot">Risk</span>
+                <span class="nav-dot">Notes</span>
+                <span class="nav-dot">Done</span>
+              </div>
+            </section>
+
+            <section class="screen focus" id="focus" role="tabpanel" aria-labelledby="tab-focus">
+              <div class="screen-header">
+                <div>
+                  <p class="screen-kicker">Personal view</p>
+                  <h2 class="screen-title">Focus Queue</h2>
+                </div>
+                <div class="count-pill">2 next</div>
+              </div>
+              <div class="toolbar">
+                <div class="search">Only assigned to me</div>
+                <div class="filter" aria-hidden="true">M</div>
+              </div>
+              <ul class="task-list"></ul>
+              <div class="bottom-bar" aria-hidden="true">
+                <span class="nav-dot active">Now</span>
+                <span class="nav-dot">Later</span>
+                <span class="nav-dot">Inbox</span>
+                <span class="nav-dot">Log</span>
+              </div>
+            </section>
+
+            <section class="screen neon" id="neon" role="tabpanel" aria-labelledby="tab-neon">
+              <div class="screen-header">
+                <div>
+                  <p class="screen-kicker">Night ops</p>
+                  <h2 class="screen-title">Live Tasks</h2>
+                </div>
+                <div class="count-pill">Live</div>
+              </div>
+              <div class="toolbar">
+                <div class="search">Signal search</div>
+                <div class="filter" aria-hidden="true">N</div>
+              </div>
+              <ul class="task-list"></ul>
+              <div class="bottom-bar" aria-hidden="true">
+                <span class="nav-dot active">Pulse</span>
+                <span class="nav-dot">Map</span>
+                <span class="nav-dot">Chat</span>
+                <span class="nav-dot">Ops</span>
+              </div>
+            </section>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      const tasks = [
+        {
+          title: "Review mobile list density",
+          status: "Todo",
+          statusClass: "todo",
+          assignees: ["AR", "JM"],
+          due: "Due 10:30",
+        },
+        {
+          title: "Ship assignee picker states",
+          status: "In progress",
+          statusClass: "progress",
+          assignees: ["NW", "SL", "PK"],
+          due: "Due 13:00",
+        },
+        {
+          title: "Confirm empty-state copy",
+          status: "Done",
+          statusClass: "done",
+          assignees: ["HT"],
+          due: "Closed",
+        },
+        {
+          title: "Sync status colors with design",
+          status: "Todo",
+          statusClass: "todo",
+          assignees: ["MC", "DV"],
+          due: "Due Fri",
+        },
+      ];
+
+      function taskTemplate(task) {
+        const assignees = task.assignees
+          .map((person) => `<span class="avatar">${person}</span>`)
+          .join("");
+        return `
+          <li class="task">
+            <div class="task-main">
+              <div class="task-content">
+                <div class="task-top">
+                  <h3 class="task-title">${task.title}</h3>
+                  <span class="status ${task.statusClass}">${task.status}</span>
+                </div>
+                <div class="task-meta">
+                  <div class="assignees" aria-label="Assignees">${assignees}</div>
+                  <span class="due">${task.due}</span>
+                </div>
+              </div>
+            </div>
+          </li>
+        `;
+      }
+
+      document.querySelectorAll(".task-list").forEach((list) => {
+        list.innerHTML = tasks.map(taskTemplate).join("");
+      });
+
+      const tabs = document.querySelectorAll("[role='tab']");
+      const screens = document.querySelectorAll("[role='tabpanel']");
+
+      tabs.forEach((tab) => {
+        tab.addEventListener("click", () => {
+          const target = tab.dataset.target;
+          tabs.forEach((item) => item.setAttribute("aria-selected", String(item === tab)));
+          screens.forEach((screen) => {
+            screen.classList.toggle("active", screen.id === target);
+          });
+        });
+      });
+    </script>
+  </body>
+</html>
