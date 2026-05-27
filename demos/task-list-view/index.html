@@ -273,6 +273,7 @@
       }
 
       .due,
+      .date-range,
       .hint {
         color: inherit;
         font-size: 0.76rem;
@@ -602,7 +603,7 @@
         <div>
           <h1 id="page-title">Task List View</h1>
           <p class="lede">
-            A mobile task board with the fields people scan first: title, status, and assignees.
+            A mobile task board with the fields people scan first: title, status, assignees, and schedule dates.
             Each tab changes the interaction model, from fast triage to team ownership and live command views.
           </p>
           <div class="style-tabs" role="tablist" aria-label="Task list interaction styles">
@@ -749,6 +750,8 @@
           statusClass: "todo",
           assignees: ["AR", "JM"],
           due: "Due 10:30",
+          startDate: "May 27",
+          targetDate: "May 28",
         },
         {
           title: "Ship assignee picker states",
@@ -756,6 +759,8 @@
           statusClass: "progress",
           assignees: ["NW", "SL", "PK"],
           due: "Due 13:00",
+          startDate: "May 27",
+          targetDate: "May 29",
         },
         {
           title: "Confirm empty-state copy",
@@ -763,6 +768,8 @@
           statusClass: "done",
           assignees: ["HT"],
           due: "Closed",
+          startDate: "May 24",
+          targetDate: "May 26",
         },
         {
           title: "Sync status colors with design",
@@ -770,6 +777,8 @@
           statusClass: "todo",
           assignees: ["MC", "DV"],
           due: "Due Fri",
+          startDate: "May 28",
+          targetDate: "May 31",
         },
         {
           title: "Run review with customer success",
@@ -777,6 +786,8 @@
           statusClass: "review",
           assignees: ["AR", "NW"],
           due: "Today",
+          startDate: "May 26",
+          targetDate: "May 27",
         },
       ];
 
@@ -794,6 +805,9 @@
               </div>
               <div class="task-meta">
                 <div class="assignees" aria-label="Assignees">${assigneeTemplate(task.assignees)}</div>
+                <span class="date-range">${task.startDate} - ${task.targetDate}</span>
+              </div>
+              <div class="task-meta">
                 <span class="due">${task.due}</span>
               </div>
             </div>

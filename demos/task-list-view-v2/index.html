@@ -1,0 +1,540 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="A date-aware mobile task lane demo.">
+    <title>Task List View V2</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --ink: #17202a;
+        --muted: #607084;
+        --line: #d8e0e8;
+        --surface: #ffffff;
+        --canvas: #f5f7fa;
+        --green: #116b5f;
+        --blue: #2864a5;
+        --violet: #7252aa;
+        --amber: #b86d18;
+        --red: #c74b4b;
+        font-family:
+          Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+          sans-serif;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        min-height: 100vh;
+        margin: 0;
+        background:
+          linear-gradient(135deg, rgba(40, 100, 165, 0.12), transparent 36%),
+          linear-gradient(180deg, #ffffff 0%, var(--canvas) 58%, #e9eef3 100%);
+        color: var(--ink);
+      }
+
+      button {
+        font: inherit;
+      }
+
+      .app {
+        width: min(1080px, calc(100% - 32px));
+        margin: 0 auto;
+        padding: 28px 0 48px;
+      }
+
+      .topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding-bottom: 22px;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .back {
+        color: var(--green);
+        font-size: 0.94rem;
+        font-weight: 800;
+        text-decoration: none;
+      }
+
+      .topbar span {
+        color: var(--muted);
+        font-size: 0.92rem;
+      }
+
+      .workspace {
+        display: grid;
+        grid-template-columns: minmax(300px, 1fr) minmax(320px, 420px);
+        gap: 46px;
+        align-items: center;
+        padding-top: 34px;
+      }
+
+      h1,
+      h2,
+      h3,
+      p {
+        margin-top: 0;
+      }
+
+      h1 {
+        max-width: 760px;
+        margin-bottom: 18px;
+        font-size: clamp(2.7rem, 7vw, 5.6rem);
+        line-height: 0.94;
+        letter-spacing: 0;
+      }
+
+      .lede {
+        max-width: 620px;
+        margin-bottom: 28px;
+        color: var(--muted);
+        font-size: 1.08rem;
+        line-height: 1.62;
+      }
+
+      .field-strip {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 10px;
+        max-width: 690px;
+      }
+
+      .field-chip {
+        min-height: 70px;
+        padding: 12px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.78);
+      }
+
+      .field-chip span {
+        display: block;
+        margin-bottom: 6px;
+        color: var(--muted);
+        font-size: 0.72rem;
+        font-weight: 850;
+        text-transform: uppercase;
+      }
+
+      .field-chip strong {
+        font-size: 0.95rem;
+        line-height: 1.22;
+      }
+
+      .phone {
+        min-height: 780px;
+        overflow: hidden;
+        border: 10px solid #10151f;
+        border-radius: 34px;
+        background: #102033;
+        box-shadow: 0 28px 72px rgba(17, 24, 39, 0.24);
+      }
+
+      .screen {
+        min-height: 760px;
+        padding: 18px;
+        color: #f8fbff;
+      }
+
+      .screen-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 14px;
+        padding: 10px 0 16px;
+      }
+
+      .screen-kicker {
+        margin-bottom: 5px;
+        color: #9dc3df;
+        font-size: 0.74rem;
+        font-weight: 850;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .screen-title {
+        margin: 0;
+        font-size: 1.55rem;
+        line-height: 1.08;
+      }
+
+      .count-pill {
+        min-width: 62px;
+        padding: 8px 10px;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.12);
+        color: #ffffff;
+        text-align: center;
+        font-size: 0.76rem;
+        font-weight: 850;
+      }
+
+      .toolbar {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 10px;
+        align-items: center;
+        margin-bottom: 14px;
+      }
+
+      .search {
+        min-width: 0;
+        padding: 12px 13px;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.1);
+        color: #d8e9f8;
+        font-size: 0.9rem;
+        font-weight: 760;
+      }
+
+      .icon-button {
+        display: inline-grid;
+        place-items: center;
+        width: 44px;
+        height: 44px;
+        border: 0;
+        border-radius: 8px;
+        background: #ffffff;
+        color: #102033;
+        cursor: pointer;
+        font-size: 1rem;
+        font-weight: 900;
+      }
+
+      .lane-stack {
+        display: grid;
+        gap: 12px;
+      }
+
+      .lane {
+        display: grid;
+        gap: 9px;
+      }
+
+      .lane-label {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        color: #a9c2d7;
+        font-size: 0.76rem;
+        font-weight: 850;
+      }
+
+      .task-list {
+        display: grid;
+        gap: 9px;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+      }
+
+      .task {
+        min-width: 0;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 8px;
+        background: var(--surface);
+        color: #17202a;
+      }
+
+      .task-main {
+        display: grid;
+        gap: 11px;
+        padding: 13px;
+      }
+
+      .task-top,
+      .task-meta,
+      .task-dates {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+      }
+
+      .task-title {
+        min-width: 0;
+        margin: 0;
+        font-size: 0.95rem;
+        line-height: 1.32;
+      }
+
+      .status {
+        flex: 0 0 auto;
+        padding: 6px 9px;
+        border-radius: 999px;
+        color: #ffffff;
+        font-size: 0.68rem;
+        font-weight: 850;
+        white-space: nowrap;
+      }
+
+      .status.todo {
+        background: var(--blue);
+      }
+
+      .status.progress {
+        background: var(--amber);
+      }
+
+      .status.review {
+        background: var(--violet);
+      }
+
+      .assignees {
+        display: flex;
+        min-width: 88px;
+      }
+
+      .avatar {
+        display: inline-grid;
+        place-items: center;
+        width: 30px;
+        height: 30px;
+        margin-right: -5px;
+        border: 2px solid #ffffff;
+        border-radius: 50%;
+        background: #e8eff6;
+        color: #24364a;
+        font-size: 0.66rem;
+        font-weight: 900;
+      }
+
+      .task-dates {
+        padding-top: 10px;
+        border-top: 1px solid #e8edf2;
+      }
+
+      .date-cell {
+        display: grid;
+        gap: 3px;
+      }
+
+      .date-cell span {
+        color: var(--muted);
+        font-size: 0.64rem;
+        font-weight: 850;
+        text-transform: uppercase;
+      }
+
+      .date-cell strong {
+        font-size: 0.82rem;
+      }
+
+      .risk {
+        color: var(--red);
+        font-size: 0.75rem;
+        font-weight: 850;
+      }
+
+      .bottom-bar {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 8px;
+        margin-top: 16px;
+      }
+
+      .nav-dot {
+        display: grid;
+        place-items: center;
+        min-height: 42px;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.1);
+        color: #ffffff;
+        font-size: 0.75rem;
+        font-weight: 850;
+      }
+
+      .nav-dot.active {
+        background: #ffffff;
+        color: #102033;
+      }
+
+      @media (max-width: 900px) {
+        .workspace {
+          grid-template-columns: 1fr;
+          gap: 30px;
+        }
+      }
+
+      @media (max-width: 620px) {
+        .app {
+          width: min(100% - 20px, 1080px);
+          padding-top: 22px;
+        }
+
+        .topbar {
+          align-items: flex-start;
+          flex-direction: column;
+        }
+
+        .field-strip {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .phone {
+          min-height: 720px;
+          border-width: 7px;
+          border-radius: 28px;
+        }
+
+        .screen {
+          min-height: 706px;
+          padding: 14px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="app">
+      <nav class="topbar" aria-label="Demo navigation">
+        <a class="back" href="/">Back to demos</a>
+        <span>Standalone HTML demo</span>
+      </nav>
+
+      <section class="workspace" aria-labelledby="page-title">
+        <div>
+          <h1 id="page-title">Task List View V2</h1>
+          <p class="lede">
+            A mobile-first lane board built around the operational fields a team checks before moving work:
+            title, status, assignees, start date, and target date.
+          </p>
+          <div class="field-strip" aria-label="Included task fields">
+            <div class="field-chip"><span>Field</span><strong>Title</strong></div>
+            <div class="field-chip"><span>Field</span><strong>Status</strong></div>
+            <div class="field-chip"><span>Field</span><strong>Assignees</strong></div>
+            <div class="field-chip"><span>Field</span><strong>Start / Target</strong></div>
+          </div>
+        </div>
+
+        <div class="phone" aria-label="Mobile task lanes preview">
+          <section class="screen">
+            <div class="screen-header">
+              <div>
+                <p class="screen-kicker">Sprint plan</p>
+                <h2 class="screen-title">Date Lanes</h2>
+              </div>
+              <div class="count-pill">5 tasks</div>
+            </div>
+            <div class="toolbar">
+              <div class="search">Filter by owner, date, or risk</div>
+              <button class="icon-button" type="button" aria-label="Open lane controls">K</button>
+            </div>
+            <div class="lane-stack">
+              <section class="lane" aria-labelledby="todo-label">
+                <div class="lane-label" id="todo-label"><span>Todo</span><span>2</span></div>
+                <ul class="task-list" data-status="todo"></ul>
+              </section>
+              <section class="lane" aria-labelledby="progress-label">
+                <div class="lane-label" id="progress-label"><span>In progress</span><span>2</span></div>
+                <ul class="task-list" data-status="progress"></ul>
+              </section>
+              <section class="lane" aria-labelledby="review-label">
+                <div class="lane-label" id="review-label"><span>Review</span><span>1</span></div>
+                <ul class="task-list" data-status="review"></ul>
+              </section>
+            </div>
+            <div class="bottom-bar" aria-hidden="true">
+              <span class="nav-dot active">Flow</span>
+              <span class="nav-dot">Dates</span>
+              <span class="nav-dot">Team</span>
+              <span class="nav-dot">Risks</span>
+            </div>
+          </section>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      const tasks = [
+        {
+          title: "Prioritize onboarding fixes",
+          status: "Todo",
+          statusClass: "todo",
+          assignees: ["AR", "JM"],
+          startDate: "May 27",
+          targetDate: "May 28",
+          risk: "Clear",
+        },
+        {
+          title: "Map empty-state content",
+          status: "Todo",
+          statusClass: "todo",
+          assignees: ["SL"],
+          startDate: "May 28",
+          targetDate: "May 30",
+          risk: "Copy",
+        },
+        {
+          title: "Build bulk status update",
+          status: "In progress",
+          statusClass: "progress",
+          assignees: ["NW", "PK"],
+          startDate: "May 26",
+          targetDate: "May 29",
+          risk: "API",
+        },
+        {
+          title: "Tune card density for small phones",
+          status: "In progress",
+          statusClass: "progress",
+          assignees: ["MC"],
+          startDate: "May 27",
+          targetDate: "May 27",
+          risk: "Today",
+        },
+        {
+          title: "Review release checklist",
+          status: "In review",
+          statusClass: "review",
+          assignees: ["AR", "NW"],
+          startDate: "May 25",
+          targetDate: "May 27",
+          risk: "Due",
+        },
+      ];
+
+      function assigneeTemplate(assignees) {
+        return assignees.map((person) => `<span class="avatar">${person}</span>`).join("");
+      }
+
+      function taskTemplate(task) {
+        return `
+          <li class="task">
+            <div class="task-main">
+              <div class="task-top">
+                <h3 class="task-title">${task.title}</h3>
+                <span class="status ${task.statusClass}">${task.status}</span>
+              </div>
+              <div class="task-meta">
+                <div class="assignees" aria-label="Assignees">${assigneeTemplate(task.assignees)}</div>
+                <span class="risk">${task.risk}</span>
+              </div>
+              <div class="task-dates">
+                <div class="date-cell">
+                  <span>Start</span>
+                  <strong>${task.startDate}</strong>
+                </div>
+                <div class="date-cell">
+                  <span>Target</span>
+                  <strong>${task.targetDate}</strong>
+                </div>
+              </div>
+            </div>
+          </li>
+        `;
+      }
+
+      document.querySelectorAll(".task-list").forEach((list) => {
+        const source = tasks.filter((task) => task.statusClass === list.dataset.status);
+        list.innerHTML = source.map(taskTemplate).join("");
+      });
+    </script>
+  </body>
+</html>
