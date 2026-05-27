@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="A date-aware mobile task lane demo.">
+    <meta name="description" content="A date-aware mobile task lane demo with five interaction designs.">
     <title>Task List View V2</title>
     <style>
       :root {
@@ -18,6 +18,7 @@
         --violet: #7252aa;
         --amber: #b86d18;
         --red: #c74b4b;
+        --night: #102033;
         font-family:
           Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
           sans-serif;
@@ -41,7 +42,7 @@
       }
 
       .app {
-        width: min(1080px, calc(100% - 32px));
+        width: min(1120px, calc(100% - 32px));
         margin: 0 auto;
         padding: 28px 0 48px;
       }
@@ -69,7 +70,7 @@
 
       .workspace {
         display: grid;
-        grid-template-columns: minmax(300px, 1fr) minmax(320px, 420px);
+        grid-template-columns: minmax(320px, 1fr) minmax(320px, 430px);
         gap: 46px;
         align-items: center;
         padding-top: 34px;
@@ -91,7 +92,7 @@
       }
 
       .lede {
-        max-width: 620px;
+        max-width: 640px;
         margin-bottom: 28px;
         color: var(--muted);
         font-size: 1.08rem;
@@ -127,12 +128,38 @@
         line-height: 1.22;
       }
 
+      .design-tabs {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        max-width: 700px;
+        margin-top: 20px;
+      }
+
+      .design-tab {
+        min-height: 40px;
+        padding: 0 14px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #ffffff;
+        color: var(--ink);
+        cursor: pointer;
+        font-size: 0.88rem;
+        font-weight: 850;
+      }
+
+      .design-tab[aria-pressed="true"] {
+        border-color: var(--green);
+        background: var(--green);
+        color: #ffffff;
+      }
+
       .phone {
         min-height: 780px;
         overflow: hidden;
         border: 10px solid #10151f;
         border-radius: 34px;
-        background: #102033;
+        background: var(--night);
         box-shadow: 0 28px 72px rgba(17, 24, 39, 0.24);
       }
 
@@ -140,6 +167,7 @@
         min-height: 760px;
         padding: 18px;
         color: #f8fbff;
+        transition: background 180ms ease;
       }
 
       .screen-header {
@@ -202,23 +230,36 @@
         border: 0;
         border-radius: 8px;
         background: #ffffff;
-        color: #102033;
+        color: var(--night);
         cursor: pointer;
         font-size: 1rem;
         font-weight: 900;
       }
 
-      .lane-stack {
+      .mode-panel {
         display: grid;
         gap: 12px;
       }
 
-      .lane {
+      .lane-stack,
+      .calendar-stack,
+      .team-grid,
+      .risk-stack,
+      .focus-stack {
+        display: grid;
+        gap: 12px;
+      }
+
+      .lane,
+      .date-section,
+      .risk-section {
         display: grid;
         gap: 9px;
       }
 
-      .lane-label {
+      .lane-label,
+      .date-label,
+      .risk-label {
         display: flex;
         align-items: center;
         justify-content: space-between;
@@ -240,7 +281,7 @@
         border: 1px solid rgba(255, 255, 255, 0.12);
         border-radius: 8px;
         background: var(--surface);
-        color: #17202a;
+        color: var(--ink);
       }
 
       .task-main {
@@ -251,7 +292,10 @@
 
       .task-top,
       .task-meta,
-      .task-dates {
+      .task-dates,
+      .date-row,
+      .owner-row,
+      .risk-top {
         display: flex;
         align-items: center;
         justify-content: space-between;
@@ -316,14 +360,16 @@
         gap: 3px;
       }
 
-      .date-cell span {
+      .date-cell span,
+      .metric span {
         color: var(--muted);
         font-size: 0.64rem;
         font-weight: 850;
         text-transform: uppercase;
       }
 
-      .date-cell strong {
+      .date-cell strong,
+      .metric strong {
         font-size: 0.82rem;
       }
 
@@ -333,10 +379,104 @@
         font-weight: 850;
       }
 
+      .calendar-card,
+      .owner-card,
+      .risk-card,
+      .focus-card {
+        display: grid;
+        gap: 10px;
+        padding: 12px;
+        border-radius: 8px;
+        background: #ffffff;
+        color: var(--ink);
+      }
+
+      .date-block {
+        display: grid;
+        place-items: center;
+        width: 52px;
+        height: 52px;
+        border-radius: 8px;
+        background: #e9f2f4;
+        color: var(--green);
+        font-weight: 900;
+      }
+
+      .date-block span {
+        display: block;
+        font-size: 0.66rem;
+        text-transform: uppercase;
+      }
+
+      .owner-card {
+        grid-template-columns: 46px minmax(0, 1fr);
+        align-items: start;
+      }
+
+      .owner-avatar {
+        display: grid;
+        place-items: center;
+        width: 46px;
+        height: 46px;
+        border-radius: 50%;
+        background: var(--blue);
+        color: #ffffff;
+        font-size: 0.78rem;
+        font-weight: 900;
+      }
+
+      .mini-list {
+        display: grid;
+        gap: 7px;
+        margin: 9px 0 0;
+        padding: 0;
+        list-style: none;
+      }
+
+      .mini-list li {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 8px;
+        align-items: center;
+        padding-top: 7px;
+        border-top: 1px solid #edf1f5;
+        font-size: 0.78rem;
+        font-weight: 780;
+      }
+
+      .risk-card {
+        border-left: 6px solid var(--red);
+      }
+
+      .risk-card.medium {
+        border-left-color: var(--amber);
+      }
+
+      .risk-card.low {
+        border-left-color: var(--green);
+      }
+
+      .focus-card {
+        grid-template-columns: 28px minmax(0, 1fr);
+        align-items: start;
+      }
+
+      .focus-index {
+        display: grid;
+        place-items: center;
+        width: 28px;
+        height: 28px;
+        border-radius: 8px;
+        background: var(--night);
+        color: #ffffff;
+        font-size: 0.72rem;
+        font-weight: 900;
+      }
+
       .bottom-bar {
         display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: 8px;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 6px;
         margin-top: 16px;
       }
 
@@ -344,16 +484,123 @@
         display: grid;
         place-items: center;
         min-height: 42px;
+        padding: 0 4px;
+        border: 0;
         border-radius: 8px;
         background: rgba(255, 255, 255, 0.1);
         color: #ffffff;
-        font-size: 0.75rem;
+        cursor: pointer;
+        font-size: 0.68rem;
         font-weight: 850;
       }
 
-      .nav-dot.active {
+      .nav-dot[aria-pressed="true"] {
         background: #ffffff;
-        color: #102033;
+        color: var(--night);
+      }
+
+      .screen.calendar {
+        background: #f4f8fb;
+        color: var(--ink);
+      }
+
+      .screen.calendar .screen-kicker,
+      .screen.calendar .lane-label,
+      .screen.calendar .date-label,
+      .screen.calendar .risk-label {
+        color: var(--blue);
+      }
+
+      .screen.calendar .search,
+      .screen.calendar .count-pill {
+        background: #e5edf4;
+        color: var(--ink);
+      }
+
+      .screen.calendar .icon-button,
+      .screen.calendar .nav-dot[aria-pressed="true"] {
+        background: var(--blue);
+        color: #ffffff;
+      }
+
+      .screen.calendar .nav-dot {
+        background: #e5edf4;
+        color: var(--ink);
+      }
+
+      .screen.team {
+        background: #f7f8f5;
+        color: var(--ink);
+      }
+
+      .screen.team .screen-kicker,
+      .screen.team .lane-label,
+      .screen.team .date-label,
+      .screen.team .risk-label {
+        color: var(--green);
+      }
+
+      .screen.team .search,
+      .screen.team .count-pill,
+      .screen.team .nav-dot {
+        background: #e8f1ed;
+        color: var(--ink);
+      }
+
+      .screen.team .icon-button,
+      .screen.team .nav-dot[aria-pressed="true"] {
+        background: var(--green);
+        color: #ffffff;
+      }
+
+      .screen.risk {
+        background: #fff7f3;
+        color: var(--ink);
+      }
+
+      .screen.risk .screen-kicker,
+      .screen.risk .lane-label,
+      .screen.risk .date-label,
+      .screen.risk .risk-label {
+        color: var(--red);
+      }
+
+      .screen.risk .search,
+      .screen.risk .count-pill,
+      .screen.risk .nav-dot {
+        background: #f5e6e1;
+        color: var(--ink);
+      }
+
+      .screen.risk .icon-button,
+      .screen.risk .nav-dot[aria-pressed="true"] {
+        background: var(--red);
+        color: #ffffff;
+      }
+
+      .screen.focus {
+        background: #f5f3fb;
+        color: var(--ink);
+      }
+
+      .screen.focus .screen-kicker,
+      .screen.focus .lane-label,
+      .screen.focus .date-label,
+      .screen.focus .risk-label {
+        color: var(--violet);
+      }
+
+      .screen.focus .search,
+      .screen.focus .count-pill,
+      .screen.focus .nav-dot {
+        background: #ebe6f6;
+        color: var(--ink);
+      }
+
+      .screen.focus .icon-button,
+      .screen.focus .nav-dot[aria-pressed="true"] {
+        background: var(--violet);
+        color: #ffffff;
       }
 
       @media (max-width: 900px) {
@@ -365,7 +612,7 @@
 
       @media (max-width: 620px) {
         .app {
-          width: min(100% - 20px, 1080px);
+          width: min(100% - 20px, 1120px);
           padding-top: 22px;
         }
 
@@ -402,8 +649,8 @@
         <div>
           <h1 id="page-title">Task List View V2</h1>
           <p class="lede">
-            A mobile-first lane board built around the operational fields a team checks before moving work:
-            title, status, assignees, start date, and target date.
+            A mobile-first task view with five interaction models for the same work: mini lanes,
+            calendar review, assignee ownership, risk triage, and a focused execution queue.
           </p>
           <div class="field-strip" aria-label="Included task fields">
             <div class="field-chip"><span>Field</span><strong>Title</strong></div>
@@ -411,41 +658,24 @@
             <div class="field-chip"><span>Field</span><strong>Assignees</strong></div>
             <div class="field-chip"><span>Field</span><strong>Start / Target</strong></div>
           </div>
+          <div class="design-tabs" aria-label="Design variants"></div>
         </div>
 
-        <div class="phone" aria-label="Mobile task lanes preview">
-          <section class="screen">
+        <div class="phone" aria-label="Mobile task list preview">
+          <section class="screen mini" id="phone-screen">
             <div class="screen-header">
               <div>
-                <p class="screen-kicker">Sprint plan</p>
-                <h2 class="screen-title">Date Lanes</h2>
+                <p class="screen-kicker" id="mode-kicker">Sprint plan</p>
+                <h2 class="screen-title" id="mode-title">Mini Lanes</h2>
               </div>
               <div class="count-pill">5 tasks</div>
             </div>
             <div class="toolbar">
-              <div class="search">Filter by owner, date, or risk</div>
-              <button class="icon-button" type="button" aria-label="Open lane controls">K</button>
+              <div class="search" id="mode-search">Filter by owner, date, or risk</div>
+              <button class="icon-button" type="button" aria-label="Open task controls">K</button>
             </div>
-            <div class="lane-stack">
-              <section class="lane" aria-labelledby="todo-label">
-                <div class="lane-label" id="todo-label"><span>Todo</span><span>2</span></div>
-                <ul class="task-list" data-status="todo"></ul>
-              </section>
-              <section class="lane" aria-labelledby="progress-label">
-                <div class="lane-label" id="progress-label"><span>In progress</span><span>2</span></div>
-                <ul class="task-list" data-status="progress"></ul>
-              </section>
-              <section class="lane" aria-labelledby="review-label">
-                <div class="lane-label" id="review-label"><span>Review</span><span>1</span></div>
-                <ul class="task-list" data-status="review"></ul>
-              </section>
-            </div>
-            <div class="bottom-bar" aria-hidden="true">
-              <span class="nav-dot active">Flow</span>
-              <span class="nav-dot">Dates</span>
-              <span class="nav-dot">Team</span>
-              <span class="nav-dot">Risks</span>
-            </div>
+            <div class="mode-panel" id="mode-panel"></div>
+            <div class="bottom-bar" aria-label="Phone design tabs"></div>
           </section>
         </div>
       </section>
@@ -460,7 +690,8 @@
           assignees: ["AR", "JM"],
           startDate: "May 27",
           targetDate: "May 28",
-          risk: "Clear",
+          risk: "Low",
+          signal: "Clear",
         },
         {
           title: "Map empty-state content",
@@ -469,7 +700,8 @@
           assignees: ["SL"],
           startDate: "May 28",
           targetDate: "May 30",
-          risk: "Copy",
+          risk: "Medium",
+          signal: "Copy",
         },
         {
           title: "Build bulk status update",
@@ -478,7 +710,8 @@
           assignees: ["NW", "PK"],
           startDate: "May 26",
           targetDate: "May 29",
-          risk: "API",
+          risk: "High",
+          signal: "API",
         },
         {
           title: "Tune card density for small phones",
@@ -487,7 +720,8 @@
           assignees: ["MC"],
           startDate: "May 27",
           targetDate: "May 27",
-          risk: "Today",
+          risk: "Medium",
+          signal: "Today",
         },
         {
           title: "Review release checklist",
@@ -496,12 +730,70 @@
           assignees: ["AR", "NW"],
           startDate: "May 25",
           targetDate: "May 27",
-          risk: "Due",
+          risk: "High",
+          signal: "Due",
+        },
+      ];
+
+      const modes = [
+        {
+          id: "mini",
+          label: "Mini",
+          title: "Mini Lanes",
+          kicker: "Sprint plan",
+          search: "Filter by owner, date, or risk",
+        },
+        {
+          id: "calendar",
+          label: "Dates",
+          title: "Calendar Rail",
+          kicker: "Date review",
+          search: "Scan target dates and same-day work",
+        },
+        {
+          id: "team",
+          label: "Team",
+          title: "Assignee Pods",
+          kicker: "Ownership",
+          search: "Check load before assigning more",
+        },
+        {
+          id: "risk",
+          label: "Risk",
+          title: "Risk Triage",
+          kicker: "Exceptions",
+          search: "Surface blockers by severity",
+        },
+        {
+          id: "focus",
+          label: "Focus",
+          title: "Execution Queue",
+          kicker: "Next actions",
+          search: "Work from highest leverage task",
         },
       ];
 
       function assigneeTemplate(assignees) {
         return assignees.map((person) => `<span class="avatar">${person}</span>`).join("");
+      }
+
+      function statusTemplate(task) {
+        return `<span class="status ${task.statusClass}">${task.status}</span>`;
+      }
+
+      function dateTemplate(task) {
+        return `
+          <div class="task-dates">
+            <div class="date-cell">
+              <span>Start</span>
+              <strong>${task.startDate}</strong>
+            </div>
+            <div class="date-cell">
+              <span>Target</span>
+              <strong>${task.targetDate}</strong>
+            </div>
+          </div>
+        `;
       }
 
       function taskTemplate(task) {
@@ -510,31 +802,196 @@
             <div class="task-main">
               <div class="task-top">
                 <h3 class="task-title">${task.title}</h3>
-                <span class="status ${task.statusClass}">${task.status}</span>
+                ${statusTemplate(task)}
               </div>
               <div class="task-meta">
                 <div class="assignees" aria-label="Assignees">${assigneeTemplate(task.assignees)}</div>
-                <span class="risk">${task.risk}</span>
+                <span class="risk">${task.signal}</span>
               </div>
-              <div class="task-dates">
-                <div class="date-cell">
-                  <span>Start</span>
-                  <strong>${task.startDate}</strong>
-                </div>
-                <div class="date-cell">
-                  <span>Target</span>
-                  <strong>${task.targetDate}</strong>
-                </div>
-              </div>
+              ${dateTemplate(task)}
             </div>
           </li>
         `;
       }
 
-      document.querySelectorAll(".task-list").forEach((list) => {
-        const source = tasks.filter((task) => task.statusClass === list.dataset.status);
-        list.innerHTML = source.map(taskTemplate).join("");
+      function groupedBy(key) {
+        return tasks.reduce((groups, task) => {
+          const value = task[key];
+          groups[value] = groups[value] || [];
+          groups[value].push(task);
+          return groups;
+        }, {});
+      }
+
+      function renderMini() {
+        return `
+          <div class="lane-stack">
+            ${["todo", "progress", "review"].map((status) => {
+              const source = tasks.filter((task) => task.statusClass === status);
+              const label = status === "todo" ? "Todo" : status === "progress" ? "In progress" : "Review";
+              return `
+                <section class="lane" aria-label="${label}">
+                  <div class="lane-label"><span>${label}</span><span>${source.length}</span></div>
+                  <ul class="task-list">${source.map(taskTemplate).join("")}</ul>
+                </section>
+              `;
+            }).join("")}
+          </div>
+        `;
+      }
+
+      function renderCalendar() {
+        const groups = groupedBy("targetDate");
+        return `
+          <div class="calendar-stack">
+            ${Object.entries(groups).map(([date, source]) => `
+              <section class="date-section" aria-label="Target ${date}">
+                <div class="date-label"><span>Target ${date}</span><span>${source.length}</span></div>
+                ${source.map((task) => `
+                  <article class="calendar-card">
+                    <div class="date-row">
+                      <div class="date-block"><span>${date.split(" ")[0]}</span>${date.split(" ")[1]}</div>
+                      <div>
+                        <h3 class="task-title">${task.title}</h3>
+                        <div class="task-meta">${statusTemplate(task)}<span class="risk">${task.signal}</span></div>
+                      </div>
+                    </div>
+                    ${dateTemplate(task)}
+                  </article>
+                `).join("")}
+              </section>
+            `).join("")}
+          </div>
+        `;
+      }
+
+      function renderTeam() {
+        const owners = ["AR", "JM", "SL", "NW", "PK", "MC"];
+        return `
+          <div class="team-grid">
+            ${owners.map((owner) => {
+              const ownedTasks = tasks.filter((task) => task.assignees.includes(owner));
+              return `
+                <article class="owner-card">
+                  <div class="owner-avatar">${owner}</div>
+                  <div>
+                    <div class="owner-row">
+                      <h3 class="task-title">${owner}</h3>
+                      <span class="risk">${ownedTasks.length} task${ownedTasks.length === 1 ? "" : "s"}</span>
+                    </div>
+                    <ul class="mini-list">
+                      ${ownedTasks.map((task) => `<li><span>${task.title}</span>${statusTemplate(task)}</li>`).join("")}
+                    </ul>
+                  </div>
+                </article>
+              `;
+            }).join("")}
+          </div>
+        `;
+      }
+
+      function renderRisk() {
+        const order = ["High", "Medium", "Low"];
+        return `
+          <div class="risk-stack">
+            ${order.map((risk) => {
+              const source = tasks.filter((task) => task.risk === risk);
+              const riskClass = risk === "High" ? "high" : risk === "Medium" ? "medium" : "low";
+              return `
+                <section class="risk-section" aria-label="${risk} risk">
+                  <div class="risk-label"><span>${risk} risk</span><span>${source.length}</span></div>
+                  ${source.map((task) => `
+                    <article class="risk-card ${riskClass}">
+                      <div class="risk-top">
+                        <h3 class="task-title">${task.title}</h3>
+                        ${statusTemplate(task)}
+                      </div>
+                      <div class="task-meta">
+                        <div class="assignees">${assigneeTemplate(task.assignees)}</div>
+                        <span class="risk">${task.signal}</span>
+                      </div>
+                      ${dateTemplate(task)}
+                    </article>
+                  `).join("")}
+                </section>
+              `;
+            }).join("")}
+          </div>
+        `;
+      }
+
+      function renderFocus() {
+        const sorted = [...tasks].sort((a, b) => {
+          const riskWeight = { High: 0, Medium: 1, Low: 2 };
+          return riskWeight[a.risk] - riskWeight[b.risk] || a.targetDate.localeCompare(b.targetDate);
+        });
+        return `
+          <div class="focus-stack">
+            ${sorted.map((task, index) => `
+              <article class="focus-card">
+                <div class="focus-index">${index + 1}</div>
+                <div>
+                  <div class="risk-top">
+                    <h3 class="task-title">${task.title}</h3>
+                    ${statusTemplate(task)}
+                  </div>
+                  <div class="task-meta">
+                    <div class="assignees">${assigneeTemplate(task.assignees)}</div>
+                    <span class="risk">${task.risk} risk</span>
+                  </div>
+                  ${dateTemplate(task)}
+                </div>
+              </article>
+            `).join("")}
+          </div>
+        `;
+      }
+
+      const renderers = {
+        mini: renderMini,
+        calendar: renderCalendar,
+        team: renderTeam,
+        risk: renderRisk,
+        focus: renderFocus,
+      };
+
+      const screen = document.querySelector("#phone-screen");
+      const panel = document.querySelector("#mode-panel");
+      const title = document.querySelector("#mode-title");
+      const kicker = document.querySelector("#mode-kicker");
+      const search = document.querySelector("#mode-search");
+      const designTabs = document.querySelector(".design-tabs");
+      const bottomBar = document.querySelector(".bottom-bar");
+
+      function createButton(mode, className) {
+        const button = document.createElement("button");
+        button.className = className;
+        button.type = "button";
+        button.textContent = mode.label;
+        button.dataset.mode = mode.id;
+        button.setAttribute("aria-pressed", "false");
+        button.addEventListener("click", () => setMode(mode.id));
+        return button;
+      }
+
+      modes.forEach((mode) => {
+        designTabs.append(createButton(mode, "design-tab"));
+        bottomBar.append(createButton(mode, "nav-dot"));
       });
+
+      function setMode(modeId) {
+        const mode = modes.find((item) => item.id === modeId) || modes[0];
+        screen.className = `screen ${mode.id}`;
+        title.textContent = mode.title;
+        kicker.textContent = mode.kicker;
+        search.textContent = mode.search;
+        panel.innerHTML = renderers[mode.id]();
+        document.querySelectorAll("[data-mode]").forEach((button) => {
+          button.setAttribute("aria-pressed", String(button.dataset.mode === mode.id));
+        });
+      }
+
+      setMode("mini");
     </script>
   </body>
 </html>
