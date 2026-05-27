@@ -511,6 +511,13 @@
         color: var(--night);
       }
 
+      .screen.mini .task-dates {
+        display: block;
+        font-size: 0.76rem;
+        color: var(--muted);
+        font-weight: 600;
+      }
+
       .screen.calendar {
         background: #f4f8fb;
         color: var(--ink);
@@ -808,6 +815,22 @@
         `;
       }
 
+      function formatTaskDate(dateStr) {
+        const months = {
+          Jan: "01", Feb: "02", Mar: "03", Apr: "04", May: "05", Jun: "06",
+          Jul: "07", Aug: "08", Sep: "09", Oct: "10", Nov: "11", Dec: "12"
+        };
+        const parts = dateStr.split(" ");
+        if (parts.length === 2) {
+          const month = months[parts[0]];
+          const day = parts[1].padStart(2, "0");
+          if (month && day) {
+            return `2026-${month}-${day}`;
+          }
+        }
+        return dateStr;
+      }
+
       function taskTemplate(task, options = {}) {
         const titleLedClass = options.titleLed ? " title-led" : "";
         return `
@@ -815,13 +838,14 @@
             <div class="task-main">
               <div class="task-top${titleLedClass}">
                 <h3 class="task-title">${task.title}</h3>
-                ${statusTemplate(task)}
               </div>
               <div class="task-meta">
                 <div class="assignees" aria-label="Assignees">${assigneeTemplate(task.assignees)}</div>
-                <span class="risk">${task.signal}</span>
+                ${statusTemplate(task)}
               </div>
-              ${dateTemplate(task)}
+              <div class="task-dates">
+                ${formatTaskDate(task.startDate)} - ${formatTaskDate(task.targetDate)}
+              </div>
             </div>
           </li>
         `;
