@@ -302,6 +302,18 @@
         gap: 12px;
       }
 
+      .task-top.title-led,
+      .risk-top.title-led {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        justify-items: start;
+        gap: 8px;
+      }
+
+      .title-led .task-title {
+        width: 100%;
+      }
+
       .task-title {
         min-width: 0;
         margin: 0;
@@ -796,11 +808,12 @@
         `;
       }
 
-      function taskTemplate(task) {
+      function taskTemplate(task, options = {}) {
+        const titleLedClass = options.titleLed ? " title-led" : "";
         return `
           <li class="task">
             <div class="task-main">
-              <div class="task-top">
+              <div class="task-top${titleLedClass}">
                 <h3 class="task-title">${task.title}</h3>
                 ${statusTemplate(task)}
               </div>
@@ -832,7 +845,7 @@
               return `
                 <section class="lane" aria-label="${label}">
                   <div class="lane-label"><span>${label}</span><span>${source.length}</span></div>
-                  <ul class="task-list">${source.map(taskTemplate).join("")}</ul>
+                  <ul class="task-list">${source.map((task) => taskTemplate(task, { titleLed: true })).join("")}</ul>
                 </section>
               `;
             }).join("")}
@@ -902,7 +915,7 @@
                   <div class="risk-label"><span>${risk} risk</span><span>${source.length}</span></div>
                   ${source.map((task) => `
                     <article class="risk-card ${riskClass}">
-                      <div class="risk-top">
+                      <div class="risk-top title-led">
                         <h3 class="task-title">${task.title}</h3>
                         ${statusTemplate(task)}
                       </div>
@@ -931,7 +944,7 @@
               <article class="focus-card">
                 <div class="focus-index">${index + 1}</div>
                 <div>
-                  <div class="risk-top">
+                  <div class="risk-top title-led">
                     <h3 class="task-title">${task.title}</h3>
                     ${statusTemplate(task)}
                   </div>
