@@ -941,10 +941,10 @@
                     <article class="risk-card ${riskClass}">
                       <div class="risk-top title-led">
                         <h3 class="task-title">${task.title}</h3>
-                        ${statusTemplate(task)}
                       </div>
                       <div class="task-meta">
                         <div class="assignees">${assigneeTemplate(task.assignees)}</div>
+                        ${statusTemplate(task)}
                         <span class="risk">${task.signal}</span>
                       </div>
                       ${dateTemplate(task)}
@@ -970,10 +970,10 @@
                 <div>
                   <div class="risk-top title-led">
                     <h3 class="task-title">${task.title}</h3>
-                    ${statusTemplate(task)}
                   </div>
                   <div class="task-meta">
                     <div class="assignees">${assigneeTemplate(task.assignees)}</div>
+                    ${statusTemplate(task)}
                     <span class="risk">${task.risk} risk</span>
                   </div>
                   ${dateTemplate(task)}
