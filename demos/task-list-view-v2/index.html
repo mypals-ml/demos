@@ -302,6 +302,8 @@
         gap: 12px;
       }
 
+      /* Title-led container used in 3 designs (Mini Lanes, Risk Triage, Focus Queue)
+         to let the title element occupy the full horizontal space alone. */
       .task-top.title-led,
       .risk-top.title-led {
         display: grid;
@@ -815,6 +817,7 @@
         `;
       }
 
+      /* Helper to format task date strings (e.g. 'May 27') to YYYY-MM-DD format (e.g. '2026-05-27') */
       function formatTaskDate(dateStr) {
         const months = {
           Jan: "01", Feb: "02", Mar: "03", Apr: "04", May: "05", Jun: "06",
