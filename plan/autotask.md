@@ -31,6 +31,7 @@ Define Working Task Board:
 Browser/profile requirement:
 - Find and use a proper existing browser profile based on current agent's name when possible.
 - Do not create new browser profile unless explicitly asked.
+- Do not kill the browser when the automation is done.
 
 Task workflow:
 
