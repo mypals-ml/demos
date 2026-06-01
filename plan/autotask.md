@@ -3,7 +3,8 @@
 Define Working Task Board:
 - working_task_board: 
   - https://glidelines-git-develop-whui1978-1776s-projects.vercel.app/?project=PVT_kwDODNQhvs4BY49y&account=10445658
-
+- current_agent_name:
+    - Claude, Codex, Google Antigravity, etc.
 
 
 # Main Agent (Coordinator) Instructions:
