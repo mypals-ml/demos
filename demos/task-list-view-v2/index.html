@@ -364,6 +364,12 @@
         font-weight: 900;
       }
 
+      .avatar.unassigned {
+        border-style: dashed;
+        color: #7c8797;
+        font-size: 0.56rem;
+      }
+
       .task-dates {
         padding-top: 10px;
         border-top: 1px solid #e8edf2;
@@ -738,7 +744,7 @@
           title: "Tune card density for small phones",
           status: "In progress",
           statusClass: "progress",
-          assignees: ["MC"],
+          assignees: [],
           startDate: "May 27",
           targetDate: "May 27",
           risk: "Medium",
@@ -795,7 +801,13 @@
       ];
 
       function assigneeTemplate(assignees) {
-        return assignees.map((person) => `<span class="avatar">${person}</span>`).join("");
+        const people = assignees.length ? assignees : ["Unassigned"];
+        return people.map((person) => {
+          const isUnassigned = person.toLowerCase() === "unassigned";
+          const label = isUnassigned ? "Unassigned" : person;
+          const initials = isUnassigned ? "--" : person;
+          return `<span class="avatar${isUnassigned ? " unassigned" : ""}" aria-label="${label}" title="${label}">${initials}</span>`;
+        }).join("");
       }
 
       function statusTemplate(task) {
