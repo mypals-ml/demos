@@ -66,7 +66,7 @@ Implementation workflow:
 
 
 
-Completion workflow:(The work is complete and tested)
+Completion workflow: (The work is complete and tested)
 
 - Add a comment in this format: `{current_agent_name} Automation committed the changes <current datetime> | <brief execution walkthrough>`.
 
