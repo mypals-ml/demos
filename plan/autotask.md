@@ -13,7 +13,9 @@ Define Working Task Board:
 
 2. Spawn Worker: Launch a new `self` subagent. Provide it with the path to the runbook and instruct it to process exactly ONE task from the board.
 
-3. Process Report: Wait for the subagent to report back:
+3. Subagent status monitoring: Steam the subagent's status to the main agent to display on the UI if possible.
+
+4. Process Report: Wait for the subagent to report back:
 
   - If the subagent reports that no `Todo` tasks remain, terminate the workflow and report results.
 
@@ -84,4 +86,6 @@ Completion workflow: (The work is complete and tested)
 
 Reporting:
 
-- Report what task was handled, what changed, what tests ran, and any blockers.
+- Report 
+  - what browser was used, what profile was used
+  - what task was handled, what changed, what tests ran, and any blockers.
