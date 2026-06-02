@@ -317,6 +317,10 @@
       }
 
       .task-title {
+        display: -webkit-box;
+        overflow: hidden;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
         min-width: 0;
         margin: 0;
         font-size: 0.95rem;
@@ -375,6 +379,48 @@
         border-top: 1px solid #e8edf2;
       }
 
+      .task-context {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        min-width: 0;
+        overflow: hidden;
+        white-space: nowrap;
+      }
+
+      .task-context .assignees {
+        min-width: 34px;
+      }
+
+      .task-context .status {
+        padding: 5px 8px;
+        font-size: 0.63rem;
+      }
+
+      .mini-dates {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        min-width: 0;
+        overflow: hidden;
+        color: var(--muted);
+        font-size: 0.68rem;
+        font-weight: 760;
+        text-overflow: ellipsis;
+      }
+
+      .mini-dates span {
+        flex: 0 1 auto;
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .mini-dates strong {
+        color: var(--ink);
+        font-size: 0.72rem;
+      }
+
       .date-cell {
         display: grid;
         gap: 3px;
@@ -428,6 +474,12 @@
         text-transform: uppercase;
       }
 
+      .date-row > div:last-child,
+      .owner-card > div,
+      .focus-card > div {
+        min-width: 0;
+      }
+
       .owner-card {
         grid-template-columns: 46px minmax(0, 1fr);
         align-items: start;
@@ -462,6 +514,14 @@
         border-top: 1px solid #edf1f5;
         font-size: 0.78rem;
         font-weight: 780;
+      }
+
+      .mini-list li span:first-child {
+        display: -webkit-box;
+        overflow: hidden;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+        min-width: 0;
       }
 
       .risk-card {
@@ -519,11 +579,17 @@
         color: var(--night);
       }
 
+      .screen.mini .task {
+        overflow: hidden;
+      }
+
+      .screen.mini .task-main {
+        gap: 9px;
+      }
+
       .screen.mini .task-dates {
-        display: block;
-        font-size: 0.76rem;
-        color: var(--muted);
-        font-weight: 600;
+        padding-top: 0;
+        border-top: 0;
       }
 
       .screen.calendar {
@@ -695,7 +761,7 @@
                 <p class="screen-kicker" id="mode-kicker">Sprint plan</p>
                 <h2 class="screen-title" id="mode-title">Mini Lanes</h2>
               </div>
-              <div class="count-pill">5 tasks</div>
+              <div class="count-pill">11 tasks</div>
             </div>
             <div class="toolbar">
               <div class="search" id="mode-search">Filter by owner, date, or risk</div>
@@ -759,6 +825,66 @@
           targetDate: "May 27",
           risk: "High",
           signal: "Due",
+        },
+        {
+          title: "Audit docs",
+          status: "Todo",
+          statusClass: "todo",
+          assignees: ["MC"],
+          startDate: "May 29",
+          targetDate: "May 30",
+          risk: "Low",
+          signal: "10 chars",
+        },
+        {
+          title: "Refresh board cards.",
+          status: "Todo",
+          statusClass: "todo",
+          assignees: [],
+          startDate: "May 30",
+          targetDate: "Jun 01",
+          risk: "Medium",
+          signal: "20 chars",
+        },
+        {
+          title: "Review mini status date row UI",
+          status: "In progress",
+          statusClass: "progress",
+          assignees: ["PK"],
+          startDate: "Jun 01",
+          targetDate: "Jun 02",
+          risk: "Low",
+          signal: "30 chars",
+        },
+        {
+          title: "Confirm date row truncation behavior now",
+          status: "In review",
+          statusClass: "review",
+          assignees: ["SL"],
+          startDate: "Jun 02",
+          targetDate: "Jun 03",
+          risk: "Medium",
+          signal: "40 chars",
+        },
+        {
+          title: "Validate two-line task title clipping across views",
+          status: "Todo",
+          statusClass: "todo",
+          assignees: ["NW", "JM"],
+          startDate: "Jun 03",
+          targetDate: "Jun 04",
+          risk: "High",
+          signal: "50 chars",
+        },
+        {
+          title: "Confirm long task titles clamp cleanly after two lines across every task-list design variant today..",
+          status: "In progress",
+          statusClass: "progress",
+          assignees: [],
+          startDate: "Jun 04",
+          targetDate: "Jun 05",
+          risk: "High",
+          signal: "100 chars",
         },
       ];
 
@@ -829,6 +955,15 @@
         `;
       }
 
+      function compactDateTemplate(task) {
+        return `
+          <div class="mini-dates" aria-label="Start ${task.startDate}, target ${task.targetDate}">
+            <span>Start <strong>${task.startDate}</strong></span>
+            <span>Target <strong>${task.targetDate}</strong></span>
+          </div>
+        `;
+      }
+
       /* Helper to format task date strings (e.g. 'May 27') to YYYY-MM-DD format (e.g. '2026-05-27') */
       function formatTaskDate(dateStr) {
         const months = {
@@ -848,12 +983,13 @@
 
       function taskTemplate(task, options = {}) {
         const titleLedClass = options.titleLed ? " title-led" : "";
-        return `
-          <li class="task">
-            <div class="task-main">
-              <div class="task-top${titleLedClass}">
-                <h3 class="task-title">${task.title}</h3>
+        const meta = options.compactMeta ? `
+              <div class="task-context">
+                ${statusTemplate(task)}
+                <div class="assignees" aria-label="Assignees">${assigneeTemplate(task.assignees)}</div>
+                ${compactDateTemplate(task)}
               </div>
+        ` : `
               <div class="task-meta">
                 <div class="assignees" aria-label="Assignees">${assigneeTemplate(task.assignees)}</div>
                 ${statusTemplate(task)}
@@ -861,6 +997,14 @@
               <div class="task-dates">
                 ${formatTaskDate(task.startDate)} - ${formatTaskDate(task.targetDate)}
               </div>
+        `;
+        return `
+          <li class="task">
+            <div class="task-main">
+              <div class="task-top${titleLedClass}">
+                <h3 class="task-title">${task.title}</h3>
+              </div>
+              ${meta}
             </div>
           </li>
         `;
@@ -884,7 +1028,7 @@
               return `
                 <section class="lane" aria-label="${label}">
                   <div class="lane-label"><span>${label}</span><span>${source.length}</span></div>
-                  <ul class="task-list">${source.map((task) => taskTemplate(task, { titleLed: true })).join("")}</ul>
+                  <ul class="task-list">${source.map((task) => taskTemplate(task, { titleLed: true, compactMeta: true })).join("")}</ul>
                 </section>
               `;
             }).join("")}
