@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Group Bar — Design Options</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Share+Tech+Mono&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --font-primary:'Plus Jakarta Sans',-apple-system,sans-serif;
+  --font-display:'Outfit',sans-serif;
+  --bg-color:#f8fafc; --surface-color:#fff; --surface-hover:#f1f5f9;
+  --border-color:#e2e8f0; --text-main:#0f172a; --text-muted:#64748b; --text-inverse:#fff;
+  --primary:#2563eb; --primary-hover:#1d4ed8; --primary-light:#dbeafe; --accent:#7c3aed;
+  --status-not-started:#64748b; --status-in-progress:#0ea5e9; --status-completed:#10b981; --status-delayed:#f43f5e;
+  --shadow-sm:0 1px 2px 0 rgb(0 0 0/.05);
+  --shadow-md:0 4px 6px -1px rgb(0 0 0/.1),0 2px 4px -2px rgb(0 0 0/.1);
+  --shadow-lg:0 10px 15px -3px rgb(0 0 0/.1),0 4px 6px -4px rgb(0 0 0/.1);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-primary);background:var(--bg-color);color:var(--text-main);padding:32px;-webkit-font-smoothing:antialiased}
+h1{font-family:var(--font-display);font-size:1.6rem;margin-bottom:6px}
+.sub{color:var(--text-muted);margin-bottom:28px;font-size:.9rem}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(420px,1fr));gap:20px}
+.panel{border:1px solid var(--border-color);border-radius:14px;overflow:hidden;background:var(--surface-color);box-shadow:var(--shadow-sm)}
+.panel-head{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--border-color);background:var(--surface-hover)}
+.panel-name{font-family:var(--font-display);font-weight:700;font-size:.95rem}
+.panel-tag{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;padding:3px 8px;border-radius:6px;background:var(--primary-light);color:var(--primary)}
+.panel-tag.variant{background:#f3e8ff;color:#7c3aed}
+.stage{padding:0}
+
+/* ---- mini gantt scaffold ---- */
+.mini{--day:24px;--rows:44px}
+.mini .row-group{position:relative;height:44px;border-bottom:1px solid var(--border-color);display:flex;align-items:center}
+.mini .row-task{position:relative;height:40px;border-bottom:1px solid var(--border-color);background:var(--surface-color)}
+.mini .label{position:absolute;left:0;top:0;width:150px;height:100%;display:flex;align-items:center;gap:8px;padding:0 12px;background:var(--bg-color);border-right:1px solid var(--border-color);z-index:6;font-family:var(--font-display);font-weight:600;font-size:.85rem}
+.mini .row-task .label{background:var(--surface-color);font-family:var(--font-primary);font-weight:500;font-size:.8rem;color:var(--text-muted);padding-left:28px}
+.mini .tl{position:absolute;left:150px;right:0;top:0;height:100%}
+.mini .gridbg{position:absolute;inset:0;background-image:linear-gradient(to right,var(--border-color) 1px,transparent 1px);background-size:var(--day) 100%;opacity:.6}
+.mini .bar{position:absolute;top:8px;height:24px;border-radius:6px;display:flex;align-items:center;padding:0 8px;color:#fff;font-size:.72rem;font-weight:600;text-shadow:0 1px 2px rgba(0,0,0,.2);overflow:hidden}
+
+/* ============================================================
+   GROUP / ROLLUP BAR — shared base then per-option overrides
+   ============================================================ */
+.rb{position:absolute;z-index:4;pointer-events:none}
+.rb-prog{position:absolute;top:0;left:0;height:100%}
+.rb-sub{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:3}
+.rb-pill{position:absolute}
+
+/* ---------- OPTION: AURA (current / full polish) ---------- */
+.opt-aura .rb{top:16px;height:12px;left:8px;width:320px;
+  background:linear-gradient(180deg,rgba(255,255,255,.55),rgba(255,255,255,0)),var(--surface-color);
+  border:1px solid var(--border-color);border-radius:999px;overflow:visible;
+  box-shadow:var(--shadow-sm),inset 0 1px 1px rgba(255,255,255,.6),inset 0 -1px 2px rgba(15,23,42,.05)}
+.opt-aura .rb::before,.opt-aura .rb::after{content:'';position:absolute;top:50%;width:11px;height:11px;
+  background:linear-gradient(135deg,var(--primary),var(--accent));border:1.5px solid var(--surface-color);
+  border-radius:3px;transform:translateY(-50%) rotate(45deg);box-shadow:var(--shadow-sm),0 0 6px rgba(37,99,235,.35);z-index:5}
+.opt-aura .rb::before{left:-5px}.opt-aura .rb::after{right:-5px}
+.opt-aura .rb-prog{background:linear-gradient(90deg,var(--primary),var(--accent));border-radius:999px;opacity:.95;
+  box-shadow:0 0 8px rgba(37,99,235,.35),inset 0 1px 1px rgba(255,255,255,.45)}
+.opt-aura .rb-prog::after{content:'';position:absolute;inset:0;border-radius:999px;
+  background:linear-gradient(100deg,transparent 30%,rgba(255,255,255,.35) 50%,transparent 70%);
+  background-size:250% 100%;animation:sheen 3.5s ease-in-out infinite}
+.opt-aura .rb-pill{height:5px;top:50%;transform:translateY(-50%);border-radius:999px;opacity:.92;
+  border:.5px solid rgba(255,255,255,.55);box-shadow:0 1px 2px rgba(15,23,42,.25)}
+@keyframes sheen{0%{background-position:200% 0}60%,100%{background-position:-120% 0}}
+
+/* ---------- OPTION: AURA — NO SHEEN ---------- */
+.opt-nosheen .rb{top:16px;height:12px;left:8px;width:320px;
+  background:linear-gradient(180deg,rgba(255,255,255,.55),rgba(255,255,255,0)),var(--surface-color);
+  border:1px solid var(--border-color);border-radius:999px;overflow:visible;
+  box-shadow:var(--shadow-sm),inset 0 1px 1px rgba(255,255,255,.6),inset 0 -1px 2px rgba(15,23,42,.05)}
+.opt-nosheen .rb::before,.opt-nosheen .rb::after{content:'';position:absolute;top:50%;width:11px;height:11px;
+  background:linear-gradient(135deg,var(--primary),var(--accent));border:1.5px solid var(--surface-color);
+  border-radius:3px;transform:translateY(-50%) rotate(45deg);box-shadow:var(--shadow-sm),0 0 6px rgba(37,99,235,.35);z-index:5}
+.opt-nosheen .rb::before{left:-5px}.opt-nosheen .rb::after{right:-5px}
+.opt-nosheen .rb-prog{background:linear-gradient(90deg,var(--primary),var(--accent));border-radius:999px;opacity:.95;
+  box-shadow:0 0 8px rgba(37,99,235,.35),inset 0 1px 1px rgba(255,255,255,.45)}
+.opt-nosheen .rb-pill{height:5px;top:50%;transform:translateY(-50%);border-radius:999px;opacity:.92;
+  border:.5px solid rgba(255,255,255,.55);box-shadow:0 1px 2px rgba(15,23,42,.25)}
+
+/* ---------- OPTION: AURA — NO GLOW ---------- */
+.opt-noglow .rb{top:16px;height:12px;left:8px;width:320px;
+  background:linear-gradient(180deg,rgba(255,255,255,.55),rgba(255,255,255,0)),var(--surface-color);
+  border:1px solid var(--border-color);border-radius:999px;overflow:visible;
+  box-shadow:var(--shadow-sm),inset 0 1px 1px rgba(255,255,255,.6)}
+.opt-noglow .rb::before,.opt-noglow .rb::after{content:'';position:absolute;top:50%;width:11px;height:11px;
+  background:linear-gradient(135deg,var(--primary),var(--accent));border:1.5px solid var(--surface-color);
+  border-radius:3px;transform:translateY(-50%) rotate(45deg);box-shadow:var(--shadow-sm);z-index:5}
+.opt-noglow .rb::before{left:-5px}.opt-noglow .rb::after{right:-5px}
+.opt-noglow .rb-prog{background:linear-gradient(90deg,var(--primary),var(--accent));border-radius:999px;opacity:.95;
+  box-shadow:inset 0 1px 1px rgba(255,255,255,.45)}
+.opt-noglow .rb-pill{height:5px;top:50%;transform:translateY(-50%);border-radius:999px;opacity:.92;
+  border:.5px solid rgba(255,255,255,.55);box-shadow:0 1px 2px rgba(15,23,42,.25)}
+
+/* ---------- OPTION: AURA — MINIMAL EFFECTS (flat & calm) ---------- */
+.opt-flat .rb{top:17px;height:10px;left:8px;width:320px;background:var(--surface-hover);
+  border:1px solid var(--border-color);border-radius:999px;overflow:visible}
+.opt-flat .rb::before,.opt-flat .rb::after{content:'';position:absolute;top:50%;width:9px;height:9px;
+  background:var(--primary);border:1.5px solid var(--surface-color);border-radius:2px;
+  transform:translateY(-50%) rotate(45deg);z-index:5}
+.opt-flat .rb::before{left:-4px}.opt-flat .rb::after{right:-4px}
+.opt-flat .rb-prog{background:var(--primary);border-radius:999px;opacity:.9}
+.opt-flat .rb-pill{height:4px;top:50%;transform:translateY(-50%);border-radius:999px;opacity:.85}
+
+/* ============================================================
+   FULL PRESETS (themed shells)
+   ============================================================ */
+/* CYBER */
+.preset-cyber{--bg-color:#05070c;--surface-color:#0b0f19;--surface-hover:#162235;--border-color:rgba(0,240,255,.15);
+  --text-main:#00f0ff;--text-muted:#627d98;--primary:#00f0ff;--primary-light:#0d293d;--accent:#f0f;
+  --status-in-progress:#00f0ff;--status-completed:#39ff14;--status-delayed:#ff0055;--status-not-started:#627d98;
+  --font-primary:'Share Tech Mono',monospace;--font-display:'Share Tech Mono',monospace}
+.preset-cyber .bar{background:transparent;border:1.5px solid var(--primary);box-shadow:0 0 8px rgba(0,240,255,.3);border-radius:2px}
+.preset-cyber .rb{top:16px;height:12px;left:8px;width:320px;background:rgba(0,240,255,.04);
+  border:1px solid rgba(0,240,255,.45);box-shadow:0 0 10px rgba(0,240,255,.35),inset 0 0 6px rgba(0,240,255,.15);overflow:visible}
+.preset-cyber .rb::before,.preset-cyber .rb::after{content:'';position:absolute;top:50%;width:10px;height:10px;
+  background:var(--accent);border:1px solid var(--accent);transform:translateY(-50%) rotate(45deg);box-shadow:0 0 8px var(--accent);z-index:5}
+.preset-cyber .rb::before{left:-5px}.preset-cyber .rb::after{right:-5px}
+.preset-cyber .rb-prog{background:repeating-linear-gradient(90deg,var(--accent) 0,var(--accent) 6px,transparent 6px,transparent 10px);box-shadow:0 0 12px var(--accent)}
+.preset-cyber .rb-pill{height:6px;top:50%;transform:translateY(-50%);border:1px solid currentColor;background:transparent;box-shadow:0 0 6px currentColor}
+
+/* MINIMAL */
+.preset-minimal{--bg-color:#faf9f6;--surface-color:#fff;--surface-hover:#f3efe6;--border-color:#000;
+  --text-main:#111;--text-muted:#555;--primary:#000;--primary-light:#eae5db;--accent:#000;
+  --status-in-progress:#000;--status-completed:#111;--status-delayed:#000;--status-not-started:#555;
+  --font-primary:'Inter',sans-serif;--font-display:'Playfair Display',serif}
+.preset-minimal *{border-radius:0!important}
+.preset-minimal .bar{background:#fff!important;color:#000;border:2px solid #000}
+.preset-minimal .rb{top:22px;height:0;left:8px;width:320px;border-bottom:2px solid #000;overflow:visible}
+.preset-minimal .rb::before,.preset-minimal .rb::after{content:'';position:absolute;top:-7px;width:2px;height:14px;background:#000;z-index:5}
+.preset-minimal .rb::before{left:0}.preset-minimal .rb::after{right:0}
+.preset-minimal .rb-prog{background:#000;height:5px;top:-3px}
+.preset-minimal .rb-pill{height:10px;width:2px;top:-5px;background:#000;opacity:1}
+
+/* OASIS */
+.preset-oasis{--bg-color:#fdf8f5;--surface-color:#fffbf9;--surface-hover:#f9ede6;--border-color:#ebd9ce;
+  --text-main:#5c3d2e;--text-muted:#a08476;--primary:#c87a53;--primary-light:#f7e6dc;--accent:#99a98c;
+  --status-in-progress:#c87a53;--status-completed:#8ea17e;--status-delayed:#d96a58;--status-not-started:#a08476;
+  --font-primary:'Outfit',sans-serif;--font-display:'Outfit',sans-serif;
+  --shadow-sm:0 2px 4px rgba(92,61,46,.04);--shadow-md:0 4px 10px rgba(92,61,46,.06)}
+.preset-oasis .bar{border-radius:9999px;background:linear-gradient(90deg,var(--primary),var(--accent))}
+.preset-oasis .rb{top:16px;height:12px;left:8px;width:320px;background:var(--primary-light);border-radius:9999px;
+  box-shadow:var(--shadow-sm),inset 0 1px 2px rgba(92,61,46,.06);overflow:visible}
+.preset-oasis .rb::before,.preset-oasis .rb::after{content:'';position:absolute;top:50%;width:14px;height:14px;border-radius:50%;
+  background:radial-gradient(circle at 35% 30%,#fff 0,var(--primary) 70%);border:2px solid var(--surface-color);
+  transform:translateY(-50%);box-shadow:var(--shadow-md);z-index:5}
+.preset-oasis .rb::before{left:-6px}.preset-oasis .rb::after{right:-6px}
+.preset-oasis .rb-prog{background:linear-gradient(90deg,var(--primary),var(--accent));border-radius:9999px;opacity:.9;box-shadow:0 0 6px rgba(200,122,83,.3)}
+.preset-oasis .rb-pill{height:6px;border-radius:9999px;top:50%;transform:translateY(-50%);border:.5px solid rgba(255,255,255,.6);opacity:.95;box-shadow:0 1px 2px rgba(92,61,46,.2)}
+</style>
+</head>
+<body>
+<h1>Group bar — design options</h1>
+<p class="sub">All seven variants, each rendered in a small live gantt context. Compare the summary (group) bar and its subtask pills. The Aura variants address the critique; the four presets are the themed shells.</p>
+
+<div class="grid" id="grid"></div>
+
+<script>
+const presets = [
+  {cls:'opt-aura',     name:'Aura — current',        tag:'variant', tagtext:'baseline', themed:false},
+  {cls:'opt-nosheen',  name:'Aura — no sheen',       tag:'variant', tagtext:'variant',  themed:false},
+  {cls:'opt-noglow',   name:'Aura — no glow',        tag:'variant', tagtext:'variant',  themed:false},
+  {cls:'opt-flat',     name:'Aura — minimal effects',tag:'variant', tagtext:'variant',  themed:false},
+  {cls:'preset-aura-full opt-aura', name:'Preset · Aura Glass',  tag:'preset', tagtext:'preset', themed:false},
+  {cls:'preset-cyber', name:'Preset · Carbon Cyber', tag:'preset', tagtext:'preset', themed:true},
+  {cls:'preset-minimal',name:'Preset · Minimal Editorial',tag:'preset',tagtext:'preset',themed:true},
+  {cls:'preset-oasis', name:'Preset · Sunset Oasis', tag:'preset', tagtext:'preset', themed:true},
+];
+
+// subtasks: [leftPx, widthPx, statusVar]
+const subs = [
+  [10,70,'--status-completed'],
+  [90,90,'--status-in-progress'],
+  [185,80,'--status-delayed'],
+  [270,45,'--status-not-started'],
+];
+const taskRows = [
+  {n:'Research',  l:10, w:70,  s:'--status-completed',  txt:'Done'},
+  {n:'Design',    l:90, w:90,  s:'--status-in-progress',txt:'62%'},
+  {n:'Build',     l:185,w:80,  s:'--status-delayed',    txt:'Late'},
+];
+
+function panel(p){
+  // For the cyber/minimal/oasis presets the rb uses preset rules; for aura-full reuse opt-aura
+  const isPresetCls = p.cls.startsWith('preset-') && p.themed;
+  const rbScope = isPresetCls ? p.cls.split(' ')[0] : '';
+  const subPills = subs.map(([l,w,c])=>`<div class="rb-pill" style="left:${l}px;width:${w}px;background:var(${c})"></div>`).join('');
+  const tasks = taskRows.map(t=>`
+    <div class="row-task">
+      <div class="label">${t.n}</div>
+      <div class="tl"><div class="gridbg"></div>
+        <div class="bar" style="left:${t.l}px;width:${t.w}px;background:var(${t.s})">${t.txt}</div>
+      </div>
+    </div>`).join('');
+  return `
+  <div class="panel">
+    <div class="panel-head">
+      <span class="panel-name">${p.name}</span>
+      <span class="panel-tag ${p.tag==='variant'?'variant':''}">${p.tagtext}</span>
+    </div>
+    <div class="stage mini ${p.cls}">
+      <div class="row-group">
+        <div class="label"><span style="font-size:1rem">▾</span> Phase 1</div>
+        <div class="tl"><div class="gridbg"></div>
+          <div class="rb"><div class="rb-prog" style="width:55%"></div><div class="rb-sub">${subPills}</div></div>
+        </div>
+      </div>
+      ${tasks}
+    </div>
+  </div>`;
+}
+document.getElementById('grid').innerHTML = presets.map(panel).join('');
+</script>
+</body>
+</html>

@@ -1,0 +1,4150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="An interactive, high-fidelity Gantt Chart demo featuring collapsible groups, drag-and-resize timeline bars, SVG dependency lines, critical path calculations, and dynamic filters.">
+  <title>Interactive Gantt Chart Studio</title>
+  
+  <!-- Modern Google Font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Share+Tech+Mono&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  
+  <!-- Material Icons for sleeker UI buttons -->
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
+
+  <style>
+    /* CSS DESIGN SYSTEM & TOKENS */
+    :root {
+      /* Theme variables - Light Mode by default */
+      --font-primary: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --font-display: 'Outfit', sans-serif;
+      
+      --bg-color: #f8fafc;
+      --surface-color: #ffffff;
+      --surface-hover: #f1f5f9;
+      --border-color: #e2e8f0;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --text-inverse: #ffffff;
+      
+      /* Brand and status colors */
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --primary-light: #dbeafe;
+      --accent: #7c3aed;
+      
+      --status-not-started: #64748b;
+      --status-in-progress: #0ea5e9;
+      --status-completed: #10b981;
+      --status-delayed: #f43f5e;
+      
+      --status-not-started-bg: #f1f5f9;
+      --status-in-progress-bg: #e0f2fe;
+      --status-completed-bg: #d1fae5;
+      --status-delayed-bg: #ffe4e6;
+      
+      /* Size-related tokens */
+      --sidebar-width: 320px;
+      --row-height: 52px;
+      --header-height: 64px;
+      
+      /* Shadows & Effects */
+      --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+      --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+      --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+      --glass-bg: rgba(255, 255, 255, 0.7);
+      --glass-blur: blur(12px);
+      --glass-border: rgba(226, 232, 240, 0.8);
+      
+      /* Gantt layout settings */
+      --day-width: 44px;
+      --total-days: 60;
+      
+      /* Transitions */
+      --transition-fast: 0.15s ease;
+      --transition-normal: 0.25s ease;
+    }
+
+    [data-theme="dark"] {
+      --bg-color: #0b0f19;
+      --surface-color: #111827;
+      --surface-hover: #1f2937;
+      --border-color: #374151;
+      --text-main: #f9fafb;
+      --text-muted: #9ca3af;
+      --text-inverse: #111827;
+      
+      --primary: #3b82f6;
+      --primary-hover: #2563eb;
+      --primary-light: #1e3a8a;
+      --accent: #8b5cf6;
+      
+      --status-not-started: #9ca3af;
+      --status-in-progress: #38bdf8;
+      --status-completed: #34d399;
+      --status-delayed: #fb7185;
+      
+      --status-not-started-bg: #1f2937;
+      --status-in-progress-bg: #0c4a6e;
+      --status-completed-bg: #064e3b;
+      --status-delayed-bg: #4c0519;
+      
+      --glass-bg: rgba(17, 24, 39, 0.7);
+      --glass-border: rgba(55, 65, 81, 0.8);
+    }
+
+    /* GLOBAL STYLES */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-primary);
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      overflow: hidden;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      -webkit-font-smoothing: antialiased;
+      transition: background-color var(--transition-normal), color var(--transition-normal);
+    }
+
+    button, input, select {
+      font-family: inherit;
+      color: inherit;
+    }
+
+    /* CUSTOM SCROLLBARS */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: var(--border-color);
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--text-muted);
+    }
+
+    /* UTILITY STYLES */
+    .icon {
+      font-family: 'Material Symbols Rounded';
+      font-weight: normal;
+      font-style: normal;
+      font-size: 20px;
+      line-height: 1;
+      letter-spacing: normal;
+      text-transform: none;
+      display: inline-block;
+      white-space: nowrap;
+      word-wrap: normal;
+      direction: ltr;
+      -webkit-font-smoothing: antialiased;
+      user-select: none;
+    }
+
+    /* APP LAYOUT */
+    .app-header {
+      height: var(--header-height);
+      background-color: var(--surface-color);
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      z-index: 10;
+      transition: background-color var(--transition-normal), border-color var(--transition-normal);
+    }
+
+    .brand-section {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-logo {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+    }
+
+    .brand-title {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 1.15rem;
+      letter-spacing: -0.02em;
+    }
+
+    .brand-tag {
+      font-size: 0.75rem;
+      background: var(--primary-light);
+      color: var(--primary);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-weight: 600;
+    }
+
+    .control-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    /* BUTTONS */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      cursor: pointer;
+      border: 1px solid var(--border-color);
+      background-color: var(--surface-color);
+      transition: all var(--transition-fast);
+      user-select: none;
+    }
+
+    .btn:hover {
+      background-color: var(--surface-hover);
+      border-color: var(--text-muted);
+    }
+
+    .btn-primary {
+      background-color: var(--primary);
+      border-color: var(--primary);
+      color: var(--text-inverse);
+    }
+
+    .btn-primary:hover {
+      background-color: var(--primary-hover);
+      border-color: var(--primary-hover);
+    }
+
+    .btn-icon {
+      padding: 8px;
+      border-radius: 8px;
+    }
+
+    /* TOOLBAR CONTROLS */
+    .toolbar {
+      padding: 12px 24px;
+      background-color: var(--surface-color);
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+      z-index: 9;
+      transition: background-color var(--transition-normal), border-color var(--transition-normal);
+    }
+
+    .toolbar-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .toolbar-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .search-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .search-input {
+      padding: 8px 12px 8px 36px;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      background-color: var(--bg-color);
+      font-size: 0.875rem;
+      width: 200px;
+      transition: all var(--transition-fast);
+    }
+
+    .search-input:focus {
+      outline: none;
+      border-color: var(--primary);
+      background-color: var(--surface-color);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+      width: 240px;
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 10px;
+      color: var(--text-muted);
+      pointer-events: none;
+    }
+
+    .filter-select {
+      padding: 8px 12px;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      background-color: var(--surface-color);
+      font-size: 0.875rem;
+      cursor: pointer;
+      outline: none;
+      transition: border-color var(--transition-fast);
+    }
+
+    .filter-select:focus {
+      border-color: var(--primary);
+    }
+
+    .segmented-control {
+      display: inline-flex;
+      background-color: var(--bg-color);
+      padding: 3px;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+    }
+
+    .segmented-btn {
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 0.825rem;
+      font-weight: 500;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      color: var(--text-muted);
+      transition: all var(--transition-fast);
+    }
+
+    .segmented-btn:hover {
+      color: var(--text-main);
+    }
+
+    .segmented-btn.active {
+      background-color: var(--surface-color);
+      color: var(--primary);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .switch-control {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .switch-track {
+      width: 40px;
+      height: 20px;
+      border-radius: 20px;
+      background-color: var(--border-color);
+      position: relative;
+      transition: background-color var(--transition-fast);
+    }
+
+    .switch-thumb {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background-color: white;
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      transition: transform var(--transition-fast);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .switch-control input {
+      display: none;
+    }
+
+    .switch-control input:checked + .switch-track {
+      background-color: var(--primary);
+    }
+
+    .switch-control input:checked + .switch-track .switch-thumb {
+      transform: translateX(20px);
+    }
+
+    .switch-control.critical-active {
+      color: var(--status-delayed);
+    }
+    .switch-control.critical-active input:checked + .switch-track {
+      background-color: var(--status-delayed);
+    }
+
+    /* GANTT CONTAINER LAYOUT */
+    .gantt-outer-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .gantt-grid-wrapper {
+      flex: 1;
+      overflow: auto;
+      position: relative;
+    }
+
+    /* GANTT ROW AND CELL SYSTEM */
+    .gantt-grid {
+      display: grid;
+      grid-template-columns: var(--sidebar-width) 1fr;
+      width: max-content;
+      min-width: 100%;
+      position: relative;
+    }
+
+    /* STICKY HEADER SCROLL ALIGNMENT */
+    .gantt-header-row {
+      display: grid;
+      grid-template-columns: subgrid;
+      grid-column: 1 / -1;
+      height: var(--header-height);
+      position: sticky;
+      top: 0;
+      z-index: 8;
+      background-color: var(--surface-color);
+      border-bottom: 2px solid var(--border-color);
+      transition: background-color var(--transition-normal), border-color var(--transition-normal);
+    }
+
+    .gantt-header-sidebar {
+      position: sticky;
+      left: 0;
+      z-index: 9;
+      background-color: var(--surface-color);
+      border-right: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      padding: 0 16px;
+      font-weight: 600;
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      justify-content: space-between;
+    }
+
+    .gantt-header-timeline {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+
+    .gantt-timeline-major {
+      height: 50%;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      font-size: 0.825rem;
+      font-weight: 600;
+      padding-left: 12px;
+      color: var(--text-muted);
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      background-color: var(--surface-hover);
+    }
+
+    .gantt-timeline-minor {
+      height: 50%;
+      display: flex;
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: var(--text-muted);
+    }
+
+    .gantt-time-cell {
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-right: 1px solid var(--border-color);
+      height: 100%;
+    }
+
+    /* BODY ROWS */
+    .gantt-row {
+      display: grid;
+      grid-template-columns: subgrid;
+      grid-column: 1 / -1;
+      height: var(--row-height);
+      border-bottom: 1px solid var(--border-color);
+      transition: background-color var(--transition-fast);
+    }
+
+    .gantt-row:hover {
+      background-color: var(--surface-hover);
+    }
+
+    .gantt-row-sidebar {
+      position: sticky;
+      left: 0;
+      z-index: 5;
+      background-color: var(--surface-color);
+      border-right: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      padding: 0 12px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      transition: background-color var(--transition-fast);
+    }
+
+    .gantt-row:hover .gantt-row-sidebar {
+      background-color: var(--surface-hover);
+    }
+
+    .gantt-row-timeline {
+      position: relative;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    /* GRID BACKGROUND LINES */
+    .gantt-grid-bg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      pointer-events: none;
+      background-image: linear-gradient(to right, var(--border-color) 1px, transparent 1px);
+      z-index: 1;
+    }
+
+    /* SVG CANVAS FOR DEPENDENCIES */
+    .gantt-svg-canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 3;
+    }
+
+    .dependency-line {
+      fill: none;
+      stroke: var(--text-muted);
+      stroke-width: 2;
+      stroke-linecap: round;
+      opacity: 0.45;
+      transition: stroke var(--transition-normal), stroke-width var(--transition-normal), opacity var(--transition-normal);
+    }
+
+    .dependency-line.critical-path-line {
+      stroke: var(--status-delayed);
+      stroke-width: 3.5;
+      stroke-dasharray: 4, 2;
+      opacity: 0.9;
+      filter: drop-shadow(0 0 3px rgba(244, 63, 94, 0.4));
+    }
+
+    .dependency-line.conflict-line {
+      stroke: var(--status-delayed);
+      stroke-width: 2.5;
+      opacity: 0.8;
+    }
+
+    .dependency-line.highlighted {
+      stroke: var(--primary);
+      stroke-width: 3;
+      opacity: 0.95;
+    }
+
+    .dependency-arrow {
+      fill: var(--text-muted);
+      opacity: 0.45;
+    }
+
+    .dependency-arrow.critical-path-arrow {
+      fill: var(--status-delayed);
+      opacity: 0.9;
+    }
+
+    .dependency-arrow.conflict-arrow {
+      fill: var(--status-delayed);
+      opacity: 0.8;
+    }
+
+    .dependency-arrow.highlighted {
+      fill: var(--primary);
+      opacity: 0.95;
+    }
+
+    /* GROUP ROWS SPECIAL STYLING */
+    .gantt-row-group {
+      background-color: var(--bg-color);
+      height: 44px;
+      font-weight: 600;
+    }
+
+    .gantt-row-group .gantt-row-sidebar {
+      background-color: var(--bg-color);
+      font-family: var(--font-display);
+      font-size: 0.9rem;
+      gap: 8px;
+    }
+
+    .gantt-row-group:hover .gantt-row-sidebar {
+      background-color: var(--surface-hover);
+    }
+
+    .group-collapse-btn {
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      border-radius: 4px;
+      color: var(--text-muted);
+      transition: all var(--transition-fast);
+    }
+
+    .group-collapse-btn:hover {
+      background-color: var(--border-color);
+      color: var(--text-main);
+    }
+
+    .group-collapse-btn .icon {
+      transition: transform var(--transition-fast);
+    }
+
+    .gantt-row-group.collapsed .group-collapse-btn .icon {
+      transform: rotate(-90deg);
+    }
+
+    .group-progress-chip {
+      flex-shrink: 0;
+      min-width: 48px;
+      text-align: center;
+      font-size: 0.65rem;
+      font-weight: 700;
+      background: var(--primary-light);
+      color: var(--primary);
+      border: 1px solid rgba(37,99,235,0.15);
+    }
+
+    /* TASK TITLE LAYOUT IN SIDEBAR */
+    .task-sidebar-cell {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+      padding-left: 20px;
+    }
+
+    .task-title-text {
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--text-main);
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .task-meta-info {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-left: auto;
+      flex-shrink: 0;
+    }
+
+    /* VISUAL GANTT BARS */
+    .gantt-bar-wrapper {
+      position: absolute;
+      top: 10px;
+      height: calc(100% - 20px);
+      z-index: 4;
+      cursor: grab;
+      border-radius: 6px;
+      transition: box-shadow var(--transition-fast);
+    }
+
+    .gantt-bar-wrapper:active {
+      cursor: grabbing;
+    }
+
+    .gantt-bar-wrapper.is-dragging {
+      opacity: 0.8;
+      box-shadow: var(--shadow-lg);
+      z-index: 100;
+    }
+
+    .gantt-bar-wrapper.is-resizing {
+      z-index: 100;
+    }
+
+    .gantt-bar {
+      width: 100%;
+      height: 100%;
+      border-radius: 6px;
+      background: var(--bar-gradient, linear-gradient(90deg, #94a3b8, #64748b));
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      padding: 0 10px;
+      color: white;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+      border: 1px solid rgba(0, 0, 0, 0.05);
+      user-select: none;
+    }
+
+    .gantt-bar-progress {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 100%;
+      background-color: rgba(255, 255, 255, 0.22);
+      pointer-events: none;
+      border-right: 1px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .gantt-bar-label {
+      position: relative;
+      z-index: 2;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      pointer-events: none;
+    }
+
+    /* DRAG RESIZE HANDLES */
+    .gantt-resize-handle {
+      position: absolute;
+      top: 0;
+      width: 6px;
+      height: 100%;
+      cursor: ew-resize;
+      z-index: 3;
+      background-color: transparent;
+      transition: background-color var(--transition-fast);
+    }
+
+    .gantt-resize-handle:hover {
+      background-color: rgba(255, 255, 255, 0.4);
+    }
+
+    .gantt-resize-handle-left {
+      left: 0;
+      border-top-left-radius: 6px;
+      border-bottom-left-radius: 6px;
+    }
+
+    .gantt-resize-handle-right {
+      right: 0;
+      border-top-right-radius: 6px;
+      border-bottom-right-radius: 6px;
+    }
+
+    /* CRITICAL PATH GLOW EFFECT */
+    .gantt-bar-wrapper.critical-path-task {
+      box-shadow: 0 0 8px rgba(244, 63, 94, 0.35);
+      border: 1.5px solid var(--status-delayed);
+    }
+
+    /* ROLLUP SUMMARY GANTT BAR */
+    .gantt-rollup-bar {
+      position: absolute;
+      top: 15px;
+      height: 14px;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.55), rgba(255,255,255,0)),
+        var(--surface-color);
+      border: 1px solid var(--border-color);
+      border-radius: 999px;
+      z-index: 4;
+      pointer-events: none;
+      box-shadow:
+        var(--shadow-sm),
+        inset 0 1px 1px rgba(255,255,255,0.6),
+        inset 0 -1px 2px rgba(15,23,42,0.05),
+        0 8px 18px rgba(15, 23, 42, 0.06);
+      overflow: visible;
+    }
+
+    /* Diamond milestone end caps */
+    .gantt-rollup-bar::before,
+    .gantt-rollup-bar::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      width: 11px;
+      height: 11px;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      border: 1.5px solid var(--surface-color);
+      border-radius: 3px;
+      transform: translateY(-50%) rotate(45deg);
+      box-shadow: var(--shadow-sm), 0 0 6px rgba(37,99,235,0.35);
+      z-index: 5;
+    }
+
+    .gantt-rollup-bar::before {
+      left: -5px;
+    }
+
+    .gantt-rollup-bar::after {
+      right: -5px;
+    }
+
+    .gantt-rollup-progress {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary), var(--accent));
+      border-radius: 999px;
+      opacity: 0.95;
+      box-shadow:
+        0 0 8px rgba(37, 99, 235, 0.35),
+        inset 0 1px 1px rgba(255,255,255,0.45);
+    }
+
+    /* Subtle moving sheen across the fill */
+    .gantt-rollup-progress::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 999px;
+      background: linear-gradient(
+        100deg,
+        transparent 30%,
+        rgba(255,255,255,0.35) 50%,
+        transparent 70%
+      );
+      background-size: 250% 100%;
+      animation: rollup-sheen 3.5s ease-in-out infinite;
+    }
+
+    @keyframes rollup-sheen {
+      0%   { background-position: 200% 0; }
+      60%, 100% { background-position: -120% 0; }
+    }
+
+    /* Subtask indicators inside rollup bar */
+    .gantt-rollup-subtasks-container {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 3;
+    }
+
+    .gantt-rollup-subtask-pill {
+      position: absolute;
+      height: 5px;
+      top: 50%;
+      transform: translateY(-50%);
+      border-radius: 999px;
+      opacity: 0.92;
+      border: 0.5px solid rgba(255, 255, 255, 0.55);
+      box-shadow: 0 1px 2px rgba(15,23,42,0.25);
+    }
+
+    .gantt-rollup-subtask-pill::after {
+      content: '';
+      position: absolute;
+      inset: 1px;
+      border-radius: inherit;
+      background: linear-gradient(180deg, rgba(255,255,255,0.42), rgba(255,255,255,0));
+      pointer-events: none;
+    }
+
+    /* AURA GROUP-BAR VARIANTS (only alter the rollup bar) */
+
+    /* Aura Soft — remove the animated sheen */
+    body.theme-aura-soft .gantt-rollup-progress::after {
+      display: none !important;
+    }
+
+    /* Aura Clean — drop the glow, keep gradient + diamond caps */
+    body.theme-aura-clean .gantt-rollup-bar {
+      box-shadow: var(--shadow-sm), inset 0 1px 1px rgba(255,255,255,0.6) !important;
+    }
+    body.theme-aura-clean .gantt-rollup-bar::before,
+    body.theme-aura-clean .gantt-rollup-bar::after {
+      box-shadow: var(--shadow-sm) !important;
+    }
+    body.theme-aura-clean .gantt-rollup-progress {
+      box-shadow: inset 0 1px 1px rgba(255,255,255,0.45) !important;
+    }
+    body.theme-aura-clean .gantt-rollup-progress::after {
+      display: none !important;
+    }
+
+    /* Aura Flat — calm, flat summary bar with no gradients or glow */
+    body.theme-aura-flat .gantt-rollup-bar {
+      top: 17px !important;
+      height: 10px !important;
+      background: var(--surface-hover) !important;
+      border: 1px solid var(--border-color) !important;
+      box-shadow: none !important;
+    }
+    body.theme-aura-flat .gantt-rollup-bar::before,
+    body.theme-aura-flat .gantt-rollup-bar::after {
+      width: 9px !important;
+      height: 9px !important;
+      background: var(--primary) !important;
+      border-radius: 2px !important;
+      box-shadow: none !important;
+    }
+    body.theme-aura-flat .gantt-rollup-bar::before { left: -4px !important; }
+    body.theme-aura-flat .gantt-rollup-bar::after { right: -4px !important; }
+    body.theme-aura-flat .gantt-rollup-progress {
+      background: var(--primary) !important;
+      opacity: 0.9 !important;
+      box-shadow: none !important;
+    }
+    body.theme-aura-flat .gantt-rollup-progress::after {
+      display: none !important;
+    }
+    body.theme-aura-flat .gantt-rollup-subtask-pill {
+      height: 4px !important;
+      opacity: 0.85 !important;
+      box-shadow: none !important;
+    }
+
+    /* GROUP-BAR PATTERN TABS */
+
+    /* Ribbon Rollup - a polished roadmap ribbon with folded caps */
+    body.theme-pattern-ribbon .gantt-rollup-bar {
+      top: 13px !important;
+      height: 18px !important;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.78), rgba(255,255,255,0.08)),
+        linear-gradient(90deg, color-mix(in srgb, var(--primary) 12%, var(--surface-color)), color-mix(in srgb, var(--accent) 14%, var(--surface-color))) !important;
+      border: 1px solid color-mix(in srgb, var(--primary) 30%, var(--border-color)) !important;
+      border-radius: 7px !important;
+      box-shadow:
+        0 10px 22px rgba(15, 23, 42, 0.12),
+        inset 0 1px 0 rgba(255,255,255,0.75),
+        inset 0 -1px 0 rgba(15,23,42,0.08) !important;
+      overflow: visible !important;
+    }
+    body.theme-pattern-ribbon .gantt-rollup-bar::before,
+    body.theme-pattern-ribbon .gantt-rollup-bar::after {
+      width: 13px !important;
+      height: 18px !important;
+      background: linear-gradient(135deg, var(--primary), var(--accent)) !important;
+      border: 1px solid color-mix(in srgb, var(--primary) 55%, var(--surface-color)) !important;
+      border-radius: 3px !important;
+      transform: translateY(-50%) skewX(-12deg) !important;
+      box-shadow: 0 5px 12px rgba(15,23,42,0.14) !important;
+      clip-path: polygon(0 0, 100% 0, 72% 50%, 100% 100%, 0 100%) !important;
+    }
+    body.theme-pattern-ribbon .gantt-rollup-bar::before { left: -9px !important; }
+    body.theme-pattern-ribbon .gantt-rollup-bar::after {
+      right: -9px !important;
+      transform: translateY(-50%) skewX(12deg) scaleX(-1) !important;
+    }
+    body.theme-pattern-ribbon .gantt-rollup-progress {
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.32), rgba(255,255,255,0)),
+        linear-gradient(90deg, var(--primary), var(--accent)) !important;
+      border-radius: 6px !important;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.45), 0 0 12px color-mix(in srgb, var(--primary) 34%, transparent) !important;
+    }
+    body.theme-pattern-ribbon .gantt-rollup-subtask-pill {
+      height: 4px !important;
+      top: calc(100% + 7px) !important;
+      transform: none !important;
+      opacity: 0.8 !important;
+      box-shadow: 0 3px 7px rgba(15,23,42,0.14) !important;
+    }
+
+    /* Baseline Actual - planned track plus an actual progress overlay */
+    body.theme-pattern-baseline .gantt-rollup-bar {
+      top: 11px !important;
+      height: 20px !important;
+      background:
+        linear-gradient(90deg, rgba(100,116,139,0.18) 0 50%, rgba(100,116,139,0.1) 50% 100%),
+        repeating-linear-gradient(90deg, transparent 0 9px, color-mix(in srgb, var(--border-color) 55%, transparent) 9px 10px) !important;
+      border: 1px dashed color-mix(in srgb, var(--text-muted) 42%, var(--border-color)) !important;
+      border-radius: 5px !important;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.3) !important;
+    }
+    body.theme-pattern-baseline .gantt-rollup-bar::before,
+    body.theme-pattern-baseline .gantt-rollup-bar::after {
+      width: 3px !important;
+      height: 26px !important;
+      background: var(--text-main) !important;
+      border: 0 !important;
+      border-radius: 999px !important;
+      transform: translateY(-50%) !important;
+      box-shadow: 0 0 0 3px var(--surface-color), 0 2px 7px rgba(15,23,42,0.16) !important;
+      clip-path: none !important;
+    }
+    body.theme-pattern-baseline .gantt-rollup-bar::before { left: -2px !important; }
+    body.theme-pattern-baseline .gantt-rollup-bar::after { right: -2px !important; }
+    body.theme-pattern-baseline .gantt-rollup-progress {
+      top: 5px !important;
+      height: 10px !important;
+      background: linear-gradient(90deg, var(--status-completed), var(--primary)) !important;
+      border-radius: 999px !important;
+      box-shadow: 0 4px 10px color-mix(in srgb, var(--primary) 22%, transparent) !important;
+    }
+    body.theme-pattern-baseline .gantt-rollup-progress::after { display: none !important; }
+    body.theme-pattern-baseline .gantt-rollup-subtask-pill {
+      height: 4px !important;
+      top: calc(100% + 6px) !important;
+      transform: none !important;
+      border: 0 !important;
+      opacity: 0.95 !important;
+      box-shadow: none !important;
+    }
+
+    /* Segmented Status - stacked child-task segments inside the summary track */
+    body.theme-pattern-segmented .gantt-rollup-bar {
+      top: 14px !important;
+      height: 16px !important;
+      background: color-mix(in srgb, var(--surface-hover) 82%, var(--surface-color)) !important;
+      border: 1px solid color-mix(in srgb, var(--text-muted) 24%, var(--border-color)) !important;
+      border-radius: 4px !important;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.6), 0 5px 12px rgba(15,23,42,0.07) !important;
+      overflow: hidden !important;
+    }
+    body.theme-pattern-segmented .gantt-rollup-bar::before,
+    body.theme-pattern-segmented .gantt-rollup-bar::after {
+      display: none !important;
+    }
+    body.theme-pattern-segmented .gantt-rollup-progress {
+      background: linear-gradient(90deg, rgba(255,255,255,0.22), rgba(255,255,255,0.04)) !important;
+      border-right: 2px solid var(--primary) !important;
+      box-shadow: none !important;
+      z-index: 4 !important;
+    }
+    body.theme-pattern-segmented .gantt-rollup-progress::after { display: none !important; }
+    body.theme-pattern-segmented .gantt-rollup-subtasks-container {
+      z-index: 3 !important;
+    }
+    body.theme-pattern-segmented .gantt-rollup-subtask-pill {
+      height: 100% !important;
+      top: 0 !important;
+      transform: none !important;
+      border: 0 !important;
+      border-radius: 0 !important;
+      opacity: 0.82 !important;
+      box-shadow: inset -1px 0 rgba(255,255,255,0.75) !important;
+    }
+
+    /* Heatmap Bands - layered density blocks for portfolio planning */
+    body.theme-pattern-heatmap .gantt-rollup-bar {
+      top: 12px !important;
+      height: 20px !important;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.34), transparent),
+        repeating-linear-gradient(90deg,
+          color-mix(in srgb, var(--status-completed) 20%, transparent) 0 12px,
+          color-mix(in srgb, var(--status-in-progress) 18%, transparent) 12px 24px,
+          color-mix(in srgb, var(--status-delayed) 14%, transparent) 24px 36px) !important;
+      border: 1px solid color-mix(in srgb, var(--primary) 22%, var(--border-color)) !important;
+      border-radius: 6px !important;
+      box-shadow: 0 7px 18px rgba(15,23,42,0.09), inset 0 1px 0 rgba(255,255,255,0.45) !important;
+      overflow: hidden !important;
+    }
+    body.theme-pattern-heatmap .gantt-rollup-bar::before,
+    body.theme-pattern-heatmap .gantt-rollup-bar::after {
+      width: 8px !important;
+      height: 8px !important;
+      background: var(--surface-color) !important;
+      border: 2px solid var(--primary) !important;
+      border-radius: 50% !important;
+      transform: translateY(-50%) !important;
+      box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary) 15%, transparent) !important;
+      clip-path: none !important;
+    }
+    body.theme-pattern-heatmap .gantt-rollup-progress {
+      background: linear-gradient(90deg, color-mix(in srgb, var(--primary) 70%, transparent), color-mix(in srgb, var(--accent) 68%, transparent)) !important;
+      mix-blend-mode: multiply;
+      box-shadow: none !important;
+    }
+    html[data-theme="dark"] body.theme-pattern-heatmap .gantt-rollup-progress,
+    body.theme-preset-cyber.theme-pattern-heatmap .gantt-rollup-progress {
+      mix-blend-mode: screen;
+    }
+    body.theme-pattern-heatmap .gantt-rollup-progress::after { display: none !important; }
+    body.theme-pattern-heatmap .gantt-rollup-subtask-pill {
+      height: 3px !important;
+      top: auto !important;
+      bottom: 3px !important;
+      transform: none !important;
+      border: 0 !important;
+      border-radius: 999px !important;
+      opacity: 1 !important;
+      box-shadow: 0 0 6px currentColor !important;
+    }
+
+    /* Milestone Thread - a quiet line with checkpoint markers */
+    body.theme-pattern-milestone .gantt-rollup-bar {
+      top: 21px !important;
+      height: 2px !important;
+      background: color-mix(in srgb, var(--text-muted) 36%, transparent) !important;
+      border: 0 !important;
+      border-radius: 0 !important;
+      box-shadow: none !important;
+      overflow: visible !important;
+    }
+    body.theme-pattern-milestone .gantt-rollup-bar::before,
+    body.theme-pattern-milestone .gantt-rollup-bar::after {
+      width: 14px !important;
+      height: 14px !important;
+      background: var(--surface-color) !important;
+      border: 2px solid var(--primary) !important;
+      border-radius: 4px !important;
+      transform: translateY(-50%) rotate(45deg) !important;
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 12%, transparent), 0 4px 10px rgba(15,23,42,0.12) !important;
+      clip-path: none !important;
+    }
+    body.theme-pattern-milestone .gantt-rollup-progress {
+      top: -2px !important;
+      height: 6px !important;
+      background: linear-gradient(90deg, var(--primary), var(--accent)) !important;
+      border-radius: 999px !important;
+      box-shadow: 0 0 12px color-mix(in srgb, var(--primary) 25%, transparent) !important;
+    }
+    body.theme-pattern-milestone .gantt-rollup-progress::after { display: none !important; }
+    body.theme-pattern-milestone .gantt-rollup-subtask-pill {
+      width: 10px !important;
+      min-width: 10px !important;
+      height: 10px !important;
+      top: -4px !important;
+      transform: translateX(-50%) rotate(45deg) !important;
+      border: 2px solid var(--surface-color) !important;
+      border-radius: 3px !important;
+      opacity: 1 !important;
+      box-shadow: 0 2px 8px rgba(15,23,42,0.15) !important;
+    }
+
+    /* Milestone Thread mutants - same thread, different node language */
+    body.theme-pattern-thread-dots .gantt-rollup-bar,
+    body.theme-pattern-thread-capsules .gantt-rollup-bar,
+    body.theme-pattern-thread-flags .gantt-rollup-bar,
+    body.theme-pattern-thread-hex .gantt-rollup-bar,
+    body.theme-pattern-thread-squares .gantt-rollup-bar,
+    body.theme-pattern-thread-triangles .gantt-rollup-bar {
+      top: 21px !important;
+      height: 2px !important;
+      background: color-mix(in srgb, var(--text-muted) 34%, transparent) !important;
+      border: 0 !important;
+      border-radius: 0 !important;
+      box-shadow: none !important;
+      overflow: visible !important;
+    }
+
+    body.theme-pattern-thread-dots .gantt-rollup-bar::before,
+    body.theme-pattern-thread-dots .gantt-rollup-bar::after,
+    body.theme-pattern-thread-capsules .gantt-rollup-bar::before,
+    body.theme-pattern-thread-capsules .gantt-rollup-bar::after,
+    body.theme-pattern-thread-flags .gantt-rollup-bar::before,
+    body.theme-pattern-thread-flags .gantt-rollup-bar::after,
+    body.theme-pattern-thread-hex .gantt-rollup-bar::before,
+    body.theme-pattern-thread-hex .gantt-rollup-bar::after,
+    body.theme-pattern-thread-squares .gantt-rollup-bar::before,
+    body.theme-pattern-thread-squares .gantt-rollup-bar::after,
+    body.theme-pattern-thread-triangles .gantt-rollup-bar::before,
+    body.theme-pattern-thread-triangles .gantt-rollup-bar::after {
+      width: 7px !important;
+      height: 7px !important;
+      background: var(--primary) !important;
+      border: 2px solid var(--surface-color) !important;
+      border-radius: 50% !important;
+      transform: translateY(-50%) !important;
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 12%, transparent), 0 3px 8px rgba(15,23,42,0.12) !important;
+      clip-path: none !important;
+    }
+
+    body.theme-pattern-thread-capsules .gantt-rollup-bar::before,
+    body.theme-pattern-thread-capsules .gantt-rollup-bar::after {
+      width: 14px !important;
+      height: 7px !important;
+      border-radius: 999px !important;
+    }
+
+    body.theme-pattern-thread-flags .gantt-rollup-bar::before,
+    body.theme-pattern-thread-flags .gantt-rollup-bar::after {
+      width: 12px !important;
+      height: 11px !important;
+      border-radius: 3px 6px 6px 3px !important;
+      clip-path: polygon(0 0, 100% 0, 78% 50%, 100% 100%, 0 100%) !important;
+    }
+
+    body.theme-pattern-thread-hex .gantt-rollup-bar::before,
+    body.theme-pattern-thread-hex .gantt-rollup-bar::after {
+      width: 11px !important;
+      height: 11px !important;
+      border-radius: 0 !important;
+      clip-path: polygon(50% 0, 94% 25%, 94% 75%, 50% 100%, 6% 75%, 6% 25%) !important;
+    }
+
+    body.theme-pattern-thread-squares .gantt-rollup-bar::before,
+    body.theme-pattern-thread-squares .gantt-rollup-bar::after {
+      width: 10px !important;
+      height: 10px !important;
+      border-radius: 2px !important;
+    }
+
+    body.theme-pattern-thread-triangles .gantt-rollup-bar::before,
+    body.theme-pattern-thread-triangles .gantt-rollup-bar::after {
+      width: 12px !important;
+      height: 12px !important;
+      border-radius: 0 !important;
+      clip-path: polygon(50% 0, 100% 100%, 0 100%) !important;
+    }
+
+    body.theme-pattern-thread-dots .gantt-rollup-progress,
+    body.theme-pattern-thread-capsules .gantt-rollup-progress,
+    body.theme-pattern-thread-flags .gantt-rollup-progress,
+    body.theme-pattern-thread-hex .gantt-rollup-progress,
+    body.theme-pattern-thread-squares .gantt-rollup-progress,
+    body.theme-pattern-thread-triangles .gantt-rollup-progress {
+      top: -2px !important;
+      height: 6px !important;
+      background: linear-gradient(90deg, var(--primary), var(--accent)) !important;
+      border-radius: 999px !important;
+      box-shadow: 0 0 12px color-mix(in srgb, var(--primary) 22%, transparent) !important;
+    }
+
+    body.theme-pattern-thread-dots .gantt-rollup-progress::after,
+    body.theme-pattern-thread-capsules .gantt-rollup-progress::after,
+    body.theme-pattern-thread-flags .gantt-rollup-progress::after,
+    body.theme-pattern-thread-hex .gantt-rollup-progress::after,
+    body.theme-pattern-thread-squares .gantt-rollup-progress::after,
+    body.theme-pattern-thread-triangles .gantt-rollup-progress::after {
+      display: none !important;
+    }
+
+    body.theme-pattern-thread-dots .gantt-rollup-subtask-pill {
+      width: 12px !important;
+      min-width: 12px !important;
+      height: 12px !important;
+      top: -5px !important;
+      transform: translateX(-50%) !important;
+      border: 3px solid var(--surface-color) !important;
+      border-radius: 50% !important;
+      opacity: 1 !important;
+      box-shadow: 0 0 0 2px color-mix(in srgb, currentColor 18%, transparent), 0 4px 10px rgba(15,23,42,0.13) !important;
+    }
+
+    body.theme-pattern-thread-capsules .gantt-rollup-subtask-pill {
+      width: 18px !important;
+      min-width: 18px !important;
+      height: 8px !important;
+      top: -3px !important;
+      transform: translateX(-50%) !important;
+      border: 2px solid var(--surface-color) !important;
+      border-radius: 999px !important;
+      opacity: 1 !important;
+      box-shadow: 0 4px 10px rgba(15,23,42,0.13) !important;
+    }
+
+    body.theme-pattern-thread-flags .gantt-rollup-subtask-pill {
+      width: 14px !important;
+      min-width: 14px !important;
+      height: 13px !important;
+      top: -12px !important;
+      transform: translateX(-2px) !important;
+      border: 2px solid var(--surface-color) !important;
+      border-radius: 3px 7px 7px 3px !important;
+      opacity: 1 !important;
+      clip-path: polygon(0 0, 100% 0, 78% 50%, 100% 100%, 0 100%) !important;
+      box-shadow: 0 4px 10px rgba(15,23,42,0.13) !important;
+    }
+
+    body.theme-pattern-thread-flags .gantt-rollup-subtask-pill::before {
+      content: '';
+      position: absolute;
+      left: -3px;
+      bottom: -12px;
+      width: 2px;
+      height: 12px;
+      background: currentColor;
+      border-radius: 999px;
+      box-shadow: 0 0 0 1px var(--surface-color);
+    }
+
+    body.theme-pattern-thread-hex .gantt-rollup-subtask-pill {
+      width: 13px !important;
+      min-width: 13px !important;
+      height: 13px !important;
+      top: -6px !important;
+      transform: translateX(-50%) !important;
+      border: 2px solid var(--surface-color) !important;
+      border-radius: 0 !important;
+      opacity: 1 !important;
+      clip-path: polygon(50% 0, 94% 25%, 94% 75%, 50% 100%, 6% 75%, 6% 25%) !important;
+      box-shadow: 0 4px 10px rgba(15,23,42,0.13) !important;
+    }
+
+    body.theme-pattern-thread-squares .gantt-rollup-subtask-pill {
+      width: 12px !important;
+      min-width: 12px !important;
+      height: 12px !important;
+      top: -5px !important;
+      transform: translateX(-50%) !important;
+      border: 2px solid var(--surface-color) !important;
+      border-radius: 2px !important;
+      opacity: 1 !important;
+      box-shadow: 0 0 0 2px color-mix(in srgb, currentColor 16%, transparent), 0 4px 10px rgba(15,23,42,0.13) !important;
+    }
+
+    body.theme-pattern-thread-triangles .gantt-rollup-subtask-pill {
+      width: 14px !important;
+      min-width: 14px !important;
+      height: 14px !important;
+      top: -7px !important;
+      transform: translateX(-50%) !important;
+      border: 2px solid var(--surface-color) !important;
+      border-radius: 0 !important;
+      opacity: 1 !important;
+      clip-path: polygon(50% 0, 100% 100%, 0 100%) !important;
+      box-shadow: 0 4px 10px rgba(15,23,42,0.13) !important;
+    }
+
+    /* Hide child markers while keeping terminal caps visible */
+    .gantt-rollup-subtasks-container {
+      display: none !important;
+    }
+
+    /* Product Design grouping bar recommendations */
+    body.theme-pattern-exec-span .gantt-rollup-bar {
+      top: 12px !important;
+      height: 20px !important;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.72), rgba(255,255,255,0.08)),
+        color-mix(in srgb, var(--primary) 12%, var(--surface-color)) !important;
+      border: 1px solid color-mix(in srgb, var(--primary) 30%, var(--border-color)) !important;
+      border-radius: 999px !important;
+      box-shadow:
+        0 8px 18px rgba(15,23,42,0.1),
+        inset 0 1px 0 rgba(255,255,255,0.75) !important;
+      overflow: hidden !important;
+    }
+    body.theme-pattern-exec-span .gantt-rollup-bar::before,
+    body.theme-pattern-exec-span .gantt-rollup-bar::after {
+      width: 8px !important;
+      height: 20px !important;
+      background: var(--primary) !important;
+      border: 0 !important;
+      border-radius: 999px !important;
+      transform: translateY(-50%) !important;
+      box-shadow: none !important;
+      clip-path: none !important;
+    }
+    body.theme-pattern-exec-span .gantt-rollup-bar::before { left: 0 !important; }
+    body.theme-pattern-exec-span .gantt-rollup-bar::after { right: 0 !important; }
+    body.theme-pattern-exec-span .gantt-rollup-progress {
+      height: 100% !important;
+      top: 0 !important;
+      background: linear-gradient(90deg, var(--primary), var(--accent)) !important;
+      border-radius: 999px !important;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.42) !important;
+    }
+    body.theme-pattern-exec-span .gantt-rollup-progress::after { display: none !important; }
+
+    body.theme-pattern-bracket-band .gantt-rollup-bar {
+      top: 18px !important;
+      height: 6px !important;
+      background: color-mix(in srgb, var(--primary) 22%, var(--border-color)) !important;
+      border: 0 !important;
+      border-radius: 999px !important;
+      box-shadow: none !important;
+      overflow: visible !important;
+    }
+    body.theme-pattern-bracket-band .gantt-rollup-bar::before,
+    body.theme-pattern-bracket-band .gantt-rollup-bar::after {
+      width: 3px !important;
+      height: 24px !important;
+      background: var(--primary) !important;
+      border: 0 !important;
+      border-radius: 999px !important;
+      transform: translateY(-50%) !important;
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 10%, transparent) !important;
+      clip-path: none !important;
+    }
+    body.theme-pattern-bracket-band .gantt-rollup-bar::before { left: 0 !important; }
+    body.theme-pattern-bracket-band .gantt-rollup-bar::after { right: 0 !important; }
+    body.theme-pattern-bracket-band .gantt-rollup-progress {
+      top: -4px !important;
+      height: 14px !important;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.46), rgba(255,255,255,0)),
+        linear-gradient(90deg, var(--primary), var(--accent)) !important;
+      border-radius: 999px !important;
+      box-shadow: 0 5px 12px color-mix(in srgb, var(--primary) 24%, transparent) !important;
+    }
+    body.theme-pattern-bracket-band .gantt-rollup-progress::after { display: none !important; }
+
+    body.theme-pattern-risk-rail .gantt-rollup-bar {
+      top: 12px !important;
+      height: 20px !important;
+      background:
+        repeating-linear-gradient(
+          135deg,
+          color-mix(in srgb, var(--surface-hover) 82%, var(--surface-color)) 0 8px,
+          color-mix(in srgb, var(--border-color) 70%, transparent) 8px 9px
+        ) !important;
+      border: 1px solid color-mix(in srgb, var(--text-muted) 28%, var(--border-color)) !important;
+      border-radius: 5px !important;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.6), 0 5px 14px rgba(15,23,42,0.08) !important;
+      overflow: hidden !important;
+    }
+    body.theme-pattern-risk-rail .gantt-rollup-bar::before,
+    body.theme-pattern-risk-rail .gantt-rollup-bar::after {
+      width: 10px !important;
+      height: 10px !important;
+      background: var(--status-delayed) !important;
+      border: 2px solid var(--surface-color) !important;
+      border-radius: 50% !important;
+      transform: translateY(-50%) !important;
+      box-shadow: 0 0 0 2px color-mix(in srgb, var(--status-delayed) 15%, transparent) !important;
+      clip-path: none !important;
+    }
+    body.theme-pattern-risk-rail .gantt-rollup-bar::before { left: -3px !important; }
+    body.theme-pattern-risk-rail .gantt-rollup-bar::after { right: -3px !important; }
+    body.theme-pattern-risk-rail .gantt-rollup-progress {
+      height: 100% !important;
+      top: 0 !important;
+      background: linear-gradient(90deg, var(--status-completed), var(--status-in-progress), var(--primary)) !important;
+      border-radius: 4px !important;
+      opacity: 0.9 !important;
+      box-shadow: none !important;
+    }
+    body.theme-pattern-risk-rail .gantt-rollup-progress::after { display: none !important; }
+
+    body.theme-pattern-folder-tab .gantt-rollup-bar {
+      top: 13px !important;
+      height: 18px !important;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.62), rgba(255,255,255,0.05)),
+        color-mix(in srgb, var(--primary) 13%, var(--surface-color)) !important;
+      border: 1px solid color-mix(in srgb, var(--primary) 34%, var(--border-color)) !important;
+      border-radius: 4px 8px 8px 4px !important;
+      box-shadow: 0 7px 16px rgba(15,23,42,0.09), inset 0 1px 0 rgba(255,255,255,0.72) !important;
+      overflow: visible !important;
+    }
+    body.theme-pattern-folder-tab .gantt-rollup-bar::before {
+      width: 28px !important;
+      height: 12px !important;
+      top: -6px !important;
+      left: 8px !important;
+      background: color-mix(in srgb, var(--primary) 28%, var(--surface-color)) !important;
+      border: 1px solid color-mix(in srgb, var(--primary) 32%, var(--border-color)) !important;
+      border-bottom: 0 !important;
+      border-radius: 5px 5px 0 0 !important;
+      transform: none !important;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.68) !important;
+      clip-path: none !important;
+    }
+    body.theme-pattern-folder-tab .gantt-rollup-bar::after {
+      width: 8px !important;
+      height: 18px !important;
+      right: 0 !important;
+      background: var(--primary) !important;
+      border: 0 !important;
+      border-radius: 0 8px 8px 0 !important;
+      transform: translateY(-50%) !important;
+      box-shadow: none !important;
+      clip-path: none !important;
+    }
+    body.theme-pattern-folder-tab .gantt-rollup-progress {
+      height: 100% !important;
+      top: 0 !important;
+      background: linear-gradient(90deg, var(--primary), var(--accent)) !important;
+      border-radius: 4px 8px 8px 4px !important;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.36) !important;
+    }
+    body.theme-pattern-folder-tab .gantt-rollup-progress::after { display: none !important; }
+
+    body.theme-pattern-brace .gantt-rollup-bar {
+      top: 20px !important;
+      height: 3px !important;
+      background: color-mix(in srgb, var(--primary) 36%, transparent) !important;
+      border: 0 !important;
+      border-radius: 999px !important;
+      box-shadow: none !important;
+      overflow: visible !important;
+    }
+    body.theme-pattern-brace .gantt-rollup-bar::before,
+    body.theme-pattern-brace .gantt-rollup-bar::after {
+      width: 18px !important;
+      height: 18px !important;
+      background: transparent !important;
+      border: 3px solid var(--primary) !important;
+      border-right: 0 !important;
+      border-bottom: 0 !important;
+      border-radius: 8px 0 0 0 !important;
+      transform: translateY(-50%) rotate(-45deg) !important;
+      box-shadow: none !important;
+      clip-path: none !important;
+    }
+    body.theme-pattern-brace .gantt-rollup-bar::before { left: -4px !important; }
+    body.theme-pattern-brace .gantt-rollup-bar::after {
+      right: -4px !important;
+      transform: translateY(-50%) rotate(135deg) !important;
+    }
+    body.theme-pattern-brace .gantt-rollup-progress {
+      top: -3px !important;
+      height: 9px !important;
+      background: linear-gradient(90deg, var(--primary), var(--accent)) !important;
+      border-radius: 999px !important;
+      box-shadow: 0 3px 10px color-mix(in srgb, var(--primary) 22%, transparent) !important;
+    }
+    body.theme-pattern-brace .gantt-rollup-progress::after { display: none !important; }
+
+    body.theme-pattern-nested-band .gantt-row-group .gantt-row-timeline {
+      background: linear-gradient(90deg, color-mix(in srgb, var(--primary) 8%, transparent), transparent 70%) !important;
+    }
+    body.theme-pattern-nested-band .gantt-rollup-bar {
+      top: 8px !important;
+      height: 28px !important;
+      background: color-mix(in srgb, var(--primary) 8%, var(--surface-color)) !important;
+      border: 1px solid color-mix(in srgb, var(--primary) 22%, var(--border-color)) !important;
+      border-radius: 6px !important;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.62) !important;
+      overflow: hidden !important;
+    }
+    body.theme-pattern-nested-band .gantt-rollup-bar::before,
+    body.theme-pattern-nested-band .gantt-rollup-bar::after {
+      width: 4px !important;
+      height: 100% !important;
+      background: var(--primary) !important;
+      border: 0 !important;
+      border-radius: 0 !important;
+      transform: translateY(-50%) !important;
+      box-shadow: none !important;
+      clip-path: none !important;
+    }
+    body.theme-pattern-nested-band .gantt-rollup-bar::before { left: 0 !important; }
+    body.theme-pattern-nested-band .gantt-rollup-bar::after { right: 0 !important; }
+    body.theme-pattern-nested-band .gantt-rollup-progress {
+      top: 7px !important;
+      height: 14px !important;
+      background: linear-gradient(90deg, var(--primary), var(--accent)) !important;
+      border-radius: 4px !important;
+      box-shadow: 0 3px 8px color-mix(in srgb, var(--primary) 18%, transparent) !important;
+    }
+    body.theme-pattern-nested-band .gantt-rollup-progress::after { display: none !important; }
+
+    body.theme-pattern-stacked-strip .gantt-rollup-bar {
+      top: 11px !important;
+      height: 22px !important;
+      background:
+        linear-gradient(var(--primary), var(--primary)) 0 3px / 100% 4px no-repeat,
+        linear-gradient(color-mix(in srgb, var(--primary) 60%, var(--accent)), color-mix(in srgb, var(--primary) 60%, var(--accent))) 0 10px / 100% 4px no-repeat,
+        linear-gradient(var(--accent), var(--accent)) 0 17px / 100% 4px no-repeat !important;
+      border: 0 !important;
+      border-radius: 0 !important;
+      box-shadow: none !important;
+      overflow: visible !important;
+    }
+    body.theme-pattern-stacked-strip .gantt-rollup-bar::before,
+    body.theme-pattern-stacked-strip .gantt-rollup-bar::after {
+      width: 5px !important;
+      height: 22px !important;
+      background: var(--primary) !important;
+      border: 0 !important;
+      border-radius: 999px !important;
+      transform: translateY(-50%) !important;
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 10%, transparent) !important;
+      clip-path: none !important;
+    }
+    body.theme-pattern-stacked-strip .gantt-rollup-bar::before { left: -2px !important; }
+    body.theme-pattern-stacked-strip .gantt-rollup-bar::after { right: -2px !important; }
+    body.theme-pattern-stacked-strip .gantt-rollup-progress {
+      top: 7px !important;
+      height: 8px !important;
+      background: linear-gradient(90deg, var(--primary), var(--accent)) !important;
+      border-radius: 999px !important;
+      box-shadow: 0 3px 10px color-mix(in srgb, var(--primary) 22%, transparent) !important;
+    }
+    body.theme-pattern-stacked-strip .gantt-rollup-progress::after { display: none !important; }
+
+    body.theme-pattern-folder-chip .gantt-rollup-bar {
+      top: 14px !important;
+      height: 16px !important;
+      background: color-mix(in srgb, var(--surface-hover) 78%, var(--surface-color)) !important;
+      border: 1px solid color-mix(in srgb, var(--primary) 24%, var(--border-color)) !important;
+      border-radius: 999px !important;
+      box-shadow: 0 5px 12px rgba(15,23,42,0.08), inset 0 1px 0 rgba(255,255,255,0.68) !important;
+      overflow: visible !important;
+    }
+    body.theme-pattern-folder-chip .gantt-rollup-bar::before {
+      content: 'folder' !important;
+      font-family: 'Material Symbols Rounded' !important;
+      font-size: 14px !important;
+      line-height: 18px !important;
+      text-align: center !important;
+      color: var(--text-inverse) !important;
+      width: 22px !important;
+      height: 22px !important;
+      left: -8px !important;
+      background: var(--primary) !important;
+      border: 2px solid var(--surface-color) !important;
+      border-radius: 7px !important;
+      transform: translateY(-50%) !important;
+      box-shadow: 0 4px 10px rgba(15,23,42,0.15) !important;
+      clip-path: none !important;
+    }
+    body.theme-pattern-folder-chip .gantt-rollup-bar::after {
+      width: 8px !important;
+      height: 8px !important;
+      right: -3px !important;
+      background: var(--accent) !important;
+      border: 2px solid var(--surface-color) !important;
+      border-radius: 50% !important;
+      transform: translateY(-50%) !important;
+      box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 12%, transparent) !important;
+      clip-path: none !important;
+    }
+    body.theme-pattern-folder-chip .gantt-rollup-progress {
+      top: 3px !important;
+      height: 10px !important;
+      background: linear-gradient(90deg, var(--primary), var(--accent)) !important;
+      border-radius: 999px !important;
+      box-shadow: none !important;
+    }
+    body.theme-pattern-folder-chip .gantt-rollup-progress::after { display: none !important; }
+
+    body.theme-pattern-swimlane-band .gantt-row-group {
+      background:
+        linear-gradient(90deg, color-mix(in srgb, var(--primary) 9%, transparent), transparent 65%),
+        var(--bg-color) !important;
+    }
+    body.theme-pattern-swimlane-band .gantt-row-group .gantt-row-sidebar {
+      background: color-mix(in srgb, var(--primary) 8%, var(--bg-color)) !important;
+    }
+    body.theme-pattern-swimlane-band .gantt-row-group .gantt-row-timeline {
+      background: color-mix(in srgb, var(--primary) 6%, transparent) !important;
+    }
+    body.theme-pattern-swimlane-band .gantt-rollup-bar {
+      top: 10px !important;
+      height: 24px !important;
+      background: color-mix(in srgb, var(--primary) 10%, var(--surface-color)) !important;
+      border: 1px solid color-mix(in srgb, var(--primary) 22%, var(--border-color)) !important;
+      border-radius: 4px !important;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.65) !important;
+      overflow: hidden !important;
+    }
+    body.theme-pattern-swimlane-band .gantt-rollup-bar::before,
+    body.theme-pattern-swimlane-band .gantt-rollup-bar::after {
+      width: 4px !important;
+      height: 24px !important;
+      background: var(--primary) !important;
+      border: 0 !important;
+      border-radius: 0 !important;
+      transform: translateY(-50%) !important;
+      box-shadow: none !important;
+      clip-path: none !important;
+    }
+    body.theme-pattern-swimlane-band .gantt-rollup-bar::before { left: 0 !important; }
+    body.theme-pattern-swimlane-band .gantt-rollup-bar::after { right: 0 !important; }
+    body.theme-pattern-swimlane-band .gantt-rollup-progress {
+      top: 6px !important;
+      height: 12px !important;
+      background: linear-gradient(90deg, var(--primary), var(--accent)) !important;
+      border-radius: 3px !important;
+      box-shadow: none !important;
+    }
+    body.theme-pattern-swimlane-band .gantt-rollup-progress::after { display: none !important; }
+
+    /* STATUS CHIPS */
+    .status-chip {
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 20px;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+    }
+
+    .status-not-started {
+      background-color: var(--status-not-started-bg);
+      color: var(--status-not-started);
+    }
+    .status-in-progress {
+      background-color: var(--status-in-progress-bg);
+      color: var(--status-in-progress);
+    }
+    .status-completed {
+      background-color: var(--status-completed-bg);
+      color: var(--status-completed);
+    }
+    .status-delayed {
+      background-color: var(--status-delayed-bg);
+      color: var(--status-delayed);
+    }
+
+    /* ASSIGNEE STACKS & AVATARS */
+    .avatar {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: white;
+      border: 2px solid var(--surface-color);
+      box-shadow: var(--shadow-sm);
+    }
+
+    /* INTERACTIVE TOOLTIP */
+    .gantt-tooltip {
+      position: absolute;
+      z-index: 1000;
+      background-color: var(--glass-bg);
+      backdrop-filter: var(--glass-blur);
+      border: 1px solid var(--glass-border);
+      border-radius: 12px;
+      padding: 16px;
+      box-shadow: var(--shadow-lg);
+      width: 280px;
+      pointer-events: none;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: opacity var(--transition-fast), transform var(--transition-fast);
+    }
+
+    .gantt-tooltip.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .tooltip-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 10px;
+    }
+
+    .tooltip-title {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--text-main);
+      line-height: 1.3;
+    }
+
+    .tooltip-body {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      font-size: 0.8rem;
+    }
+
+    .tooltip-row {
+      display: flex;
+      justify-content: space-between;
+      color: var(--text-muted);
+    }
+
+    .tooltip-val {
+      color: var(--text-main);
+      font-weight: 500;
+    }
+
+    /* SLATE DRAWER / MODAL */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(15, 23, 42, 0.4);
+      backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity var(--transition-normal);
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .modal {
+      background-color: var(--surface-color);
+      border-radius: 16px;
+      width: 520px;
+      max-width: 90vw;
+      box-shadow: var(--shadow-lg);
+      border: 1px solid var(--border-color);
+      transform: scale(0.95);
+      transition: transform var(--transition-normal);
+      overflow: hidden;
+    }
+
+    .modal-overlay.active .modal {
+      transform: scale(1);
+    }
+
+    .modal-header {
+      padding: 18px 24px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .modal-title {
+      font-family: var(--font-display);
+      font-weight: 600;
+      font-size: 1.1rem;
+    }
+
+    .modal-close {
+      cursor: pointer;
+      color: var(--text-muted);
+      border-radius: 50%;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: none;
+      background: transparent;
+      transition: all var(--transition-fast);
+    }
+
+    .modal-close:hover {
+      background-color: var(--surface-hover);
+      color: var(--text-main);
+    }
+
+    .modal-body {
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      max-height: 70vh;
+      overflow-y: auto;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .form-label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .form-input {
+      padding: 10px 12px;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      background-color: var(--bg-color);
+      font-size: 0.875rem;
+      outline: none;
+      transition: border-color var(--transition-fast);
+      width: 100%;
+    }
+
+    .form-input:focus {
+      border-color: var(--primary);
+    }
+
+    .checkbox-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      max-height: 120px;
+      overflow-y: auto;
+      border: 1px solid var(--border-color);
+      padding: 10px;
+      border-radius: 8px;
+      background-color: var(--bg-color);
+    }
+
+    .checkbox-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.85rem;
+      cursor: pointer;
+    }
+
+    .modal-footer {
+      padding: 18px 24px;
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: var(--bg-color);
+    }
+
+    .modal-footer-right {
+      display: flex;
+      gap: 12px;
+    }
+
+    /* COLLAPSIBLE ROW STATES */
+    .gantt-row.is-collapsed-child {
+      display: none;
+    }
+
+    /* TOAST BANNER NOTIFICATION */
+    .toast-container {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 3000;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .toast {
+      background-color: var(--text-main);
+      color: var(--bg-color);
+      padding: 12px 20px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      box-shadow: var(--shadow-lg);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transform: translateY(20px);
+      opacity: 0;
+      animation: toast-in 0.3s forwards;
+    }
+
+
+    /* DESIGN TABS STYLING */
+    .theme-presets-tab-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 12px;
+      width: 100%;
+      align-items: center;
+    }
+    
+    .preset-tab {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      background-color: var(--surface-color);
+      cursor: pointer;
+      color: var(--text-muted);
+      transition: all var(--transition-fast);
+    }
+    
+    .preset-tab:hover {
+      background-color: var(--surface-hover);
+      color: var(--text-main);
+    }
+    
+    .preset-tab.active {
+      background-color: var(--primary);
+      border-color: var(--primary);
+      color: var(--text-inverse);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .pattern-divider {
+      width: 1px;
+      height: 24px;
+      background: var(--border-color);
+      margin: 0 2px;
+    }
+
+    /* CARBON CYBER PRESET OVERRIDES */
+    body.theme-preset-cyber {
+      --bg-color: #05070c;
+      --surface-color: #0b0f19;
+      --surface-hover: #162235;
+      --border-color: rgba(0, 240, 255, 0.15);
+      --text-main: #00f0ff;
+      --text-muted: #627d98;
+      --text-inverse: #05070c;
+      
+      --primary: #00f0ff;
+      --primary-hover: #00c0cc;
+      --primary-light: #0d293d;
+      --accent: #ff00ff;
+      
+      --status-not-started: #627d98;
+      --status-in-progress: #00f0ff;
+      --status-completed: #39ff14;
+      --status-delayed: #ff0055;
+      
+      --status-not-started-bg: #162235;
+      --status-in-progress-bg: #072230;
+      --status-completed-bg: #062f1d;
+      --status-delayed-bg: #30061c;
+      
+      --font-primary: 'Share Tech Mono', monospace;
+      --font-display: 'Share Tech Mono', monospace;
+      
+      --shadow-sm: none;
+      --shadow-md: none;
+      --shadow-lg: 0 0 15px rgba(0, 240, 255, 0.15);
+    }
+
+    body.theme-preset-cyber * {
+      border-radius: 2px !important;
+    }
+
+    body.theme-preset-cyber .gantt-bar-wrapper {
+      border: 1.5px solid var(--primary) !important;
+      box-shadow: 0 0 8px rgba(0, 240, 255, 0.3) !important;
+    }
+
+    body.theme-preset-cyber .gantt-bar {
+      background: transparent !important;
+      border: none !important;
+    }
+
+    body.theme-preset-cyber .gantt-bar-progress {
+      background-color: rgba(0, 240, 255, 0.3) !important;
+      border-right: 1.5px solid var(--primary) !important;
+    }
+
+    body.theme-preset-cyber .gantt-bar-wrapper[data-task-status="Completed"] {
+      border-color: var(--status-completed) !important;
+      box-shadow: 0 0 8px rgba(57, 255, 20, 0.3) !important;
+    }
+    body.theme-preset-cyber .gantt-bar-wrapper[data-task-status="Completed"] .gantt-bar-progress {
+      background-color: rgba(57, 255, 20, 0.25) !important;
+      border-right-color: var(--status-completed) !important;
+    }
+
+    body.theme-preset-cyber .gantt-bar-wrapper[data-task-status="Delayed"] {
+      border-color: var(--status-delayed) !important;
+      box-shadow: 0 0 8px rgba(255, 0, 85, 0.3) !important;
+    }
+    body.theme-preset-cyber .gantt-bar-wrapper[data-task-status="Delayed"] .gantt-bar-progress {
+      background-color: rgba(255, 0, 85, 0.25) !important;
+      border-right-color: var(--status-delayed) !important;
+    }
+
+    body.theme-preset-cyber .gantt-rollup-bar {
+      background-color: rgba(0, 240, 255, 0.04) !important;
+      border: 1px solid rgba(0, 240, 255, 0.45) !important;
+      height: 12px !important;
+      top: 16px !important;
+      box-shadow:
+        0 0 10px rgba(0, 240, 255, 0.35),
+        inset 0 0 6px rgba(0, 240, 255, 0.15) !important;
+    }
+    body.theme-preset-cyber .gantt-rollup-bar::before,
+    body.theme-preset-cyber .gantt-rollup-bar::after {
+      content: '' !important;
+      position: absolute;
+      top: 50% !important;
+      width: 10px !important;
+      height: 10px !important;
+      background-color: var(--accent) !important;
+      border: 1px solid var(--accent) !important;
+      border-radius: 0 !important;
+      transform: translateY(-50%) rotate(45deg) !important;
+      box-shadow: 0 0 8px var(--accent) !important;
+    }
+    body.theme-preset-cyber .gantt-rollup-bar::before { left: -5px !important; }
+    body.theme-preset-cyber .gantt-rollup-bar::after { right: -5px !important; }
+    body.theme-preset-cyber .gantt-rollup-progress {
+      background: repeating-linear-gradient(
+        90deg,
+        var(--accent) 0px,
+        var(--accent) 6px,
+        transparent 6px,
+        transparent 10px
+      ) !important;
+      height: 100% !important;
+      border-radius: 0px !important;
+      box-shadow: 0 0 12px var(--accent) !important;
+    }
+    body.theme-preset-cyber .gantt-rollup-progress::after { display: none !important; }
+    body.theme-preset-cyber .gantt-rollup-subtask-pill {
+      height: 6px !important;
+      top: 50% !important;
+      transform: translateY(-50%) !important;
+      border: 1px solid currentColor !important;
+      border-radius: 0 !important;
+      background-color: transparent !important;
+      box-shadow: 0 0 6px currentColor !important;
+    }
+    body.theme-preset-cyber .gantt-tooltip {
+      border: 1px solid var(--primary) !important;
+      box-shadow: 0 0 15px rgba(0, 240, 255, 0.15) !important;
+    }
+
+    /* MINIMAL EDITORIAL PRESET OVERRIDES */
+    body.theme-preset-minimal {
+      --bg-color: #faf9f6;
+      --surface-color: #ffffff;
+      --surface-hover: #f3efe6;
+      --border-color: #000000;
+      --text-main: #111111;
+      --text-muted: #555555;
+      --text-inverse: #ffffff;
+      
+      --primary: #000000;
+      --primary-hover: #222222;
+      --primary-light: #eae5db;
+      --accent: #000000;
+      
+      --status-not-started: #555555;
+      --status-in-progress: #000000;
+      --status-completed: #111111;
+      --status-delayed: #000000;
+      
+      --status-not-started-bg: #eae5db;
+      --status-in-progress-bg: #ffffff;
+      --status-completed-bg: #ffffff;
+      --status-delayed-bg: #ffffff;
+      
+      --font-primary: 'Inter', sans-serif;
+      --font-display: 'Playfair Display', serif;
+      
+      --shadow-sm: none;
+      --shadow-md: none;
+      --shadow-lg: none;
+    }
+
+    body.theme-preset-minimal * {
+      border-radius: 0px !important;
+      box-shadow: none !important;
+      text-shadow: none !important;
+      filter: none !important;
+    }
+
+    body.theme-preset-minimal .gantt-bar-wrapper {
+      border: 2px solid #000000 !important;
+      background-color: #ffffff !important;
+    }
+
+    body.theme-preset-minimal .gantt-bar {
+      background: #ffffff !important;
+      color: #000000 !important;
+      border: none !important;
+    }
+
+    body.theme-preset-minimal .gantt-bar-progress {
+      background: repeating-linear-gradient(
+        45deg,
+        #000000,
+        #000000 4px,
+        #ffffff 4px,
+        #ffffff 8px
+      ) !important;
+      border-right: 2px solid #000000 !important;
+    }
+
+    body.theme-preset-minimal .gantt-rollup-bar {
+      background-color: transparent !important;
+      border: none !important;
+      border-bottom: 2px solid #000000 !important;
+      height: 0px !important;
+      top: 22px !important;
+      box-shadow: none !important;
+      overflow: visible !important;
+    }
+    /* Square serif end brackets */
+    body.theme-preset-minimal .gantt-rollup-bar::before,
+    body.theme-preset-minimal .gantt-rollup-bar::after {
+      content: '' !important;
+      position: absolute;
+      top: -7px !important;
+      width: 2px !important;
+      height: 14px !important;
+      background-color: #000000 !important;
+      border: none !important;
+      border-radius: 0 !important;
+      transform: none !important;
+      box-shadow: none !important;
+    }
+    body.theme-preset-minimal .gantt-rollup-bar::before { left: 0 !important; }
+    body.theme-preset-minimal .gantt-rollup-bar::after { right: 0 !important; }
+    body.theme-preset-minimal .gantt-rollup-progress {
+      background: #000000 !important;
+      height: 5px !important;
+      top: -3px !important;
+      border: none !important;
+      box-shadow: none !important;
+    }
+    body.theme-preset-minimal .gantt-rollup-progress::after { display: none !important; }
+    body.theme-preset-minimal .gantt-rollup-subtask-pill {
+      height: 10px !important;
+      width: 2px !important;
+      top: -5px !important;
+      transform: none !important;
+      background-color: #000000 !important;
+      border: none !important;
+      opacity: 1 !important;
+      box-shadow: none !important;
+    }
+    
+    body.theme-preset-minimal .avatar {
+      border: 1px solid #000000 !important;
+      background-color: #ffffff !important;
+      color: #000000 !important;
+    }
+
+    body.theme-preset-minimal .status-chip {
+      border: 1px solid #000000 !important;
+      background: #ffffff !important;
+      color: #000000 !important;
+      font-weight: bold !important;
+    }
+
+    /* SUNSET OASIS PRESET OVERRIDES */
+    body.theme-preset-oasis {
+      --bg-color: #fdf8f5;
+      --surface-color: #fffbf9;
+      --surface-hover: #f9ede6;
+      --border-color: #ebd9ce;
+      --text-main: #5c3d2e;
+      --text-muted: #a08476;
+      --text-inverse: #fffbf9;
+      
+      --primary: #c87a53;
+      --primary-hover: #b26842;
+      --primary-light: #f7e6dc;
+      --accent: #99a98c;
+      
+      --status-not-started: #a08476;
+      --status-in-progress: #c87a53;
+      --status-completed: #8ea17e;
+      --status-delayed: #d96a58;
+      
+      --status-not-started-bg: #ebd9ce;
+      --status-in-progress-bg: #f9ede6;
+      --status-completed-bg: #eaf1e5;
+      --status-delayed-bg: #fbeae6;
+      
+      --font-primary: 'Outfit', sans-serif;
+      --font-display: 'Outfit', sans-serif;
+      
+      --shadow-sm: 0 2px 4px rgba(92, 61, 46, 0.02);
+      --shadow-md: 0 4px 10px rgba(92, 61, 46, 0.04);
+      --shadow-lg: 0 10px 20px rgba(92, 61, 46, 0.06);
+    }
+
+    body.theme-preset-oasis * {
+      border-radius: 9999px !important;
+    }
+
+    body.theme-preset-oasis .gantt-grid, 
+    body.theme-preset-oasis .gantt-header-row,
+    body.theme-preset-oasis .gantt-row,
+    body.theme-preset-oasis .gantt-row-sidebar,
+    body.theme-preset-oasis .gantt-row-timeline,
+    body.theme-preset-oasis .gantt-grid-bg,
+    body.theme-preset-oasis .gantt-header-timeline,
+    body.theme-preset-oasis .gantt-timeline-major,
+    body.theme-preset-oasis .gantt-timeline-minor,
+    body.theme-preset-oasis .gantt-time-cell,
+    body.theme-preset-oasis .modal,
+    body.theme-preset-oasis .modal-body,
+    body.theme-preset-oasis .checkbox-group,
+    body.theme-preset-oasis .gantt-tooltip {
+      border-radius: 0px !important;
+    }
+
+    body.theme-preset-oasis .modal,
+    body.theme-preset-oasis .gantt-tooltip {
+      border-radius: 20px !important;
+    }
+    
+    body.theme-preset-oasis .form-input,
+    body.theme-preset-oasis .segmented-control,
+    body.theme-preset-oasis .segmented-btn,
+    body.theme-preset-oasis .btn,
+    body.theme-preset-oasis .search-input {
+      border-radius: 12px !important;
+    }
+
+    body.theme-preset-oasis .gantt-bar-wrapper {
+      border-radius: 9999px !important;
+      overflow: hidden;
+    }
+
+    body.theme-preset-oasis .gantt-bar {
+      border-radius: 9999px !important;
+      border: none !important;
+    }
+
+    body.theme-preset-oasis .gantt-bar-progress {
+      border-radius: 9999px !important;
+      background-color: rgba(255, 255, 255, 0.25) !important;
+      border-right: none !important;
+    }
+
+    body.theme-preset-oasis .gantt-rollup-bar {
+      background-color: var(--primary-light) !important;
+      border: none !important;
+      height: 12px !important;
+      top: 16px !important;
+      border-radius: 9999px !important;
+      box-shadow:
+        var(--shadow-sm),
+        inset 0 1px 2px rgba(92,61,46,0.06) !important;
+      overflow: visible !important;
+    }
+    body.theme-preset-oasis .gantt-rollup-bar::before,
+    body.theme-preset-oasis .gantt-rollup-bar::after {
+      content: '' !important;
+      position: absolute;
+      top: 50% !important;
+      width: 14px !important;
+      height: 14px !important;
+      border-radius: 50% !important;
+      background: radial-gradient(circle at 35% 30%, #ffffff 0%, var(--primary) 70%) !important;
+      border: 2px solid var(--surface-color) !important;
+      transform: translateY(-50%) !important;
+      box-shadow: var(--shadow-md) !important;
+    }
+    body.theme-preset-oasis .gantt-rollup-bar::before { left: -6px !important; }
+    body.theme-preset-oasis .gantt-rollup-bar::after { right: -6px !important; }
+    body.theme-preset-oasis .gantt-rollup-progress {
+      background: linear-gradient(90deg, var(--primary), var(--accent)) !important;
+      height: 100% !important;
+      top: 0 !important;
+      border-radius: 9999px !important;
+      opacity: 0.9 !important;
+      box-shadow: 0 0 6px rgba(200,122,83,0.3) !important;
+    }
+    body.theme-preset-oasis .gantt-rollup-progress::after { display: none !important; }
+    body.theme-preset-oasis .gantt-rollup-subtask-pill {
+      height: 6px !important;
+      border-radius: 9999px !important;
+      top: 50% !important;
+      transform: translateY(-50%) !important;
+      border: 0.5px solid rgba(255,255,255,0.6) !important;
+      opacity: 0.95 !important;
+      box-shadow: 0 1px 2px rgba(92,61,46,0.2) !important;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- APP HEADER -->
+  <header class="app-header">
+    <div class="brand-section">
+      <div class="brand-logo">
+        <span class="icon">timeline</span>
+      </div>
+      <div>
+        <h1 class="brand-title">Interactive Gantt Chart Studio</h1>
+      </div>
+      <span class="brand-tag">v1.1</span>
+    </div>
+    
+    <div class="control-actions">
+      <!-- Dark/Light Toggle -->
+      <button class="btn btn-icon" id="theme-toggle" title="Toggle theme">
+        <span class="icon">dark_mode</span>
+      </button>
+      
+      <!-- Reset Demo Data -->
+      <button class="btn" id="btn-reset" title="Reset Demo Data">
+        <span class="icon">restart_alt</span>
+        Reset Data
+      </button>
+
+      <button class="btn btn-primary" id="btn-add-task">
+        <span class="icon">add</span>
+        New Task
+      </button>
+    </div>
+  </header>
+
+  <!-- TOOLBAR -->
+  <div class="toolbar">
+    <!-- Design Switcher Tabs -->
+    <div class="theme-presets-tab-bar">
+      <span style="font-size: 0.725rem; font-weight: 800; color: var(--text-muted); align-self: center; margin-right: 8px; text-transform: uppercase; letter-spacing: 0.05em; display: inline-flex; align-items: center; gap: 4px;">
+        <span class="icon" style="font-size: 16px;">palette</span> Design Presets:
+      </span>
+      <button class="preset-tab active" data-preset="aura">
+        <span class="icon" style="font-size: 16px;">blur_on</span> Aura Glass
+      </button>
+      <button class="preset-tab" data-preset="aura-soft">
+        <span class="icon" style="font-size: 16px;">water_drop</span> Aura Soft
+      </button>
+      <button class="preset-tab" data-preset="aura-clean">
+        <span class="icon" style="font-size: 16px;">deblur</span> Aura Clean
+      </button>
+      <button class="preset-tab" data-preset="aura-flat">
+        <span class="icon" style="font-size: 16px;">horizontal_rule</span> Aura Flat
+      </button>
+      <button class="preset-tab" data-preset="cyber">
+        <span class="icon" style="font-size: 16px;">terminal</span> Carbon Cyber
+      </button>
+      <button class="preset-tab" data-preset="minimal">
+        <span class="icon" style="font-size: 16px;">edit_document</span> Minimal Editorial
+      </button>
+      <button class="preset-tab" data-preset="oasis">
+        <span class="icon" style="font-size: 16px;">spa</span> Sunset Oasis
+      </button>
+      <span class="pattern-divider" aria-hidden="true"></span>
+      <button class="preset-tab" data-preset="pattern-ribbon">
+        <span class="icon" style="font-size: 16px;">featured_seasonal_and_gifts</span> Ribbon Rollup
+      </button>
+      <button class="preset-tab" data-preset="pattern-baseline">
+        <span class="icon" style="font-size: 16px;">stacked_line_chart</span> Baseline Actual
+      </button>
+      <button class="preset-tab" data-preset="pattern-segmented">
+        <span class="icon" style="font-size: 16px;">view_timeline</span> Status Segments
+      </button>
+      <button class="preset-tab" data-preset="pattern-heatmap">
+        <span class="icon" style="font-size: 16px;">blur_linear</span> Heatmap Bands
+      </button>
+      <button class="preset-tab" data-preset="pattern-milestone">
+        <span class="icon" style="font-size: 16px;">conversion_path</span> Milestone Thread
+      </button>
+      <button class="preset-tab" data-preset="pattern-thread-dots">
+        <span class="icon" style="font-size: 16px;">radio_button_checked</span> Thread Dots
+      </button>
+      <button class="preset-tab" data-preset="pattern-thread-capsules">
+        <span class="icon" style="font-size: 16px;">pill</span> Thread Capsules
+      </button>
+      <button class="preset-tab" data-preset="pattern-thread-flags">
+        <span class="icon" style="font-size: 16px;">flag</span> Thread Flags
+      </button>
+      <button class="preset-tab" data-preset="pattern-thread-hex">
+        <span class="icon" style="font-size: 16px;">hexagon</span> Thread Hex
+      </button>
+      <button class="preset-tab" data-preset="pattern-thread-squares">
+        <span class="icon" style="font-size: 16px;">stop</span> Thread Squares
+      </button>
+      <button class="preset-tab" data-preset="pattern-thread-triangles">
+        <span class="icon" style="font-size: 16px;">change_history</span> Thread Triangles
+      </button>
+      <button class="preset-tab" data-preset="pattern-exec-span">
+        <span class="icon" style="font-size: 16px;">view_timeline</span> Executive Span
+      </button>
+      <button class="preset-tab" data-preset="pattern-bracket-band">
+        <span class="icon" style="font-size: 16px;">data_array</span> Bracket Band
+      </button>
+      <button class="preset-tab" data-preset="pattern-risk-rail">
+        <span class="icon" style="font-size: 16px;">emergency_home</span> Risk Rail
+      </button>
+      <button class="preset-tab" data-preset="pattern-folder-tab">
+        <span class="icon" style="font-size: 16px;">folder_open</span> Folder Tab
+      </button>
+      <button class="preset-tab" data-preset="pattern-brace">
+        <span class="icon" style="font-size: 16px;">counter_1</span> Brace
+      </button>
+      <button class="preset-tab" data-preset="pattern-nested-band">
+        <span class="icon" style="font-size: 16px;">select</span> Nested Band
+      </button>
+      <button class="preset-tab" data-preset="pattern-stacked-strip">
+        <span class="icon" style="font-size: 16px;">density_medium</span> Stacked Strip
+      </button>
+      <button class="preset-tab" data-preset="pattern-folder-chip">
+        <span class="icon" style="font-size: 16px;">folder_special</span> Folder Chip
+      </button>
+      <button class="preset-tab" data-preset="pattern-swimlane-band">
+        <span class="icon" style="font-size: 16px;">table_rows</span> Swimlane Band
+      </button>
+    </div>
+
+    <div class="toolbar-left">
+      <!-- Search -->
+      <div class="search-wrapper">
+        <span class="icon search-icon">search</span>
+        <input type="text" class="search-input" id="search-filter" placeholder="Search tasks...">
+      </div>
+
+      <!-- Filters -->
+      <select class="filter-select" id="status-filter">
+        <option value="all">All Statuses</option>
+        <option value="Not Started">Not Started</option>
+        <option value="In Progress">In Progress</option>
+        <option value="Completed">Completed</option>
+        <option value="Delayed">Delayed</option>
+      </select>
+
+      <select class="filter-select" id="assignee-filter">
+        <option value="all">All Assignees</option>
+      </select>
+
+      <!-- Zoom / Time-Scale Segmented Control -->
+      <div class="segmented-control">
+        <button class="segmented-btn active" data-scale="days">Days</button>
+        <button class="segmented-btn" data-scale="weeks">Weeks</button>
+        <button class="segmented-btn" data-scale="months">Months</button>
+      </div>
+    </div>
+
+    <div class="toolbar-right">
+      <!-- Critical Path Switcher -->
+      <label class="switch-control" id="critical-path-toggle-wrapper">
+        <input type="checkbox" id="critical-path-toggle">
+        <span class="switch-track">
+          <span class="switch-thumb"></span>
+        </span>
+        Show Critical Path
+      </label>
+    </div>
+  </div>
+
+  <!-- GANTT WORKSPACE -->
+  <div class="gantt-outer-container">
+    <div class="gantt-grid-wrapper" id="gantt-scrollport">
+      <div class="gantt-grid" id="gantt-grid-canvas">
+        
+        <!-- HEADER ROW (Dynamic content inside timeline) -->
+        <div class="gantt-header-row" id="gantt-header-container">
+          <div class="gantt-header-sidebar">
+            <span>Project Tasks</span>
+            <button class="btn btn-icon" id="btn-add-group" title="Add New Group" style="padding: 4px; border-radius: 4px;">
+              <span class="icon" style="font-size: 16px;">create_new_folder</span>
+            </button>
+          </div>
+          <div class="gantt-header-timeline" id="timeline-headers">
+            <!-- Dynamic minor/major columns here -->
+          </div>
+        </div>
+
+        <!-- DYNAMIC BODY ROWS -->
+        <div class="gantt-svg-canvas-container" style="position: absolute; top: var(--header-height); left: var(--sidebar-width); width: calc(100% - var(--sidebar-width)); height: calc(100% - var(--header-height)); pointer-events: none; z-index: 3;">
+          <svg class="gantt-svg-canvas" id="gantt-svg"></svg>
+        </div>
+        
+        <div id="gantt-rows-container" style="display: contents;">
+          <!-- Rows will render dynamically here -->
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- TOOLTIP OVERLAY -->
+  <div class="gantt-tooltip" id="gantt-tooltip-el">
+    <div class="tooltip-header">
+      <h4 class="tooltip-title" id="tooltip-title">Task Title</h4>
+      <span class="status-chip" id="tooltip-status">In Progress</span>
+    </div>
+    <div class="tooltip-body">
+      <div class="tooltip-row">
+        <span>Dates:</span>
+        <span class="tooltip-val" id="tooltip-dates">Jun 01 - Jun 10</span>
+      </div>
+      <div class="tooltip-row">
+        <span>Duration:</span>
+        <span class="tooltip-val" id="tooltip-duration">9 days</span>
+      </div>
+      <div class="tooltip-row">
+        <span>Assignee:</span>
+        <span class="tooltip-val" id="tooltip-assignee">Alex Chen</span>
+      </div>
+      <div class="tooltip-row">
+        <span>Progress:</span>
+        <span class="tooltip-val" id="tooltip-progress">50%</span>
+      </div>
+      <div class="tooltip-row">
+        <span>Dependencies:</span>
+        <span class="tooltip-val" id="tooltip-dependencies">None</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- TASK MODAL EDITOR -->
+  <div class="modal-overlay" id="task-modal-overlay">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title" id="modal-heading">Edit Task</h3>
+        <button class="modal-close" id="btn-close-modal"><span class="icon">close</span></button>
+      </div>
+      <form id="task-form">
+        <div class="modal-body">
+          <input type="hidden" id="form-task-id">
+          
+          <div class="form-group">
+            <label class="form-label" for="form-task-name">Task Name</label>
+            <input type="text" class="form-input" id="form-task-name" required placeholder="Enter task name">
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="form-task-start">Start Date</label>
+              <input type="date" class="form-input" id="form-task-start" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="form-task-end">End Date</label>
+              <input type="date" class="form-input" id="form-task-end" required>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="form-task-progress">Progress (%)</label>
+              <input type="number" class="form-input" id="form-task-progress" min="0" max="100" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="form-task-status">Status</label>
+              <select class="form-input" id="form-task-status">
+                <option value="Not Started">Not Started</option>
+                <option value="In Progress">In Progress</option>
+                <option value="Completed">Completed</option>
+                <option value="Delayed">Delayed</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="form-task-group">Group</label>
+              <select class="form-input" id="form-task-group" required>
+                <!-- Dynamic group list -->
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="form-task-assignee">Assignee</label>
+              <select class="form-input" id="form-task-assignee" required>
+                <!-- Dynamic assignees -->
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Pre-requisites (Dependencies)</label>
+            <div class="checkbox-group" id="form-dependencies-list">
+              <!-- Checkboxes will load dynamically here -->
+            </div>
+          </div>
+        </div>
+        
+        <div class="modal-footer">
+          <button type="button" class="btn" id="btn-delete-task" style="color: var(--status-delayed); border-color: var(--status-delayed-bg);">
+            <span class="icon">delete</span>
+            Delete Task
+          </button>
+          <div class="modal-footer-right">
+            <button type="button" class="btn" id="btn-cancel-modal">Cancel</button>
+            <button type="submit" class="btn btn-primary" id="btn-submit-task">Save Changes</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- GROUP MODAL EDITOR -->
+  <div class="modal-overlay" id="group-modal-overlay">
+    <div class="modal" style="width: 400px;">
+      <div class="modal-header">
+        <h3 class="modal-title" id="group-modal-heading">New Group</h3>
+        <button class="modal-close" id="btn-close-group-modal"><span class="icon">close</span></button>
+      </div>
+      <form id="group-form">
+        <div class="modal-body">
+          <input type="hidden" id="form-group-id">
+          <div class="form-group">
+            <label class="form-label" for="form-group-name">Group Name</label>
+            <input type="text" class="form-input" id="form-group-name" required placeholder="e.g. Design Phase">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn" id="btn-delete-group" style="color: var(--status-delayed); border-color: var(--status-delayed-bg);">Delete</button>
+          <div class="modal-footer-right">
+            <button type="button" class="btn" id="btn-cancel-group-modal">Cancel</button>
+            <button type="submit" class="btn btn-primary">Save</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- TOAST CONTAINER -->
+  <div class="toast-container" id="toasts"></div>
+
+  <!-- JAVASCRIPT STATE & ENGINE -->
+  <script>
+    // ASSIGNEES PRESETS
+    const ASSIGNEES = [
+      { id: "ac", name: "Alex Chen", initials: "AC", color: "#8b5cf6" },
+      { id: "sc", name: "Sarah Connor", initials: "SC", color: "#ec4899" },
+      { id: "ma", name: "Marcus Aurelius", initials: "MA", color: "#14b8a6" },
+      { id: "er", name: "Elena Rostova", initials: "ER", color: "#f59e0b" },
+      { id: "jd", name: "John Doe", initials: "JD", color: "#3b82f6" }
+    ];
+
+    // INITIAL DEMO DATA
+    const INITIAL_GROUPS = [
+      { id: "g1", name: "Phase 1: Initiation & Planning", collapsed: false },
+      { id: "g2", name: "Phase 2: Core Development", collapsed: false },
+      { id: "g3", name: "Phase 3: Launch & Review", collapsed: false }
+    ];
+
+    const INITIAL_TASKS = [
+      { id: "t1", groupId: "g1", name: "Project Kickoff & Scope Alignment", startDate: "2026-06-01", endDate: "2026-06-03", progress: 100, status: "Completed", assignee: "ac", dependencies: [] },
+      { id: "t2", groupId: "g1", name: "Detailed Requirements Gathering", startDate: "2026-06-03", endDate: "2026-06-08", progress: 100, status: "Completed", assignee: "sc", dependencies: ["t1"] },
+      { id: "t3", groupId: "g1", name: "System Architecture & UI/UX Design", startDate: "2026-06-08", endDate: "2026-06-13", progress: 65, status: "In Progress", assignee: "ma", dependencies: ["t2"] },
+      
+      { id: "t4", groupId: "g2", name: "Database Schema & Infrastructure Setup", startDate: "2026-06-13", endDate: "2026-06-16", progress: 80, status: "In Progress", assignee: "ma", dependencies: ["t3"] },
+      { id: "t5", groupId: "g2", name: "Core API & Service Layer Implementation", startDate: "2026-06-16", endDate: "2026-06-23", progress: 10, status: "In Progress", assignee: "er", dependencies: ["t4"] },
+      { id: "t6", groupId: "g2", name: "Frontend Components & Design System", startDate: "2026-06-13", endDate: "2026-06-19", progress: 45, status: "In Progress", assignee: "jd", dependencies: ["t3"] },
+      { id: "t7", groupId: "g2", name: "Client-Server API Integration", startDate: "2026-06-23", endDate: "2026-06-29", progress: 0, status: "Not Started", assignee: "jd", dependencies: ["t5", "t6"] },
+      
+      { id: "t8", groupId: "g3", name: "Security Audit & Vulnerability Testing", startDate: "2026-06-23", endDate: "2026-06-27", progress: 0, status: "Not Started", assignee: "sc", dependencies: ["t5"] },
+      { id: "t9", groupId: "g3", name: "User Acceptance Testing (UAT)", startDate: "2026-06-29", endDate: "2026-07-03", progress: 0, status: "Not Started", assignee: "ac", dependencies: ["t7"] },
+      { id: "t10", groupId: "g3", name: "Production Release & Handover", startDate: "2026-07-03", endDate: "2026-07-06", progress: 0, status: "Not Started", assignee: "er", dependencies: ["t8", "t9"] }
+    ];
+
+    // APPLICATION STATE
+    let state = {
+      groups: [],
+      tasks: [],
+      zoomScale: 'days', // 'days', 'weeks', 'months'
+      theme: 'light',
+      showCriticalPath: false,
+      searchQuery: '',
+      statusFilter: 'all',
+      assigneeFilter: 'all',
+      projectStart: null,
+      projectEnd: null,
+      totalTimelineDays: 0
+    };
+
+    // ACTIVE DRAG/RESIZE VARIABLES
+    let interaction = {
+      active: false,
+      type: null, // 'drag', 'resize-left', 'resize-right'
+      taskId: null,
+      initialClientX: 0,
+      initialStartDayOffset: 0,
+      initialEndDayOffset: 0,
+      pxPerDay: 0,
+      element: null,
+      previewStartDate: null,
+      previewEndDate: null
+    };
+
+    // DATE MATHEMATICS HELPER FUNCTIONS
+    function parseDateStr(str) {
+      const parts = str.split('-');
+      return new Date(parts[0], parts[1] - 1, parts[2]);
+    }
+
+    function formatDateStr(date) {
+      const y = date.getFullYear();
+      const m = String(date.getMonth() + 1).padStart(2, '0');
+      const d = String(date.getDate()).padStart(2, '0');
+      return `${y}-${m}-${d}`;
+    }
+
+    function addDays(date, days) {
+      const d = new Date(date.getTime());
+      d.setDate(d.getDate() + days);
+      return d;
+    }
+
+    function diffDays(date1, date2) {
+      const d1 = new Date(date1.getFullYear(), date1.getMonth(), date1.getDate());
+      const d2 = new Date(date2.getFullYear(), date2.getMonth(), date2.getDate());
+      return Math.round((d2 - d1) / (1000 * 60 * 60 * 24));
+    }
+
+    function getFormattedMonthYear(date) {
+      return date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+    }
+
+    // STATE CONTROLLER
+    function init() {
+      // Load from localStorage or use initial presets
+      const savedGroups = localStorage.getItem('gantt_groups');
+      const savedTasks = localStorage.getItem('gantt_tasks');
+      const savedTheme = localStorage.getItem('gantt_theme');
+      
+      state.groups = savedGroups ? JSON.parse(savedGroups) : JSON.parse(JSON.stringify(INITIAL_GROUPS));
+      state.tasks = savedTasks ? JSON.parse(savedTasks) : JSON.parse(JSON.stringify(INITIAL_TASKS));
+      state.theme = savedTheme || 'light';
+      
+      document.documentElement.setAttribute('data-theme', state.theme);
+      updateThemeToggleButtonIcon();
+
+      // Populate filter dropdown
+      const assigneeFilterSelect = document.getElementById('assignee-filter');
+      const modalAssigneeSelect = document.getElementById('form-task-assignee');
+      
+      ASSIGNEES.forEach(a => {
+        const option1 = document.createElement('option');
+        option1.value = a.id;
+        option1.textContent = a.name;
+        assigneeFilterSelect.appendChild(option1);
+
+        const option2 = document.createElement('option');
+        option2.value = a.id;
+        option2.textContent = a.name;
+        modalAssigneeSelect.appendChild(option2);
+      });
+
+      calculateProjectBoundaries();
+      render();
+      registerEventListeners();
+      
+      // Auto-scroll slightly to center project start
+      setTimeout(() => {
+        const scrollport = document.getElementById('gantt-scrollport');
+        if (scrollport) {
+          scrollport.scrollLeft = 80; // Small padding scroll
+        }
+      }, 100);
+    }
+
+    function saveState() {
+      localStorage.setItem('gantt_groups', JSON.stringify(state.groups));
+      localStorage.setItem('gantt_tasks', JSON.stringify(state.tasks));
+      calculateProjectBoundaries();
+      render();
+    }
+
+    function calculateProjectBoundaries() {
+      if (state.tasks.length === 0) {
+        state.projectStart = new Date();
+        state.projectEnd = addDays(state.projectStart, 30);
+        state.totalTimelineDays = 30;
+        return;
+      }
+
+      let min = parseDateStr(state.tasks[0].startDate);
+      let max = parseDateStr(state.tasks[0].endDate);
+
+      state.tasks.forEach(t => {
+        const start = parseDateStr(t.startDate);
+        const end = parseDateStr(t.endDate);
+        if (start < min) min = start;
+        if (end > max) max = end;
+      });
+
+      // Add timeline padding (5 days start padding, 15 days end padding for growth space)
+      state.projectStart = addDays(min, -6);
+      state.projectEnd = addDays(max, 16);
+      state.totalTimelineDays = diffDays(state.projectStart, state.projectEnd);
+      
+      // Update css grid layout bounds
+      let pxPerDay = 40;
+      if (state.zoomScale === 'weeks') pxPerDay = 15;
+      else if (state.zoomScale === 'months') pxPerDay = 4.5;
+      
+      document.documentElement.style.setProperty('--day-width', `${pxPerDay}px`);
+      document.documentElement.style.setProperty('--total-days', state.totalTimelineDays);
+    }
+
+    // CRITICAL PATH METHOD (CPM) ALGORITHM
+    function computeCriticalPath() {
+      if (state.tasks.length === 0) return [];
+      
+      // Reset statuses
+      const tasksMap = {};
+      const adj = {};
+      const indegree = {};
+      
+      state.tasks.forEach(t => {
+        tasksMap[t.id] = {
+          ...t,
+          duration: Math.max(1, diffDays(parseDateStr(t.startDate), parseDateStr(t.endDate))),
+          es: 0,
+          ef: 0,
+          ls: 0,
+          lf: 0,
+          slack: 0
+        };
+        adj[t.id] = [];
+        indegree[t.id] = 0;
+      });
+
+      // Build dependency graph (note: dependency list contains prerequisites)
+      // So prerequisite -> task
+      state.tasks.forEach(t => {
+        t.dependencies.forEach(prereqId => {
+          if (tasksMap[prereqId]) {
+            adj[prereqId].push(t.id);
+            indegree[t.id]++;
+          }
+        });
+      });
+
+      // Topological Sort using Kahn's Algorithm
+      const queue = [];
+      const order = [];
+      
+      Object.keys(tasksMap).forEach(id => {
+        if (indegree[id] === 0) {
+          queue.push(id);
+        }
+      });
+
+      while (queue.length > 0) {
+        const u = queue.shift();
+        order.push(u);
+        adj[u].forEach(v => {
+          indegree[v]--;
+          if (indegree[v] === 0) {
+            queue.push(v);
+          }
+        });
+      }
+
+      // If cycle is detected (order doesn't contain all nodes), skip CPM calculation
+      if (order.length !== state.tasks.length) {
+        return [];
+      }
+
+      // Forward Pass: Calculate Earliest Start (es) & Earliest Finish (ef)
+      order.forEach(u => {
+        const t = tasksMap[u];
+        // ES is the max EF of all prerequisites
+        let maxPrereqEf = 0;
+        state.tasks.find(x => x.id === u).dependencies.forEach(prereqId => {
+          if (tasksMap[prereqId] && tasksMap[prereqId].ef > maxPrereqEf) {
+            maxPrereqEf = tasksMap[prereqId].ef;
+          }
+        });
+        t.es = maxPrereqEf;
+        t.ef = t.es + t.duration;
+      });
+
+      // Find the project completion time
+      let maxProjectEf = 0;
+      order.forEach(u => {
+        if (tasksMap[u].ef > maxProjectEf) {
+          maxProjectEf = tasksMap[u].ef;
+        }
+      });
+
+      // Backward Pass: Calculate Latest Finish (lf) and Latest Start (ls)
+      // Initialize with max completion time
+      order.forEach(u => {
+        tasksMap[u].lf = maxProjectEf;
+        tasksMap[u].ls = maxProjectEf - tasksMap[u].duration;
+      });
+
+      // Backwards propagation
+      for (let i = order.length - 1; i >= 0; i--) {
+        const u = order[i];
+        const t = tasksMap[u];
+        
+        // If there are dependents, LF is the min LS of dependents
+        if (adj[u].length > 0) {
+          let minDependentLs = Infinity;
+          adj[u].forEach(v => {
+            if (tasksMap[v].ls < minDependentLs) {
+              minDependentLs = tasksMap[v].ls;
+            }
+          });
+          t.lf = minDependentLs;
+          t.ls = t.lf - t.duration;
+        }
+      }
+
+      // Slack & Critical Path filtering
+      const criticalPathIds = [];
+      order.forEach(u => {
+        const t = tasksMap[u];
+        t.slack = t.ls - t.es;
+        // Slack of 0 means task is on critical path
+        if (t.slack <= 0) {
+          criticalPathIds.push(u);
+        }
+      });
+
+      return criticalPathIds;
+    }
+
+    // MAIN RENDER FUNCTION
+    function render() {
+      renderTimelineHeaders();
+      renderBodyRows();
+      setTimeout(drawDependencyLines, 0); // Wait for browser DOM layout finish
+    }
+
+    // RENDER TIMELINE HEADER CELLS
+    function renderTimelineHeaders() {
+      const container = document.getElementById('timeline-headers');
+      container.innerHTML = '';
+
+      const majorRow = document.createElement('div');
+      majorRow.className = 'gantt-timeline-major';
+      
+      const minorRow = document.createElement('div');
+      minorRow.className = 'gantt-timeline-minor';
+      
+      container.appendChild(majorRow);
+      container.appendChild(minorRow);
+
+      let pxPerDay = getPixelsPerDay();
+
+      if (state.zoomScale === 'days') {
+        // Group columns by Month-Year
+        let currentMonthStr = "";
+        let currentWidthSum = 0;
+        let pendingCell = null;
+
+        for (let i = 0; i < state.totalTimelineDays; i++) {
+          const date = addDays(state.projectStart, i);
+          const mStr = getFormattedMonthYear(date);
+          
+          if (mStr !== currentMonthStr) {
+            if (pendingCell) {
+              pendingCell.style.width = `${currentWidthSum}px`;
+              majorRow.appendChild(pendingCell);
+            }
+            currentMonthStr = mStr;
+            currentWidthSum = 0;
+            pendingCell = document.createElement('div');
+            pendingCell.style.flexShrink = '0';
+            pendingCell.style.borderRight = '1px solid var(--border-color)';
+            pendingCell.style.height = '100%';
+            pendingCell.style.display = 'flex';
+            pendingCell.style.alignItems = 'center';
+            pendingCell.style.paddingLeft = '12px';
+            pendingCell.textContent = mStr;
+          }
+          currentWidthSum += pxPerDay;
+
+          // Minor cell (Days)
+          const minorCell = document.createElement('div');
+          minorCell.className = 'gantt-time-cell';
+          minorCell.style.width = `${pxPerDay}px`;
+          
+          // Weekend highlights
+          const dayOfWeek = date.getDay();
+          if (dayOfWeek === 0 || dayOfWeek === 6) {
+            minorCell.style.backgroundColor = 'var(--bg-color)';
+            minorCell.style.fontWeight = 'bold';
+            minorCell.style.color = 'var(--status-delayed)';
+          }
+          minorCell.textContent = date.getDate();
+          minorRow.appendChild(minorCell);
+        }
+        
+        if (pendingCell) {
+          pendingCell.style.width = `${currentWidthSum}px`;
+          majorRow.appendChild(pendingCell);
+        }
+
+      } else if (state.zoomScale === 'weeks') {
+        // Render headers by week
+        let currentMonthStr = "";
+        let currentWidthSum = 0;
+        let pendingCell = null;
+
+        // Loop by weekly steps
+        for (let i = 0; i < state.totalTimelineDays; i += 7) {
+          const date = addDays(state.projectStart, i);
+          const mStr = getFormattedMonthYear(date);
+
+          if (mStr !== currentMonthStr) {
+            if (pendingCell) {
+              pendingCell.style.width = `${currentWidthSum}px`;
+              majorRow.appendChild(pendingCell);
+            }
+            currentMonthStr = mStr;
+            currentWidthSum = 0;
+            pendingCell = document.createElement('div');
+            pendingCell.style.flexShrink = '0';
+            pendingCell.style.borderRight = '1px solid var(--border-color)';
+            pendingCell.style.height = '100%';
+            pendingCell.style.display = 'flex';
+            pendingCell.style.alignItems = 'center';
+            pendingCell.style.paddingLeft = '12px';
+            pendingCell.textContent = mStr;
+          }
+          // The width of a week
+          const remainingDays = Math.min(7, state.totalTimelineDays - i);
+          const weekWidth = remainingDays * pxPerDay;
+          currentWidthSum += weekWidth;
+
+          // Minor cell (Week number or starting day)
+          const minorCell = document.createElement('div');
+          minorCell.className = 'gantt-time-cell';
+          minorCell.style.width = `${weekWidth}px`;
+          
+          const weekNo = getWeekNumber(date);
+          minorCell.textContent = `W${weekNo} (${date.getDate()})`;
+          minorRow.appendChild(minorCell);
+        }
+
+        if (pendingCell) {
+          pendingCell.style.width = `${currentWidthSum}px`;
+          majorRow.appendChild(pendingCell);
+        }
+
+      } else if (state.zoomScale === 'months') {
+        // Render headers by month/quarter
+        let currentYearStr = "";
+        let currentWidthSum = 0;
+        let pendingCell = null;
+
+        for (let i = 0; i < state.totalTimelineDays; ) {
+          const date = addDays(state.projectStart, i);
+          const yearStr = date.getFullYear().toString();
+          
+          // Number of days left in this month
+          const currentMonth = date.getMonth();
+          const nextMonthDate = new Date(date.getFullYear(), currentMonth + 1, 1);
+          const daysInMonth = Math.round((nextMonthDate - date) / (1000 * 60 * 60 * 24));
+          const actualDays = Math.min(daysInMonth, state.totalTimelineDays - i);
+          const monthWidth = actualDays * pxPerDay;
+
+          if (yearStr !== currentYearStr) {
+            if (pendingCell) {
+              pendingCell.style.width = `${currentWidthSum}px`;
+              majorRow.appendChild(pendingCell);
+            }
+            currentYearStr = yearStr;
+            currentWidthSum = 0;
+            pendingCell = document.createElement('div');
+            pendingCell.style.flexShrink = '0';
+            pendingCell.style.borderRight = '1px solid var(--border-color)';
+            pendingCell.style.height = '100%';
+            pendingCell.style.display = 'flex';
+            pendingCell.style.alignItems = 'center';
+            pendingCell.style.paddingLeft = '12px';
+            pendingCell.textContent = yearStr;
+          }
+          currentWidthSum += monthWidth;
+
+          // Minor cell (Month name)
+          const minorCell = document.createElement('div');
+          minorCell.className = 'gantt-time-cell';
+          minorCell.style.width = `${monthWidth}px`;
+          minorCell.textContent = date.toLocaleDateString('en-US', { month: 'short' });
+          minorRow.appendChild(minorCell);
+
+          i += actualDays;
+        }
+
+        if (pendingCell) {
+          pendingCell.style.width = `${currentWidthSum}px`;
+          majorRow.appendChild(pendingCell);
+        }
+      }
+    }
+
+    // HELPER: Get week number of year
+    function getWeekNumber(d) {
+      d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+      d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
+      const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+      return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+    }
+
+    // RENDER BODY ROWS (GROUPS & TASKS)
+    function renderBodyRows() {
+      const container = document.getElementById('gantt-rows-container');
+      container.innerHTML = '';
+
+      const pxPerDay = getPixelsPerDay();
+      const totalWidth = state.totalTimelineDays * pxPerDay;
+
+      // Filter tasks
+      const filteredTasks = state.tasks.filter(t => {
+        const matchesSearch = t.name.toLowerCase().includes(state.searchQuery.toLowerCase());
+        const matchesStatus = state.statusFilter === 'all' || t.status === state.statusFilter;
+        const matchesAssignee = state.assigneeFilter === 'all' || t.assignee === state.assigneeFilter;
+        return matchesSearch && matchesStatus && matchesAssignee;
+      });
+
+      const filteredTaskIds = new Set(filteredTasks.map(t => t.id));
+      const criticalPathIds = new Set(state.showCriticalPath ? computeCriticalPath() : []);
+
+      // Calculate rollups for each group
+      const groupRollups = {};
+      state.groups.forEach(g => {
+        const groupTasks = state.tasks.filter(t => t.groupId === g.id && filteredTaskIds.has(t.id));
+        if (groupTasks.length === 0) {
+          groupRollups[g.id] = null;
+          return;
+        }
+        
+        let minStart = parseDateStr(groupTasks[0].startDate);
+        let maxEnd = parseDateStr(groupTasks[0].endDate);
+        let progressSum = 0;
+        let durationSum = 0;
+
+        groupTasks.forEach(t => {
+          const s = parseDateStr(t.startDate);
+          const e = parseDateStr(t.endDate);
+          const dur = Math.max(1, diffDays(s, e));
+          
+          if (s < minStart) minStart = s;
+          if (e > maxEnd) maxEnd = e;
+          
+          progressSum += t.progress * dur;
+          durationSum += dur;
+        });
+
+        groupRollups[g.id] = {
+          startDate: formatDateStr(minStart),
+          endDate: formatDateStr(maxEnd),
+          progress: durationSum > 0 ? Math.round(progressSum / durationSum) : 0
+        };
+      });
+
+      // Loop through groups and their tasks
+      state.groups.forEach(g => {
+        const rollup = groupRollups[g.id];
+        
+        // Render Group Row if it has matching tasks or search is blank
+        const groupTasks = state.tasks.filter(t => t.groupId === g.id);
+        const matchingChildTasks = groupTasks.filter(t => filteredTaskIds.has(t.id));
+        
+        if (matchingChildTasks.length === 0 && state.searchQuery !== '') {
+          return; // Hide empty group on active filter
+        }
+
+        const groupRow = document.createElement('div');
+        groupRow.className = `gantt-row gantt-row-group ${g.collapsed ? 'collapsed' : ''}`;
+        groupRow.dataset.groupId = g.id;
+
+        // Group Sidebar Cell
+        const groupSidebar = document.createElement('div');
+        groupSidebar.className = 'gantt-row-sidebar';
+        groupSidebar.innerHTML = `
+          <div class="group-collapse-btn" onclick="toggleGroupCollapse('${g.id}', event)">
+            <span class="icon">keyboard_arrow_down</span>
+          </div>
+          <span class="icon" style="color: var(--primary); font-size: 18px; margin-right: 6px; display: inline-flex; align-items: center;">
+            ${g.collapsed ? 'folder' : 'folder_open'}
+          </span>
+          <span style="flex: 1; cursor: pointer; font-weight: 600; font-family: var(--font-display);" onclick="openGroupEditor('${g.id}')">${g.name}</span>
+          ${rollup ? `<span class="status-chip group-progress-chip" title="${rollup.progress}% complete">${rollup.progress}%</span>` : ''}
+        `;
+        groupRow.appendChild(groupSidebar);
+
+        // Group Timeline Cell
+        const groupTimeline = document.createElement('div');
+        groupTimeline.className = 'gantt-row-timeline';
+        groupTimeline.style.width = `${totalWidth}px`;
+        
+        // Timeline Gridlines background
+        const gridBg = document.createElement('div');
+        gridBg.className = 'gantt-grid-bg';
+        groupTimeline.appendChild(gridBg);
+
+        // Group Rollup Bar
+        if (rollup) {
+          const startOffset = diffDays(state.projectStart, parseDateStr(rollup.startDate));
+          const duration = diffDays(parseDateStr(rollup.startDate), parseDateStr(rollup.endDate));
+          
+          const rollupBar = document.createElement('div');
+          rollupBar.className = 'gantt-rollup-bar';
+          rollupBar.style.left = `${startOffset * pxPerDay}px`;
+          rollupBar.style.width = `${duration * pxPerDay}px`;
+          
+          const rollupProgress = document.createElement('div');
+          rollupProgress.className = 'gantt-rollup-progress';
+          rollupProgress.style.width = `${rollup.progress}%`;
+          rollupBar.appendChild(rollupProgress);
+
+          // Render miniature pills for each subtask inside the rollup bar
+          const subtasksContainer = document.createElement('div');
+          subtasksContainer.className = 'gantt-rollup-subtasks-container';
+          
+          const groupStart = parseDateStr(rollup.startDate);
+          const groupDuration = Math.max(1, duration);
+
+          matchingChildTasks.forEach(child => {
+            const childStart = parseDateStr(child.startDate);
+            const childEnd = parseDateStr(child.endDate);
+            const childDuration = diffDays(childStart, childEnd);
+            
+            const leftPct = (diffDays(groupStart, childStart) / groupDuration) * 100;
+            const widthPct = (childDuration / groupDuration) * 100;
+
+            let statusColor = "var(--status-not-started)";
+            if (child.status === "In Progress") statusColor = "var(--status-in-progress)";
+            else if (child.status === "Completed") statusColor = "var(--status-completed)";
+            else if (child.status === "Delayed") statusColor = "var(--status-delayed)";
+
+            const pill = document.createElement('div');
+            pill.className = 'gantt-rollup-subtask-pill';
+            pill.style.left = `${leftPct}%`;
+            pill.style.width = `${widthPct}%`;
+            pill.style.backgroundColor = statusColor;
+            
+            subtasksContainer.appendChild(pill);
+          });
+
+          rollupBar.appendChild(subtasksContainer);
+          groupTimeline.appendChild(rollupBar);
+        }
+
+        groupRow.appendChild(groupTimeline);
+        container.appendChild(groupRow);
+
+        // Render Task Rows in this Group
+        groupTasks.forEach(t => {
+          const isVisible = filteredTaskIds.has(t.id);
+          const isCollapsedChild = g.collapsed;
+
+          const taskRow = document.createElement('div');
+          taskRow.className = `gantt-row ${!isVisible ? 'is-collapsed-child' : ''} ${isCollapsedChild ? 'is-collapsed-child' : ''}`;
+          taskRow.dataset.taskId = t.id;
+
+          // Sidebar Task Cell
+          const sidebarCell = document.createElement('div');
+          sidebarCell.className = 'gantt-row-sidebar';
+          
+          const assigneeObj = ASSIGNEES.find(a => a.id === t.assignee);
+          
+          sidebarCell.innerHTML = `
+            <div class="task-sidebar-cell">
+              <span class="icon" style="color: var(--text-muted); font-size: 16px;">subdirectory_arrow_right</span>
+              <span class="task-title-text" style="cursor: pointer;" onclick="openTaskEditor('${t.id}')" title="${t.name}">${t.name}</span>
+              
+              <div class="task-meta-info">
+                <span class="status-chip status-${t.status.toLowerCase().replace(' ', '-')}">${t.status}</span>
+                <div class="avatar" style="background-color: ${assigneeObj ? assigneeObj.color : '#64748b'}" title="${assigneeObj ? assigneeObj.name : 'Unassigned'}">
+                  ${assigneeObj ? assigneeObj.initials : '?' }
+                </div>
+              </div>
+            </div>
+          `;
+          taskRow.appendChild(sidebarCell);
+
+          // Timeline Task Cell
+          const timelineCell = document.createElement('div');
+          timelineCell.className = 'gantt-row-timeline';
+          timelineCell.style.width = `${totalWidth}px`;
+          
+          const cellGridBg = document.createElement('div');
+          cellGridBg.className = 'gantt-grid-bg';
+          timelineCell.appendChild(cellGridBg);
+
+          // Render Gantt Task Bar
+          const startOffset = diffDays(state.projectStart, parseDateStr(t.startDate));
+          const duration = diffDays(parseDateStr(t.startDate), parseDateStr(t.endDate));
+
+          const barWrapper = document.createElement('div');
+          barWrapper.className = `gantt-bar-wrapper ${criticalPathIds.has(t.id) ? 'critical-path-task' : ''}`;
+          barWrapper.dataset.taskId = t.id;
+          barWrapper.dataset.taskStatus = t.status;
+          barWrapper.style.left = `${startOffset * pxPerDay}px`;
+          barWrapper.style.width = `${duration * pxPerDay}px`;
+
+          // Define Color based on Status
+          let statusColor = "var(--status-not-started)";
+          if (t.status === "In Progress") statusColor = "var(--status-in-progress)";
+          else if (t.status === "Completed") statusColor = "var(--status-completed)";
+          else if (t.status === "Delayed") statusColor = "var(--status-delayed)";
+
+          const bar = document.createElement('div');
+          bar.className = 'gantt-bar';
+          bar.style.setProperty('--bar-gradient', `linear-gradient(90deg, ${statusColor}, ${statusColor}dd)`);
+          
+          const barProgress = document.createElement('div');
+          barProgress.className = 'gantt-bar-progress';
+          barProgress.style.width = `${t.progress}%`;
+          
+          const label = document.createElement('div');
+          label.className = 'gantt-bar-label';
+          label.textContent = `${t.progress}%`;
+
+          // Drag Handles
+          const resizeLeft = document.createElement('div');
+          resizeLeft.className = 'gantt-resize-handle gantt-resize-handle-left';
+          
+          const resizeRight = document.createElement('div');
+          resizeRight.className = 'gantt-resize-handle gantt-resize-handle-right';
+
+          bar.appendChild(barProgress);
+          bar.appendChild(label);
+          barWrapper.appendChild(resizeLeft);
+          barWrapper.appendChild(bar);
+          barWrapper.appendChild(resizeRight);
+
+          // Tooltip and Drag event triggers
+          setupBarInteractionEvents(barWrapper, t);
+
+          timelineCell.appendChild(barWrapper);
+          taskRow.appendChild(timelineCell);
+          container.appendChild(taskRow);
+        });
+      });
+    }
+
+    // INTERACTIVE DRAW CONNECTOR LINES (SVG)
+    function drawDependencyLines() {
+      const svg = document.getElementById('gantt-svg');
+      svg.innerHTML = ''; // Clear previous
+
+      const scrollport = document.getElementById('gantt-scrollport');
+      if (!scrollport) return;
+
+      const pxPerDay = getPixelsPerDay();
+      const scrollportRect = scrollport.getBoundingClientRect();
+      
+      const gridCanvas = document.getElementById('gantt-grid-canvas');
+      const canvasRect = gridCanvas.getBoundingClientRect();
+
+      // Configure SVG size
+      const svgContainer = svg.parentElement;
+      svg.style.width = `${state.totalTimelineDays * pxPerDay}px`;
+      svg.style.height = `${gridCanvas.scrollHeight - 64}px`; // Exclude header row
+
+      const criticalPathIds = new Set(state.showCriticalPath ? computeCriticalPath() : []);
+
+      // Draw each dependency
+      state.tasks.forEach(task => {
+        // If task is not visible in DOM, skip drawing
+        const taskRow = document.querySelector(`.gantt-row[data-task-id="${task.id}"]`);
+        if (!taskRow || taskRow.classList.contains('is-collapsed-child')) return;
+
+        const targetBar = taskRow.querySelector('.gantt-bar-wrapper');
+        if (!targetBar) return;
+
+        task.dependencies.forEach(prereqId => {
+          const prereqTask = state.tasks.find(t => t.id === prereqId);
+          if (!prereqTask) return;
+
+          const prereqRow = document.querySelector(`.gantt-row[data-task-id="${prereqId}"]`);
+          if (!prereqRow || prereqRow.classList.contains('is-collapsed-child')) return;
+
+          const sourceBar = prereqRow.querySelector('.gantt-bar-wrapper');
+          if (!sourceBar) return;
+
+          // Get coordinates relative to the svg viewport (which starts at X = sidebar-width, Y = header-height)
+          const sourceRect = sourceBar.getBoundingClientRect();
+          const targetRect = targetBar.getBoundingClientRect();
+
+          // X coordinates are relative to the timeline content
+          const x1 = sourceRect.right - canvasRect.left - 320; // 320 is sidebar width
+          const y1 = (sourceRect.top + sourceRect.bottom) / 2 - canvasRect.top - 64; // 64 is header height
+          
+          const x2 = targetRect.left - canvasRect.left - 320;
+          const y2 = (targetRect.top + targetRect.bottom) / 2 - canvasRect.top - 64;
+
+          const isCritical = criticalPathIds.has(task.id) && criticalPathIds.has(prereqId);
+          const isConflict = parseDateStr(task.startDate) < parseDateStr(prereqTask.endDate);
+
+          drawBezierCurve(svg, x1, y1, x2, y2, task.id, prereqId, isCritical, isConflict);
+        });
+      });
+    }
+
+    function drawBezierCurve(svg, x1, y1, x2, y2, targetId, sourceId, isCritical, isConflict) {
+      const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      const marker = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+      
+      let d = "";
+      
+      if (x2 >= x1 + 15) {
+        // Normal curve: goes right and wraps nicely
+        const controlOffset = Math.max(30, (x2 - x1) / 2);
+        d = `M ${x1} ${y1} C ${x1 + controlOffset} ${y1}, ${x2 - controlOffset} ${y2}, ${x2} ${y2}`;
+      } else {
+        // Backwards curve (Scheduling conflict or task overlaps prereq)
+        const vOffset = 22; // Half row height
+        const sideOffset = 24;
+        d = `M ${x1} ${y1} 
+             C ${x1 + sideOffset} ${y1}, ${x1 + sideOffset} ${y1 + vOffset}, ${x1} ${y1 + vOffset} 
+             L ${x2 - sideOffset} ${y1 + vOffset} 
+             C ${x2 - 2 * sideOffset} ${y1 + vOffset}, ${x2 - sideOffset} ${y2}, ${x2} ${y2}`;
+      }
+
+      path.setAttribute('d', d);
+      path.setAttribute('class', `dependency-line 
+        ${isCritical ? 'critical-path-line' : ''} 
+        ${isConflict ? 'conflict-line' : ''}
+      `);
+      path.dataset.sourceId = sourceId;
+      path.dataset.targetId = targetId;
+
+      // Draw Arrow Head at target
+      marker.setAttribute('points', `${x2},${y2} ${x2-6},${y2-4} ${x2-6},${y2+4}`);
+      marker.setAttribute('class', `dependency-arrow 
+        ${isCritical ? 'critical-path-arrow' : ''} 
+        ${isConflict ? 'conflict-arrow' : ''}
+      `);
+
+      svg.appendChild(path);
+      svg.appendChild(marker);
+    }
+
+    // MOUSE EVENT INTERACTION SETUP FOR GANTT BARS
+    function setupBarInteractionEvents(el, task) {
+      // Hover Tooltip Trigger
+      el.addEventListener('mouseenter', (e) => {
+        if (interaction.active) return;
+        showTooltip(e, task);
+        
+        // Highlight dependency paths for this task
+        document.querySelectorAll(`.dependency-line[data-target-id="${task.id}"], .dependency-line[data-source-id="${task.id}"]`)
+          .forEach(path => path.classList.add('highlighted'));
+      });
+
+      el.addEventListener('mousemove', (e) => {
+        if (interaction.active) return;
+        positionTooltip(e);
+      });
+
+      el.addEventListener('mouseleave', () => {
+        hideTooltip();
+        document.querySelectorAll('.dependency-line.highlighted').forEach(path => path.classList.remove('highlighted'));
+      });
+
+      // Mousedown Drag/Resize Trigger
+      el.addEventListener('mousedown', (e) => {
+        const handleLeft = e.target.classList.contains('gantt-resize-handle-left');
+        const handleRight = e.target.classList.contains('gantt-resize-handle-right');
+        
+        interaction.active = true;
+        interaction.taskId = task.id;
+        interaction.element = el;
+        interaction.initialClientX = e.clientX;
+        interaction.pxPerDay = getPixelsPerDay();
+
+        const startOffset = diffDays(state.projectStart, parseDateStr(task.startDate));
+        const endOffset = diffDays(state.projectStart, parseDateStr(task.endDate));
+
+        interaction.initialStartDayOffset = startOffset;
+        interaction.initialEndDayOffset = endOffset;
+
+        if (handleLeft) {
+          interaction.type = 'resize-left';
+          el.classList.add('is-resizing');
+        } else if (handleRight) {
+          interaction.type = 'resize-right';
+          el.classList.add('is-resizing');
+        } else {
+          interaction.type = 'drag';
+          el.classList.add('is-dragging');
+        }
+
+        hideTooltip();
+        e.preventDefault();
+        e.stopPropagation();
+      });
+    }
+
+    // DRAG AND RESIZE ENGINE MOUSEMOVE / MOUSEUP
+    function handleGlobalMouseMove(e) {
+      if (!interaction.active) return;
+
+      const deltaX = e.clientX - interaction.initialClientX;
+      const deltaDays = Math.round(deltaX / interaction.pxPerDay);
+
+      const task = state.tasks.find(t => t.id === interaction.taskId);
+      if (!task) return;
+
+      let newStartOffset = interaction.initialStartDayOffset;
+      let newEndOffset = interaction.initialEndDayOffset;
+
+      if (interaction.type === 'drag') {
+        newStartOffset += deltaDays;
+        newEndOffset += deltaDays;
+      } else if (interaction.type === 'resize-left') {
+        newStartOffset = Math.min(newStartOffset + deltaDays, newEndOffset - 1);
+      } else if (interaction.type === 'resize-right') {
+        newEndOffset = Math.max(newEndOffset + deltaDays, newStartOffset + 1);
+      }
+
+      // Constrain within project timeline bounds
+      newStartOffset = Math.max(0, newStartOffset);
+      newEndOffset = Math.min(state.totalTimelineDays, newEndOffset);
+
+      // Perform visual fluid updates (sub-pixel dragging feedback)
+      interaction.element.style.left = `${newStartOffset * interaction.pxPerDay}px`;
+      interaction.element.style.width = `${(newEndOffset - newStartOffset) * interaction.pxPerDay}px`;
+
+      // Update date objects
+      interaction.previewStartDate = addDays(state.projectStart, newStartOffset);
+      interaction.previewEndDate = addDays(state.projectStart, newEndOffset);
+
+      // Show real-time drag tooltip
+      showDragPreviewTooltip(e, task, interaction.previewStartDate, interaction.previewEndDate);
+    }
+
+    function handleGlobalMouseUp(e) {
+      if (!interaction.active) return;
+
+      const task = state.tasks.find(t => t.id === interaction.taskId);
+      if (task && interaction.previewStartDate && interaction.previewEndDate) {
+        // Save the date changes to state
+        const oldStart = task.startDate;
+        const oldEnd = task.endDate;
+        
+        task.startDate = formatDateStr(interaction.previewStartDate);
+        task.endDate = formatDateStr(interaction.previewEndDate);
+        
+        if (oldStart !== task.startDate || oldEnd !== task.endDate) {
+          showToast(`Rescheduled task "${task.name}"`);
+          saveState();
+        } else {
+          render(); // Snaps back
+        }
+      } else {
+        render(); // Snaps back if no movement
+      }
+
+      // Reset
+      if (interaction.element) {
+        interaction.element.classList.remove('is-dragging', 'is-resizing');
+      }
+      interaction.active = false;
+      interaction.type = null;
+      interaction.taskId = null;
+      interaction.element = null;
+      interaction.previewStartDate = null;
+      interaction.previewEndDate = null;
+      
+      hideTooltip();
+    }
+
+    // FLOATING TOOLTIP GENERATION
+    const tooltipEl = document.getElementById('gantt-tooltip-el');
+
+    function showTooltip(e, task) {
+      const assigneeObj = ASSIGNEES.find(a => a.id === task.assignee);
+      
+      document.getElementById('tooltip-title').textContent = task.name;
+      
+      const statusEl = document.getElementById('tooltip-status');
+      statusEl.textContent = task.status;
+      statusEl.className = `status-chip status-${task.status.toLowerCase().replace(' ', '-')}`;
+
+      const sDate = parseDateStr(task.startDate);
+      const eDate = parseDateStr(task.endDate);
+      const duration = diffDays(sDate, eDate);
+
+      document.getElementById('tooltip-dates').textContent = `${sDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${eDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`;
+      document.getElementById('tooltip-duration').textContent = `${duration} day${duration > 1 ? 's' : ''}`;
+      document.getElementById('tooltip-assignee').textContent = assigneeObj ? assigneeObj.name : 'Unassigned';
+      document.getElementById('tooltip-progress').textContent = `${task.progress}%`;
+
+      // Display prerequisites
+      const prereqs = task.dependencies.map(id => {
+        const t = state.tasks.find(x => x.id === id);
+        return t ? t.name : '';
+      }).filter(Boolean);
+      document.getElementById('tooltip-dependencies').textContent = prereqs.length > 0 ? prereqs.join(', ') : 'None';
+
+      tooltipEl.classList.add('visible');
+      positionTooltip(e);
+    }
+
+    function showDragPreviewTooltip(e, task, start, end) {
+      document.getElementById('tooltip-title').textContent = `Rescheduling: ${task.name}`;
+      
+      const statusEl = document.getElementById('tooltip-status');
+      statusEl.textContent = 'Dragging';
+      statusEl.className = `status-chip status-in-progress`;
+
+      const duration = diffDays(start, end);
+
+      document.getElementById('tooltip-dates').textContent = `${start.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${end.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`;
+      document.getElementById('tooltip-duration').textContent = `${duration} day${duration > 1 ? 's' : ''}`;
+      document.getElementById('tooltip-assignee').textContent = 'Updating...';
+      document.getElementById('tooltip-progress').textContent = `${task.progress}%`;
+      document.getElementById('tooltip-dependencies').textContent = 'Updating...';
+
+      tooltipEl.classList.add('visible');
+      positionTooltip(e);
+    }
+
+    function positionTooltip(e) {
+      const tooltipWidth = tooltipEl.offsetWidth;
+      const tooltipHeight = tooltipEl.offsetHeight;
+      
+      let x = e.clientX + 15;
+      let y = e.clientY + 15;
+      
+      // Keep inside window bounds
+      if (x + tooltipWidth > window.innerWidth) {
+        x = e.clientX - tooltipWidth - 15;
+      }
+      if (y + tooltipHeight > window.innerHeight) {
+        y = e.clientY - tooltipHeight - 15;
+      }
+
+      tooltipEl.style.left = `${x}px`;
+      tooltipEl.style.top = `${y}px`;
+    }
+
+    function hideTooltip() {
+      tooltipEl.classList.remove('visible');
+    }
+
+    // HELPER: Get zoom pixels per day
+    function getPixelsPerDay() {
+      if (state.zoomScale === 'days') return 40;
+      if (state.zoomScale === 'weeks') return 15;
+      if (state.zoomScale === 'months') return 4.5;
+      return 40;
+    }
+
+    // COLLAPSE / EXPAND CONTROLLER FOR GROUPS
+    window.toggleGroupCollapse = function(groupId, event) {
+      if (event) event.stopPropagation();
+      const group = state.groups.find(g => g.id === groupId);
+      if (group) {
+        group.collapsed = !group.collapsed;
+        saveState();
+      }
+    };
+
+    // TASK EDITOR DIALOG ACTIONS
+    const taskModal = document.getElementById('task-modal-overlay');
+
+    window.openTaskEditor = function(taskId) {
+      const task = state.tasks.find(t => t.id === taskId);
+      if (!task) return;
+
+      document.getElementById('modal-heading').textContent = 'Edit Task';
+      document.getElementById('form-task-id').value = task.id;
+      document.getElementById('form-task-name').value = task.name;
+      document.getElementById('form-task-start').value = task.startDate;
+      document.getElementById('form-task-end').value = task.endDate;
+      document.getElementById('form-task-progress').value = task.progress;
+      document.getElementById('form-task-status').value = task.status;
+      document.getElementById('form-task-assignee').value = task.assignee;
+      
+      // Populate Group drop-down
+      const groupSelect = document.getElementById('form-task-group');
+      groupSelect.innerHTML = '';
+      state.groups.forEach(g => {
+        const option = document.createElement('option');
+        option.value = g.id;
+        option.textContent = g.name;
+        groupSelect.appendChild(option);
+      });
+      groupSelect.value = task.groupId;
+
+      // Populate dependency checklist
+      const depList = document.getElementById('form-dependencies-list');
+      depList.innerHTML = '';
+      
+      state.tasks.forEach(t => {
+        if (t.id === task.id) return; // Cannot depend on self
+        
+        const label = document.createElement('label');
+        label.className = 'checkbox-item';
+        
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.value = t.id;
+        checkbox.checked = task.dependencies.includes(t.id);
+        
+        label.appendChild(checkbox);
+        label.appendChild(document.createTextNode(t.name));
+        depList.appendChild(label);
+      });
+
+      // Show delete button
+      document.getElementById('btn-delete-task').style.display = 'inline-flex';
+
+      taskModal.classList.add('active');
+    };
+
+    window.openNewTaskModal = function() {
+      document.getElementById('modal-heading').textContent = 'Create New Task';
+      document.getElementById('form-task-id').value = '';
+      document.getElementById('form-task-name').value = '';
+      
+      // Default dates around current timeline
+      const today = new Date();
+      document.getElementById('form-task-start').value = formatDateStr(today);
+      document.getElementById('form-task-end').value = formatDateStr(addDays(today, 5));
+      document.getElementById('form-task-progress').value = 0;
+      document.getElementById('form-task-status').value = 'Not Started';
+      document.getElementById('form-task-assignee').value = ASSIGNEES[0].id;
+
+      // Groups list
+      const groupSelect = document.getElementById('form-task-group');
+      groupSelect.innerHTML = '';
+      state.groups.forEach(g => {
+        const option = document.createElement('option');
+        option.value = g.id;
+        option.textContent = g.name;
+        groupSelect.appendChild(option);
+      });
+
+      // Dependecies list
+      const depList = document.getElementById('form-dependencies-list');
+      depList.innerHTML = '';
+      state.tasks.forEach(t => {
+        const label = document.createElement('label');
+        label.className = 'checkbox-item';
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.value = t.id;
+        label.appendChild(checkbox);
+        label.appendChild(document.createTextNode(t.name));
+        depList.appendChild(label);
+      });
+
+      // Hide delete button for new tasks
+      document.getElementById('btn-delete-task').style.display = 'none';
+
+      taskModal.classList.add('active');
+    };
+
+    // GROUP EDITOR DIALOG ACTIONS
+    const groupModal = document.getElementById('group-modal-overlay');
+    const visualPresetClasses = [
+      'theme-preset-aura',
+      'theme-preset-cyber',
+      'theme-preset-minimal',
+      'theme-preset-oasis',
+      'theme-aura-soft',
+      'theme-aura-clean',
+      'theme-aura-flat',
+      'theme-pattern-ribbon',
+      'theme-pattern-baseline',
+      'theme-pattern-segmented',
+      'theme-pattern-heatmap',
+      'theme-pattern-milestone',
+      'theme-pattern-thread-dots',
+      'theme-pattern-thread-capsules',
+      'theme-pattern-thread-flags',
+      'theme-pattern-thread-hex',
+      'theme-pattern-thread-squares',
+      'theme-pattern-thread-triangles',
+      'theme-pattern-exec-span',
+      'theme-pattern-bracket-band',
+      'theme-pattern-risk-rail',
+      'theme-pattern-folder-tab',
+      'theme-pattern-brace',
+      'theme-pattern-nested-band',
+      'theme-pattern-stacked-strip',
+      'theme-pattern-folder-chip',
+      'theme-pattern-swimlane-band'
+    ];
+
+    window.openGroupEditor = function(groupId) {
+      const group = state.groups.find(g => g.id === groupId);
+      if (!group) return;
+
+      document.getElementById('group-modal-heading').textContent = 'Edit Group';
+      document.getElementById('form-group-id').value = group.id;
+      document.getElementById('form-group-name').value = group.name;
+      document.getElementById('btn-delete-group').style.display = 'inline-flex';
+
+      groupModal.classList.add('active');
+    };
+
+    window.openNewGroupModal = function() {
+      document.getElementById('group-modal-heading').textContent = 'Create New Group';
+      document.getElementById('form-group-id').value = '';
+      document.getElementById('form-group-name').value = '';
+      document.getElementById('btn-delete-group').style.display = 'none';
+
+      groupModal.classList.add('active');
+    };
+
+    // REGISTER ALL INTERACTIVE COMPONENT LISTENERS
+    function registerEventListeners() {
+      // Theme preset tabs switcher
+      document.querySelectorAll('.preset-tab').forEach(tab => {
+        tab.addEventListener('click', (e) => {
+          document.querySelectorAll('.preset-tab').forEach(t => t.classList.remove('active'));
+          const currentTab = e.currentTarget;
+          currentTab.classList.add('active');
+          const preset = currentTab.dataset.preset;
+
+          // Remove previous theme classes (full presets and group-bar variants)
+          document.body.classList.remove(...visualPresetClasses);
+
+          // Aura group-bar variants build on the default Aura look
+          if (preset === 'aura-soft' || preset === 'aura-clean' || preset === 'aura-flat') {
+            document.body.classList.add(`theme-${preset}`);
+          } else if (preset.startsWith('pattern-')) {
+            document.body.classList.add(`theme-${preset}`);
+          } else if (preset !== 'aura') {
+            document.body.classList.add(`theme-preset-${preset}`);
+          }
+          
+          // Redraw dependency lines since fonts or spacing might affect position
+          setTimeout(drawDependencyLines, 100);
+        });
+      });
+
+      // Zoom buttons
+      document.querySelectorAll('.segmented-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          document.querySelectorAll('.segmented-btn').forEach(b => b.classList.remove('active'));
+          e.target.classList.add('active');
+          state.zoomScale = e.target.dataset.scale;
+          calculateProjectBoundaries();
+          render();
+        });
+      });
+
+      // Theme toggle
+      document.getElementById('theme-toggle').addEventListener('click', () => {
+        state.theme = state.theme === 'light' ? 'dark' : 'light';
+        localStorage.setItem('gantt_theme', state.theme);
+        document.documentElement.setAttribute('data-theme', state.theme);
+        updateThemeToggleButtonIcon();
+      });
+
+      // Reset button
+      document.getElementById('btn-reset').addEventListener('click', () => {
+        if (confirm("Are you sure you want to reset all data back to the default demo state?")) {
+          localStorage.removeItem('gantt_groups');
+          localStorage.removeItem('gantt_tasks');
+          showToast("Timeline reset to default template");
+          init();
+        }
+      });
+
+      // Show/Hide critical path toggle
+      document.getElementById('critical-path-toggle').addEventListener('change', (e) => {
+        state.showCriticalPath = e.target.checked;
+        const wrapper = document.getElementById('critical-path-toggle-wrapper');
+        if (state.showCriticalPath) {
+          wrapper.classList.add('critical-active');
+        } else {
+          wrapper.classList.remove('critical-active');
+        }
+        render();
+      });
+
+      // Filters
+      document.getElementById('search-filter').addEventListener('input', (e) => {
+        state.searchQuery = e.target.value;
+        render();
+      });
+
+      document.getElementById('status-filter').addEventListener('change', (e) => {
+        state.statusFilter = e.target.value;
+        render();
+      });
+
+      document.getElementById('assignee-filter').addEventListener('change', (e) => {
+        state.assigneeFilter = e.target.value;
+        render();
+      });
+
+      // Open new buttons
+      document.getElementById('btn-add-task').addEventListener('click', openNewTaskModal);
+      document.getElementById('btn-add-group').addEventListener('click', openNewGroupModal);
+
+      // Close task modal buttons
+      document.getElementById('btn-close-modal').addEventListener('click', () => taskModal.classList.remove('active'));
+      document.getElementById('btn-cancel-modal').addEventListener('click', () => taskModal.classList.remove('active'));
+      
+      // Close group modal buttons
+      document.getElementById('btn-close-group-modal').addEventListener('click', () => groupModal.classList.remove('active'));
+      document.getElementById('btn-cancel-group-modal').addEventListener('click', () => groupModal.classList.remove('active'));
+
+      // Submit task form
+      document.getElementById('task-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const taskId = document.getElementById('form-task-id').value;
+        
+        const name = document.getElementById('form-task-name').value;
+        const start = document.getElementById('form-task-start').value;
+        const end = document.getElementById('form-task-end').value;
+        const progress = parseInt(document.getElementById('form-task-progress').value, 10);
+        const status = document.getElementById('form-task-status').value;
+        const assignee = document.getElementById('form-task-assignee').value;
+        const groupId = document.getElementById('form-task-group').value;
+
+        // Collect checked dependency checkboxes
+        const dependencies = [];
+        document.querySelectorAll('#form-dependencies-list input[type="checkbox"]:checked').forEach(cb => {
+          dependencies.push(cb.value);
+        });
+
+        // Basic date range checks
+        if (parseDateStr(start) > parseDateStr(end)) {
+          alert("Error: Start date cannot be after end date.");
+          return;
+        }
+
+        if (taskId) {
+          // Edit Mode
+          const t = state.tasks.find(x => x.id === taskId);
+          if (t) {
+            t.name = name;
+            t.startDate = start;
+            t.endDate = end;
+            t.progress = progress;
+            t.status = status;
+            t.assignee = assignee;
+            t.groupId = groupId;
+            t.dependencies = dependencies;
+            showToast(`Updated task: "${name}"`);
+          }
+        } else {
+          // Create Mode
+          const newId = 't_' + Date.now();
+          state.tasks.push({
+            id: newId,
+            groupId,
+            name,
+            startDate: start,
+            endDate: end,
+            progress,
+            status,
+            assignee,
+            dependencies
+          });
+          showToast(`Created task: "${name}"`);
+        }
+
+        taskModal.classList.remove('active');
+        saveState();
+      });
+
+      // Delete Task Button
+      document.getElementById('btn-delete-task').addEventListener('click', () => {
+        const taskId = document.getElementById('form-task-id').value;
+        if (!taskId) return;
+        
+        if (confirm("Are you sure you want to delete this task?")) {
+          // Remove references from dependency lists in other tasks
+          state.tasks.forEach(t => {
+            t.dependencies = t.dependencies.filter(id => id !== taskId);
+          });
+          
+          state.tasks = state.tasks.filter(t => t.id !== taskId);
+          showToast("Task deleted successfully");
+          taskModal.classList.remove('active');
+          saveState();
+        }
+      });
+
+      // Submit group form
+      document.getElementById('group-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const groupId = document.getElementById('form-group-id').value;
+        const name = document.getElementById('form-group-name').value;
+
+        if (groupId) {
+          const g = state.groups.find(x => x.id === groupId);
+          if (g) {
+            g.name = name;
+            showToast(`Updated group: "${name}"`);
+          }
+        } else {
+          const newId = 'g_' + Date.now();
+          state.groups.push({
+            id: newId,
+            name,
+            collapsed: false
+          });
+          showToast(`Created group: "${name}"`);
+        }
+
+        groupModal.classList.remove('active');
+        saveState();
+      });
+
+      // Delete Group Button
+      document.getElementById('btn-delete-group').addEventListener('click', () => {
+        const groupId = document.getElementById('form-group-id').value;
+        if (!groupId) return;
+
+        const groupTasks = state.tasks.filter(t => t.groupId === groupId);
+        if (groupTasks.length > 0) {
+          if (!confirm(`Warning: This group contains ${groupTasks.length} tasks. Deleting the group will delete all tasks under it. Continue?`)) {
+            return;
+          }
+          // Remove references to deleted tasks in dependency lists
+          const deletedIds = new Set(groupTasks.map(t => t.id));
+          state.tasks.forEach(t => {
+            t.dependencies = t.dependencies.filter(id => !deletedIds.has(id));
+          });
+          state.tasks = state.tasks.filter(t => t.groupId !== groupId);
+        }
+
+        state.groups = state.groups.filter(g => g.id !== groupId);
+        showToast("Group deleted successfully");
+        groupModal.classList.remove('active');
+        saveState();
+      });
+
+      // Window Scroll / Resize listener for recalculating SVG coords
+      let resizeTimer;
+      window.addEventListener('resize', () => {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(drawDependencyLines, 100);
+      });
+
+      // Listen to scroll events in order to redraw paths if anything gets clipped or moves
+      const scrollport = document.getElementById('gantt-scrollport');
+      scrollport.addEventListener('scroll', () => {
+        // Redraw is fast and ensures arrows/bezier curves match scrolling
+        drawDependencyLines();
+      });
+
+      // Listen to global drag interactions
+      window.addEventListener('mousemove', handleGlobalMouseMove);
+      window.addEventListener('mouseup', handleGlobalMouseUp);
+    }
+
+    // NOTIFICATION TOAST POPUPS
+    function showToast(message) {
+      const container = document.getElementById('toasts');
+      const toast = document.createElement('div');
+      toast.className = 'toast';
+      toast.innerHTML = `<span class="icon" style="color: var(--primary);">check_circle</span> ${message}`;
+      container.appendChild(toast);
+      
+      setTimeout(() => {
+        toast.style.animation = 'toast-in 0.3s reverse forwards';
+        setTimeout(() => toast.remove(), 300);
+      }, 3000);
+    }
+
+    function updateThemeToggleButtonIcon() {
+      const toggleBtn = document.getElementById('theme-toggle').querySelector('.icon');
+      if (state.theme === 'dark') {
+        toggleBtn.textContent = 'light_mode';
+      } else {
+        toggleBtn.textContent = 'dark_mode';
+      }
+    }
+
+    // INIT INITIALIZATION
+    window.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>
