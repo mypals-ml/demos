@@ -1,10 +1,10 @@
 # Definations
 
 Define Working Task Board:
-- working_task_board: 
+- working_task_board:
   - https://glidelines-git-develop-whui1978-1776s-projects.vercel.app/?project=PVT_kwDODNQhvs4BY49y&account=10445658
 - current_agent_name:
-    - Claude, Codex, Google Antigravity, etc.
+  - Claude, Codex, Google Antigravity, etc.
 
 
 # Main Agent (Coordinator) Instructions:
@@ -17,13 +17,13 @@ Define Working Task Board:
 
 4. Process Report: Wait for the subagent to report back:
 
-  - If the subagent reports that no `Todo` tasks remain, terminate the workflow and report results.
+- If the subagent reports that no `Todo` tasks remain, terminate the workflow and report results.
 
-  - If the subagent reports success on a task
+- If the subagent reports success on a task
 
-    - Spawn a FRESH subagent to process the next task.
+  - Spawn a FRESH subagent to process the next task.
 
-  - If the subagent reports a failure/blocker: Do nothing else but show a brief report of the failure and terminate the entire workflow immediately.
+- If the subagent reports a failure/blocker: Do nothing else but show a brief report of the failure and terminate the entire workflow immediately.
 
 
 
@@ -46,7 +46,7 @@ Task workflow:
 
 - Otherwise, change that task state to `In progress`.
 
-- Add a comment: `{current_agent_name} Automation is working on it <current datetime>`.
+- Add a comment: `{current_agent_name} Automation is working on it <current local datetime>`.
 
 - Open the task and read its title, description, and comments.
 
@@ -54,9 +54,9 @@ Task workflow:
 
 Implementation workflow:
 
-- Use the repository in the configured workspace:
-    - Update local files to the newest version
-    - Write an implementation and test plan.
+- Use the current repository in the configured workspace:
+  - Pull and merge the newest files from the remote origin into local checked out branch.
+  - Write an implementation and test plan.
 
 - Review the plan for gaps, risks, and missing verification.
 
@@ -70,9 +70,8 @@ Implementation workflow:
 
 Completion workflow: (The work is complete and tested)
 
-- Add a comment in this format: `{current_agent_name} Automation committed the changes <current datetime> | <brief execution walkthrough>`.
-
-- The walkthrough must briefly summarize what was implemented and how it was verified.
+- Add a comment in this format: `{current_agent_name} Automation committed the changes <current local datetime> | <brief execution walkthrough>`.
+  - The <brief execution walkthrough> must briefly summarize what was implemented and how it was verified.
 
 - Keep the full comment under 220 characters.
 
@@ -82,10 +81,9 @@ Completion workflow: (The work is complete and tested)
 
 - Change the task state to `In review`.
 
+- Generate a md file named with local date time stamp as `walkthrough-task#<task number>-YYYYMMDD-hhmmss.md` under `<project root path>/plan/walkthrough/`
+  - this md file must contain
+    - the above <brief execution walkthrough> contents
+    - the very detail of what was implemented and how it was verified.
 
-
-Reporting:
-
-- Report 
-  - what browser was used, what profile was used
-  - what task was handled, what changed, what tests ran, and any blockers.
+- Report what task was handled, what changed, what tests ran, and any blockers.
