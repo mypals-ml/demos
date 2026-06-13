@@ -1,16 +1,16 @@
-# Implementation and Test Plan - Task #4
+# Implementation and Test Plan - Task #5
 
 ## Task
-Add a design update for `Task List View V2`.
+Demo handle designs for a vertically resizable edit box.
 
 ## Implementation Plan
-1. Update `/Users/wanghui/coding/prj-demos/demos/demos/task-list-view-v2/index.html` only for the V2 demo behavior.
-2. Add six sample tasks with exact title lengths of 10, 20, 30, 40, 50, and 100 characters.
-3. Clamp task titles to a maximum of two visible lines with overflow truncation across every V2 design.
-4. Adjust the Mini design so each task card shows status, assignee, start date, and target date in one metadata row.
+1. Add `/Users/wanghui/coding/prj-demos/demos/demos/resizable-edit-box/index.html` as a standalone demo page.
+2. Include multiple visual handle treatments on the lower border of edit boxes for design review.
+3. Implement pointer-driven vertical resizing with shared JavaScript, fixed min/max heights, and live size labels.
+4. Update `/Users/wanghui/coding/prj-demos/demos/index.html` so the new demo is discoverable from the shelf.
 
 ## Test Plan
-1. Run a script check that the six required title lengths are present exactly once.
+1. Run an HTML/content check that the new demo link and all expected design variants exist.
 2. Run an inline JavaScript syntax check for the demo script.
-3. Serve the static site locally and inspect the V2 page in a browser.
-4. Verify the Mini view includes one-line metadata and the page reports no console errors.
+3. Serve the static site locally and inspect the new demo in a browser.
+4. Verify dragging a lower-border handle changes an edit box height and the page reports no console errors.

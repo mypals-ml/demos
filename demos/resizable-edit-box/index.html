@@ -1,0 +1,536 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Design review demo for vertically resizable edit box handles.">
+    <title>Resizable Edit Box Handles</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f4f7f6;
+        --ink: #17202a;
+        --muted: #667085;
+        --line: #d8e0de;
+        --paper: #ffffff;
+        --soft: #eef5f2;
+        --accent: #0f766e;
+        --accent-2: #2563eb;
+        --accent-3: #c2410c;
+        --accent-4: #7c3aed;
+        font-family:
+          Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+          sans-serif;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        min-height: 100vh;
+        margin: 0;
+        background:
+          radial-gradient(circle at 18% 12%, rgba(15, 118, 110, 0.14), transparent 30%),
+          linear-gradient(135deg, #ffffff 0%, var(--bg) 46%, #eaf0ff 100%);
+        color: var(--ink);
+      }
+
+      button,
+      textarea {
+        font: inherit;
+      }
+
+      .shell {
+        width: min(1180px, calc(100% - 32px));
+        margin: 0 auto;
+        padding: 38px 0 48px;
+      }
+
+      .topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 18px;
+        margin-bottom: 28px;
+      }
+
+      .back {
+        color: var(--muted);
+        font-size: 0.94rem;
+        font-weight: 750;
+        text-decoration: none;
+      }
+
+      .status-chip {
+        display: inline-flex;
+        align-items: center;
+        min-height: 34px;
+        padding: 0 12px;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.72);
+        color: var(--accent);
+        font-size: 0.82rem;
+        font-weight: 800;
+      }
+
+      .hero {
+        display: grid;
+        grid-template-columns: minmax(0, 0.88fr) minmax(340px, 0.52fr);
+        gap: 32px;
+        align-items: end;
+        margin-bottom: 32px;
+      }
+
+      .eyebrow {
+        margin: 0 0 12px;
+        color: var(--accent);
+        font-size: 0.78rem;
+        font-weight: 850;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      h1,
+      h2,
+      p {
+        margin-top: 0;
+      }
+
+      h1 {
+        max-width: 780px;
+        margin-bottom: 14px;
+        font-size: clamp(2.55rem, 7vw, 5.4rem);
+        line-height: 0.95;
+        letter-spacing: 0;
+      }
+
+      .intro {
+        max-width: 690px;
+        margin-bottom: 0;
+        color: var(--muted);
+        font-size: 1.08rem;
+        line-height: 1.65;
+      }
+
+      .summary {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 10px;
+        padding: 12px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.76);
+      }
+
+      .summary div {
+        min-height: 86px;
+        padding: 14px;
+        border-radius: 8px;
+        background: var(--soft);
+      }
+
+      .summary strong {
+        display: block;
+        margin-bottom: 6px;
+        font-size: 1.5rem;
+      }
+
+      .summary span {
+        color: var(--muted);
+        font-size: 0.82rem;
+        font-weight: 750;
+      }
+
+      .design-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 18px;
+      }
+
+      .design {
+        display: grid;
+        gap: 16px;
+        min-width: 0;
+        padding: 18px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.82);
+        box-shadow: 0 18px 42px rgba(23, 32, 42, 0.08);
+      }
+
+      .design-header {
+        display: flex;
+        align-items: start;
+        justify-content: space-between;
+        gap: 14px;
+      }
+
+      .design h2 {
+        margin-bottom: 6px;
+        font-size: 1.08rem;
+      }
+
+      .design p {
+        margin-bottom: 0;
+        color: var(--muted);
+        font-size: 0.92rem;
+        line-height: 1.45;
+      }
+
+      .height-readout {
+        flex: 0 0 auto;
+        min-width: 68px;
+        padding: 7px 9px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #f8fafc;
+        color: var(--ink);
+        font-size: 0.8rem;
+        font-weight: 850;
+        text-align: center;
+      }
+
+      .editor-shell {
+        position: relative;
+        overflow: hidden;
+        border: 1px solid #cbd5e1;
+        border-radius: 8px;
+        background: var(--paper);
+      }
+
+      .editor-shell:focus-within {
+        border-color: var(--accent-2);
+        box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.13);
+      }
+
+      .editor-toolbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        min-height: 42px;
+        padding: 0 12px;
+        border-bottom: 1px solid #e2e8f0;
+        background: #f8fafc;
+        color: #475467;
+        font-size: 0.78rem;
+        font-weight: 800;
+      }
+
+      .editor-toolbar span:last-child {
+        color: var(--accent);
+      }
+
+      textarea {
+        display: block;
+        width: 100%;
+        min-height: var(--box-height);
+        height: var(--box-height);
+        padding: 16px 16px 26px;
+        resize: none;
+        border: 0;
+        outline: 0;
+        color: #1f2937;
+        background: #ffffff;
+        line-height: 1.5;
+      }
+
+      .resize-handle {
+        position: absolute;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        min-height: 24px;
+        border: 0;
+        padding: 0;
+        cursor: ns-resize;
+        touch-action: none;
+      }
+
+      .resize-handle:focus-visible {
+        outline: 3px solid rgba(37, 99, 235, 0.38);
+        outline-offset: -3px;
+      }
+
+      .resize-handle::before,
+      .resize-handle::after {
+        position: absolute;
+        content: "";
+      }
+
+      .bar .resize-handle {
+        background: linear-gradient(180deg, transparent 0 42%, rgba(15, 118, 110, 0.13) 42% 100%);
+      }
+
+      .bar .resize-handle::before {
+        left: 50%;
+        bottom: 8px;
+        width: 84px;
+        height: 5px;
+        border-radius: 999px;
+        background: var(--accent);
+        transform: translateX(-50%);
+      }
+
+      .rail .editor-shell {
+        border-color: rgba(37, 99, 235, 0.45);
+      }
+
+      .rail .resize-handle {
+        background: #eff6ff;
+      }
+
+      .rail .resize-handle::before {
+        right: 16px;
+        bottom: 7px;
+        width: 46px;
+        height: 8px;
+        border-top: 2px solid var(--accent-2);
+        border-bottom: 2px solid var(--accent-2);
+      }
+
+      .rail .resize-handle::after {
+        right: 16px;
+        bottom: 15px;
+        width: 46px;
+        height: 2px;
+        background: var(--accent-2);
+      }
+
+      .thumb .resize-handle {
+        left: auto;
+        width: 112px;
+        min-height: 36px;
+        border-radius: 8px 0 0 0;
+        background: var(--accent-3);
+        color: #ffffff;
+      }
+
+      .thumb .resize-handle::before {
+        right: 18px;
+        bottom: 11px;
+        width: 48px;
+        height: 12px;
+        border-top: 2px solid #ffffff;
+        border-bottom: 2px solid #ffffff;
+      }
+
+      .metric .editor-shell {
+        background: repeating-linear-gradient(
+          0deg,
+          #ffffff 0,
+          #ffffff 31px,
+          rgba(124, 58, 237, 0.12) 32px
+        );
+      }
+
+      .metric .resize-handle {
+        min-height: 30px;
+        border-top: 1px solid rgba(124, 58, 237, 0.22);
+        background: rgba(245, 243, 255, 0.94);
+      }
+
+      .metric .resize-handle::before {
+        left: 16px;
+        right: 16px;
+        bottom: 13px;
+        height: 2px;
+        border-radius: 999px;
+        background: repeating-linear-gradient(
+          90deg,
+          var(--accent-4) 0 12px,
+          transparent 12px 18px
+        );
+      }
+
+      .dragging .editor-shell {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 4px rgba(15, 118, 110, 0.14);
+      }
+
+      @media (max-width: 880px) {
+        .hero,
+        .design-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .summary {
+          max-width: 520px;
+        }
+      }
+
+      @media (max-width: 560px) {
+        .shell {
+          width: min(100% - 24px, 1180px);
+          padding-top: 24px;
+        }
+
+        .topbar,
+        .design-header {
+          align-items: stretch;
+          flex-direction: column;
+        }
+
+        .summary {
+          grid-template-columns: 1fr;
+        }
+
+        .height-readout {
+          width: fit-content;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="shell">
+      <nav class="topbar" aria-label="Demo navigation">
+        <a class="back" href="/">Back to demos</a>
+        <span class="status-chip">Drag the lower border</span>
+      </nav>
+
+      <section class="hero" aria-labelledby="page-title">
+        <div>
+          <p class="eyebrow">Resizable edit box</p>
+          <h1 id="page-title">Lower-border handle design review</h1>
+          <p class="intro">
+            Four interaction-ready treatments for a vertically resizable writing field. Each editor keeps the drag target on the lower border and exposes the current height while resizing.
+          </p>
+        </div>
+        <div class="summary" aria-label="Demo summary">
+          <div>
+            <strong>4</strong>
+            <span>handle styles</span>
+          </div>
+          <div>
+            <strong>140</strong>
+            <span>minimum px</span>
+          </div>
+          <div>
+            <strong>360</strong>
+            <span>maximum px</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="design-grid" aria-label="Resizable editor handle concepts">
+        <article class="design bar" style="--box-height: 176px" data-resizable>
+          <div class="design-header">
+            <div>
+              <h2>Centered grip bar</h2>
+              <p>A quiet full-width target with a familiar grab indicator centered under the writing area.</p>
+            </div>
+            <span class="height-readout" data-height>176px</span>
+          </div>
+          <div class="editor-shell">
+            <div class="editor-toolbar"><span>Release notes</span><span>Draft</span></div>
+            <textarea aria-label="Centered grip bar editor">Summarize the release notes, then drag the lower handle to create more room for detail.</textarea>
+            <button class="resize-handle" type="button" aria-label="Resize centered grip bar editor"></button>
+          </div>
+        </article>
+
+        <article class="design rail" style="--box-height: 202px" data-resizable>
+          <div class="design-header">
+            <div>
+              <h2>Right-side rail</h2>
+              <p>A precise resize affordance placed near the corner for dense forms and desktop-heavy workflows.</p>
+            </div>
+            <span class="height-readout" data-height>202px</span>
+          </div>
+          <div class="editor-shell">
+            <div class="editor-toolbar"><span>Incident update</span><span>Ops</span></div>
+            <textarea aria-label="Right-side rail editor">The right rail keeps the center of the edit box clean while still showing a clear drag surface.</textarea>
+            <button class="resize-handle" type="button" aria-label="Resize right-side rail editor"></button>
+          </div>
+        </article>
+
+        <article class="design thumb" style="--box-height: 156px" data-resizable>
+          <div class="design-header">
+            <div>
+              <h2>Docked thumb</h2>
+              <p>A high-contrast handle for touch devices where discoverability matters more than visual subtlety.</p>
+            </div>
+            <span class="height-readout" data-height>156px</span>
+          </div>
+          <div class="editor-shell">
+            <div class="editor-toolbar"><span>Customer reply</span><span>Support</span></div>
+            <textarea aria-label="Docked thumb editor">This treatment reserves a larger handle at the lower-right edge for easy touch dragging.</textarea>
+            <button class="resize-handle" type="button" aria-label="Resize docked thumb editor"></button>
+          </div>
+        </article>
+
+        <article class="design metric" style="--box-height: 222px" data-resizable>
+          <div class="design-header">
+            <div>
+              <h2>Measured baseline</h2>
+              <p>A ruler-like lower edge for structured notes where the resizing action benefits from a measurement cue.</p>
+            </div>
+            <span class="height-readout" data-height>222px</span>
+          </div>
+          <div class="editor-shell">
+            <div class="editor-toolbar"><span>Research memo</span><span>Notes</span></div>
+            <textarea aria-label="Measured baseline editor">The subtle ruled background pairs with the lower resize handle to signal that the field can grow vertically.</textarea>
+            <button class="resize-handle" type="button" aria-label="Resize measured baseline editor"></button>
+          </div>
+        </article>
+      </section>
+    </main>
+
+    <script>
+      const minHeight = 140;
+      const maxHeight = 360;
+
+      document.querySelectorAll("[data-resizable]").forEach((design) => {
+        const shell = design.querySelector(".editor-shell");
+        const handle = design.querySelector(".resize-handle");
+        const readout = design.querySelector("[data-height]");
+
+        const setHeight = (height) => {
+          const nextHeight = Math.min(maxHeight, Math.max(minHeight, Math.round(height)));
+          design.style.setProperty("--box-height", `${nextHeight}px`);
+          readout.textContent = `${nextHeight}px`;
+        };
+
+        handle.addEventListener("pointerdown", (event) => {
+          event.preventDefault();
+          handle.setPointerCapture(event.pointerId);
+          design.classList.add("dragging");
+
+          const startY = event.clientY;
+          const startHeight = shell.querySelector("textarea").getBoundingClientRect().height;
+
+          const onMove = (moveEvent) => {
+            setHeight(startHeight + moveEvent.clientY - startY);
+          };
+
+          const onEnd = (endEvent) => {
+            design.classList.remove("dragging");
+            if (handle.hasPointerCapture(endEvent.pointerId)) {
+              handle.releasePointerCapture(endEvent.pointerId);
+            }
+            window.removeEventListener("pointermove", onMove);
+            window.removeEventListener("pointerup", onEnd);
+            window.removeEventListener("pointercancel", onEnd);
+          };
+
+          window.addEventListener("pointermove", onMove);
+          window.addEventListener("pointerup", onEnd);
+          window.addEventListener("pointercancel", onEnd);
+        });
+
+        handle.addEventListener("keydown", (event) => {
+          const currentHeight = parseInt(readout.textContent, 10);
+          if (event.key === "ArrowUp") {
+            event.preventDefault();
+            setHeight(currentHeight - 12);
+          }
+          if (event.key === "ArrowDown") {
+            event.preventDefault();
+            setHeight(currentHeight + 12);
+          }
+        });
+      });
+    </script>
+  </body>
+</html>
