@@ -1,0 +1,824 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Four UI designs for hover-activated Gantt interactions: drag the right edge to change a task's duration, and drag-link a task's right end to another task's left end to draw a dependency line.">
+<title>Gantt Hover Interactions — 4 UI Designs</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+  /* ============================== TOKENS ============================== */
+  :root{
+    --font: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    --mono: 'Share Tech Mono', ui-monospace, monospace;
+
+    --bg: #f4f6fb;
+    --panel: #ffffff;
+    --ink: #0f172a;
+    --ink-soft: #475569;
+    --ink-faint: #94a3b8;
+    --line: #e2e8f0;
+    --line-soft: #eef2f7;
+    --grid: #f1f5f9;
+    --grid-week: #e7ecf3;
+
+    --accent: #2563eb;
+    --accent-soft: #dbe6ff;
+    --accent-ink: #1d4ed8;
+    --good: #16a34a;
+    --warn: #f59e0b;
+    --bad: #ef4444;
+    --violet: #7c3aed;
+    --cyan: #0891b2;
+
+    --bar-h: 30px;
+    --row-h: 56px;
+    --radius: 8px;
+    --shadow-sm: 0 1px 2px rgba(15,23,42,.06), 0 1px 1px rgba(15,23,42,.04);
+    --shadow-md: 0 8px 24px rgba(15,23,42,.10), 0 2px 6px rgba(15,23,42,.06);
+    --shadow-lg: 0 18px 50px rgba(15,23,42,.18);
+    --ease: cubic-bezier(.22,.61,.36,1);
+  }
+  body.dark{
+    --bg:#0b1220; --panel:#111a2b; --ink:#e6edf7; --ink-soft:#9fb0c8; --ink-faint:#5e7191;
+    --line:#22304a; --line-soft:#1a2740; --grid:#16233b; --grid-week:#1d2c47;
+    --accent:#3b82f6; --accent-soft:#1c2e52; --accent-ink:#93b4ff;
+    --shadow-sm:0 1px 2px rgba(0,0,0,.4); --shadow-md:0 10px 30px rgba(0,0,0,.5);
+    --shadow-lg:0 22px 60px rgba(0,0,0,.6);
+  }
+
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    font-family:var(--font); background:var(--bg); color:var(--ink);
+    -webkit-font-smoothing:antialiased; line-height:1.45;
+  }
+
+  /* ============================== SHELL ============================== */
+  .wrap{max-width:1180px; margin:0 auto; padding:28px 22px 80px}
+  .masthead{margin-bottom:20px}
+  .eyebrow{font-size:12px; letter-spacing:.16em; text-transform:uppercase; color:var(--accent-ink); font-weight:700; margin:0 0 6px}
+  h1{font-size:26px; font-weight:700; margin:0 0 8px; letter-spacing:-.01em}
+  .lede{color:var(--ink-soft); max-width:760px; margin:0; font-size:15px}
+
+  .toolbar{
+    display:flex; flex-wrap:wrap; align-items:center; gap:10px;
+    margin:22px 0 14px; padding:12px; background:var(--panel); border:1px solid var(--line);
+    border-radius:14px; box-shadow:var(--shadow-sm); position:sticky; top:10px; z-index:40;
+  }
+  .seg{display:flex; background:var(--grid); border-radius:10px; padding:4px; gap:4px; flex-wrap:wrap}
+  .seg button{
+    border:0; background:transparent; font-family:var(--font); font-weight:600; font-size:13px;
+    color:var(--ink-soft); padding:8px 12px; border-radius:7px; cursor:pointer; transition:all .18s var(--ease);
+    display:flex; align-items:center; gap:8px;
+  }
+  .seg button .dot{width:9px; height:9px; border-radius:50%; flex:0 0 auto}
+  .seg button[aria-pressed="true"]{background:var(--panel); color:var(--ink); box-shadow:var(--shadow-sm)}
+  .spacer{flex:1 1 auto}
+  .ghost-btn{
+    border:1px solid var(--line); background:var(--panel); color:var(--ink-soft);
+    font-family:var(--font); font-weight:600; font-size:13px; padding:8px 12px; border-radius:9px;
+    cursor:pointer; transition:all .18s var(--ease); display:inline-flex; align-items:center; gap:7px;
+  }
+  .ghost-btn:hover{color:var(--ink); border-color:var(--ink-faint)}
+
+  /* ============================== DESIGN CARD ============================== */
+  .design{
+    background:var(--panel); border:1px solid var(--line); border-radius:16px;
+    box-shadow:var(--shadow-md); overflow:hidden; margin-bottom:26px;
+  }
+  .design-head{
+    display:flex; align-items:flex-start; gap:14px; padding:16px 18px;
+    border-bottom:1px solid var(--line-soft);
+  }
+  .badge{
+    flex:0 0 auto; width:34px; height:34px; border-radius:10px; display:grid; place-items:center;
+    font-weight:700; font-size:15px; color:#fff; box-shadow:var(--shadow-sm);
+  }
+  .d1 .badge{background:linear-gradient(135deg,#2563eb,#1d4ed8)}
+  .d2 .badge{background:linear-gradient(135deg,#7c3aed,#5b21b6)}
+  .d3 .badge{background:linear-gradient(135deg,#0891b2,#0e7490)}
+  .d4 .badge{background:linear-gradient(135deg,#16a34a,#047857)}
+  .design-head h2{font-size:17px; margin:0 0 2px; font-weight:700}
+  .design-head p{margin:0; color:var(--ink-soft); font-size:13px; max-width:780px}
+  .design-tag{
+    margin-left:auto; flex:0 0 auto; font-size:11px; font-weight:700; letter-spacing:.04em;
+    text-transform:uppercase; color:var(--ink-faint); border:1px solid var(--line);
+    border-radius:999px; padding:4px 10px; white-space:nowrap;
+  }
+
+  /* ============================== GANTT CORE ============================== */
+  .gantt{display:flex; position:relative}
+  .sidebar{
+    flex:0 0 230px; width:230px; border-right:1px solid var(--line-soft);
+    background:var(--panel); z-index:6;
+  }
+  .side-head, .time-head{height:46px; border-bottom:1px solid var(--line-soft);
+    display:flex; align-items:center; font-size:12px; font-weight:700; color:var(--ink-faint);
+    letter-spacing:.06em; text-transform:uppercase;}
+  .side-head{padding:0 16px}
+  .side-row{
+    height:var(--row-h); display:flex; align-items:center; gap:10px; padding:0 16px;
+    border-bottom:1px solid var(--line-soft);
+  }
+  .side-row .swatch{width:8px; height:8px; border-radius:50%; flex:0 0 auto}
+  .side-row .meta{min-width:0}
+  .side-row .nm{font-size:13px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+  .side-row .sub{font-size:11px; color:var(--ink-faint); font-family:var(--mono)}
+
+  .scroll{flex:1 1 auto; overflow-x:auto; position:relative}
+  .canvas{position:relative}
+  .time-head{position:relative; display:block; height:46px; padding:0}
+  .tick{
+    position:absolute; top:0; height:46px; border-left:1px solid var(--grid);
+    font-size:11px; color:var(--ink-faint); padding:6px 0 0 6px; box-sizing:border-box;
+  }
+  .tick.week{border-left-color:var(--grid-week)}
+  .tick .mo{font-weight:700; color:var(--ink-soft); display:block; font-size:11px}
+  .tick .dy{font-family:var(--mono); font-size:10px}
+  .rows{position:relative}
+  .grid-row{
+    position:absolute; left:0; right:0; height:var(--row-h); border-bottom:1px solid var(--line-soft);
+  }
+  .grid-row.alt{background:color-mix(in srgb, var(--grid) 45%, transparent)}
+  .vline{position:absolute; top:0; bottom:0; width:1px; background:var(--grid)}
+  .vline.week{background:var(--grid-week)}
+  .today-line{position:absolute; top:0; bottom:0; width:2px; background:linear-gradient(var(--bad),transparent); opacity:.5; z-index:2}
+  .today-flag{position:absolute; top:2px; transform:translateX(-50%); font-size:9px; font-weight:700;
+    color:#fff; background:var(--bad); padding:1px 6px; border-radius:5px; z-index:3}
+
+  /* SVG link layer */
+  .links{position:absolute; inset:0; pointer-events:none; z-index:5; overflow:visible}
+  .link-path{fill:none; stroke:var(--accent); stroke-width:2; }
+  .link-arrow{fill:var(--accent)}
+
+  /* BAR */
+  .bar{
+    position:absolute; height:var(--bar-h); border-radius:7px; cursor:grab; z-index:4;
+    background:var(--accent); box-shadow:var(--shadow-sm), inset 0 1px 0 rgba(255,255,255,.25);
+    transition:box-shadow .15s var(--ease), filter .15s var(--ease);
+    user-select:none; overflow:visible;
+  }
+  .bar:hover{filter:brightness(1.04); box-shadow:var(--shadow-md), inset 0 1px 0 rgba(255,255,255,.25)}
+  .bar .fill{position:absolute; inset:0; border-radius:7px; background:rgba(255,255,255,.22); width:0}
+  .bar .label{
+    position:absolute; left:10px; right:10px; top:0; bottom:0; display:flex; align-items:center;
+    font-size:12px; font-weight:600; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+    pointer-events:none; text-shadow:0 1px 2px rgba(0,0,0,.18);
+  }
+  .bar[data-status="Completed"]{background:var(--good)}
+  .bar[data-status="At Risk"]{background:var(--warn)}
+  .bar[data-status="Blocked"]{background:var(--bad)}
+  .bar.dragging{cursor:grabbing; box-shadow:var(--shadow-lg); z-index:20}
+  .bar.resizing{z-index:20}
+
+  /* duration chip shown while resizing */
+  .dur-chip{
+    position:absolute; top:-30px; right:0; transform:translateX(40%);
+    background:var(--ink); color:#fff; font-size:11px; font-weight:700; font-family:var(--mono);
+    padding:4px 8px; border-radius:6px; white-space:nowrap; box-shadow:var(--shadow-md);
+    opacity:0; pointer-events:none; transition:opacity .12s var(--ease); z-index:30;
+  }
+  .dur-chip::after{content:""; position:absolute; bottom:-4px; left:50%; transform:translateX(-50%);
+    border:4px solid transparent; border-top-color:var(--ink)}
+  .bar.resizing .dur-chip{opacity:1}
+
+  /* link drag rubber-band */
+  .rubber{position:absolute; inset:0; pointer-events:none; z-index:25; overflow:visible}
+  .rubber path{fill:none; stroke:var(--accent); stroke-width:2.5; stroke-dasharray:5 5; stroke-linecap:round}
+  .drop-ok{outline:2.5px solid var(--good); outline-offset:2px; border-radius:9px}
+  .drop-self{outline:2.5px dashed var(--ink-faint); outline-offset:2px; border-radius:9px}
+
+  .legend{display:flex; gap:16px; flex-wrap:wrap; padding:12px 18px; border-top:1px solid var(--line-soft);
+    font-size:12px; color:var(--ink-soft)}
+  .legend b{color:var(--ink)}
+  .legend .k{display:inline-flex; align-items:center; gap:6px}
+  .legend .kbd{font-family:var(--mono); font-size:10px; background:var(--grid); border:1px solid var(--line);
+    border-radius:4px; padding:1px 5px; color:var(--ink-soft)}
+
+  /* toast */
+  .toast{
+    position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(20px);
+    background:var(--ink); color:#fff; font-size:13px; font-weight:600; padding:10px 16px;
+    border-radius:10px; box-shadow:var(--shadow-lg); opacity:0; pointer-events:none;
+    transition:all .25s var(--ease); z-index:200;
+  }
+  .toast.show{opacity:1; transform:translateX(-50%) translateY(0)}
+
+  /* =========================================================
+     DESIGN 1 — CLASSIC EDGE HANDLE + LINK DOT
+     Visible right-edge grip; a small connector dot on the right
+     for linking. Familiar, MS-Project-like.
+     ========================================================= */
+  .v1 .bar .grip-r{
+    position:absolute; right:0; top:0; width:8px; height:100%;
+    cursor:ew-resize; z-index:6; border-radius:0 7px 7px 0;
+    opacity:0; transition:opacity .14s var(--ease);
+    background:rgba(255,255,255,.55);
+    border-left:1px solid rgba(255,255,255,.5);
+  }
+  .v1 .bar:hover .grip-r{opacity:1}
+  .v1 .bar .grip-r::before{content:""; position:absolute; left:2px; top:50%; transform:translateY(-50%);
+    width:2px; height:12px; border-left:2px dotted rgba(15,23,42,.5)}
+  .v1 .bar .link-dot{
+    position:absolute; right:-7px; top:50%; transform:translate(0,-50%) scale(.3);
+    width:14px; height:14px; border-radius:50%; background:var(--panel);
+    border:2px solid var(--accent); cursor:crosshair; z-index:7;
+    opacity:0; transition:all .16s var(--ease); box-shadow:var(--shadow-sm);
+  }
+  .v1 .bar:hover .link-dot{opacity:1; transform:translate(0,-50%) scale(1)}
+  .v1 .bar .link-dot:hover{background:var(--accent); transform:translate(0,-50%) scale(1.25)}
+
+  /* =========================================================
+     DESIGN 2 — FLOATING ACTION PILL
+     On hover a pill floats above the bar with explicit
+     "↔ Duration" and "↪ Link" actions. Discoverable, labeled.
+     ========================================================= */
+  .v2 .bar .pill{
+    position:absolute; bottom:calc(100% + 8px); left:50%; transform:translateX(-50%) translateY(6px);
+    display:flex; gap:0; background:var(--panel); border:1px solid var(--line); border-radius:10px;
+    box-shadow:var(--shadow-md); opacity:0; pointer-events:none; transition:all .16s var(--ease); z-index:30;
+    white-space:nowrap; overflow:hidden;
+  }
+  .v2 .bar:hover .pill{opacity:1; pointer-events:auto; transform:translateX(-50%) translateY(0)}
+  .v2 .bar .pill button{
+    border:0; background:transparent; font-family:var(--font); font-weight:600; font-size:11.5px;
+    color:var(--ink-soft); padding:7px 11px; cursor:pointer; display:flex; align-items:center; gap:6px;
+  }
+  .v2 .bar .pill button:hover{background:var(--accent-soft); color:var(--accent-ink)}
+  .v2 .bar .pill button+button{border-left:1px solid var(--line-soft)}
+  .v2 .bar .pill .ic{font-weight:700; font-size:13px}
+  .v2 .bar.arm-dur{cursor:ew-resize}
+  .v2 .bar.arm-dur::after{content:""; position:absolute; right:0; top:0; bottom:0; width:6px;
+    background:var(--accent-ink); border-radius:0 7px 7px 0}
+  .v2 .bar.arm-link{cursor:crosshair}
+
+  /* =========================================================
+     DESIGN 3 — GHOST EXTENSION PREVIEW
+     Hovering the right portion shows a translucent "ghost"
+     extension you grab to stretch; a glowing left-edge target
+     receives links. Direct-manipulation, minimal chrome.
+     ========================================================= */
+  .v3 .bar .ghost{
+    position:absolute; right:-2px; top:0; width:34px; height:100%;
+    border-radius:0 7px 7px 0; cursor:ew-resize; z-index:6;
+    background:repeating-linear-gradient(135deg, rgba(255,255,255,.0) 0 5px, rgba(255,255,255,.28) 5px 8px);
+    border:1.5px dashed rgba(255,255,255,.7); border-left:0;
+    opacity:0; transform:scaleX(.5); transform-origin:left; transition:all .16s var(--ease);
+  }
+  .v3 .bar:hover .ghost{opacity:1; transform:scaleX(1)}
+  .v3 .bar .ghost::before{content:"↔"; position:absolute; right:8px; top:50%; transform:translateY(-50%);
+    color:#fff; font-weight:700; font-size:13px}
+  .v3 .bar .lead{
+    position:absolute; left:-3px; top:50%; transform:translateY(-50%) scaleY(.4);
+    width:6px; height:calc(100% + 8px); border-radius:4px; background:var(--cyan); z-index:7;
+    opacity:0; transition:all .16s var(--ease); cursor:crosshair; box-shadow:0 0 0 0 rgba(8,145,178,.4);
+  }
+  .v3 .bar:hover .lead{opacity:1; transform:translateY(-50%) scaleY(1); animation:leadPulse 1.6s infinite}
+  @keyframes leadPulse{0%,100%{box-shadow:0 0 0 0 rgba(8,145,178,.35)}50%{box-shadow:0 0 0 6px rgba(8,145,178,0)}}
+
+  /* =========================================================
+     DESIGN 4 — MAGNETIC CONNECTOR NODES
+     Both ends show small "ports". Right port = resize OR link
+     source; drag detects intent. Target left ports magnetically
+     highlight & snap when a link approaches. Node-graph feel.
+     ========================================================= */
+  .v4 .bar{border-radius:9px}
+  .v4 .bar .port{
+    position:absolute; top:50%; width:16px; height:16px; border-radius:50%;
+    background:var(--panel); border:2.5px solid var(--violet); z-index:7;
+    transform:translateY(-50%) scale(0); transition:all .18s var(--ease); box-shadow:var(--shadow-sm);
+  }
+  .v4 .bar .port .core{position:absolute; inset:3px; border-radius:50%; background:var(--violet);
+    transform:scale(0); transition:transform .15s var(--ease)}
+  .v4 .bar .port.right{right:-9px; cursor:crosshair}
+  .v4 .bar .port.left{left:-9px; cursor:crosshair}
+  .v4 .bar:hover .port{transform:translateY(-50%) scale(1)}
+  .v4 .bar .port:hover .core{transform:scale(1)}
+  .v4 .bar .port.right::after{content:""; position:absolute; right:50%; top:-10px; bottom:-10px; width:14px;
+    transform:translateX(50%); cursor:ew-resize}
+  .v4 .bar .resize-zone{position:absolute; right:0; top:0; width:14px; height:100%; cursor:ew-resize; z-index:6}
+  .v4 .bar.snap-target .port.left{transform:translateY(-50%) scale(1.4); border-color:var(--good)}
+  .v4 .bar.snap-target .port.left .core{transform:scale(1); background:var(--good)}
+  .v4 .link-path{stroke:var(--violet)} .v4 .link-arrow{fill:var(--violet)}
+  .v4 .rubber path{stroke:var(--violet)}
+
+  /* small helper note under each gantt */
+  .hint{padding:0 18px 14px; margin-top:-2px; font-size:12.5px; color:var(--ink-soft)}
+  .hint code{font-family:var(--mono); font-size:11px; background:var(--grid); padding:1px 6px; border-radius:5px; color:var(--accent-ink)}
+
+  @media (max-width:720px){
+    .sidebar{flex-basis:140px; width:140px}
+    .design-tag{display:none}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="masthead">
+    <p class="eyebrow">Gantt interaction study</p>
+    <h1>Hover-activated duration &amp; linking — four UI designs</h1>
+    <p class="lede">
+      Each card is a fully interactive mini-Gantt. <b>Hover a bar</b> to reveal its affordances, then
+      <b>drag the right edge</b> to change the task's duration, or <b>drag from a bar's right end onto another bar's
+      left end</b> to create a dependency link (a connector line is drawn). All four share one engine — only the
+      hover UI differs.
+    </p>
+  </header>
+
+  <div class="toolbar">
+    <div class="seg" id="view-seg" role="tablist" aria-label="Show design">
+      <button data-view="all" aria-pressed="true">All four</button>
+      <button data-view="0" aria-pressed="false"><span class="dot" style="background:#2563eb"></span>1 · Edge handle</button>
+      <button data-view="1" aria-pressed="false"><span class="dot" style="background:#7c3aed"></span>2 · Action pill</button>
+      <button data-view="2" aria-pressed="false"><span class="dot" style="background:#0891b2"></span>3 · Ghost preview</button>
+      <button data-view="3" aria-pressed="false"><span class="dot" style="background:#16a34a"></span>4 · Magnetic ports</button>
+    </div>
+    <div class="spacer"></div>
+    <button class="ghost-btn" id="reset-btn" title="Reset all tasks &amp; links">↺ Reset</button>
+    <button class="ghost-btn" id="theme-btn" title="Toggle dark mode">◐ Theme</button>
+  </div>
+
+  <div id="designs"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* =====================================================================
+   SHARED GANTT ENGINE
+   One data model; rendered independently into each design container.
+   Coordinate model mirrors the main demo: pxPerDay, day offsets.
+   ===================================================================== */
+
+const PX_PER_DAY = 26;
+const ROW_H = 56;
+const BAR_TOP = (ROW_H - 30) / 2; // center 30px bar in 56px row
+
+// --- date helpers ---
+function parseDate(s){ const [y,m,d]=s.split('-').map(Number); return new Date(y, m-1, d); }
+function fmtISO(dt){ return `${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}-${String(dt.getDate()).padStart(2,'0')}`; }
+function addDays(dt,n){ const r=new Date(dt); r.setDate(r.getDate()+n); return r; }
+function diffDays(a,b){ return Math.round((b-a)/86400000); }
+const MONTHS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+// --- seed data (shared template; each design gets its own clone) ---
+const SEED = {
+  tasks: [
+    { id:'t1', name:'Discovery & scope',     start:'2026-06-02', end:'2026-06-06', status:'Completed' },
+    { id:'t2', name:'UX wireframes',          start:'2026-06-06', end:'2026-06-12', status:'In Progress' },
+    { id:'t3', name:'Visual design',          start:'2026-06-12', end:'2026-06-18', status:'In Progress' },
+    { id:'t4', name:'Front-end build',        start:'2026-06-16', end:'2026-06-26', status:'At Risk' },
+    { id:'t5', name:'API integration',        start:'2026-06-22', end:'2026-06-30', status:'Blocked' },
+    { id:'t6', name:'QA & launch',            start:'2026-06-30', end:'2026-07-04', status:'In Progress' },
+  ],
+  links: [ {from:'t1',to:'t2'}, {from:'t2',to:'t3'}, {from:'t3',to:'t4'} ],
+};
+const TODAY = '2026-06-17';
+const STATUS_COLOR = { 'Completed':'#16a34a','In Progress':'#2563eb','At Risk':'#f59e0b','Blocked':'#ef4444' };
+
+function projectBounds(tasks){
+  let min=parseDate(tasks[0].start), max=parseDate(tasks[0].end);
+  tasks.forEach(t=>{ const s=parseDate(t.start),e=parseDate(t.end); if(s<min)min=s; if(e>max)max=e; });
+  return { start: addDays(min,-3), end: addDays(max,4) };
+}
+
+const DESIGNS = [
+  { key:'v1', cls:'d1', n:'1', title:'Classic edge handle + link dot',
+    tag:'Familiar', model:'edge-handle',
+    blurb:'A grip appears on the right edge for resizing; a small connector dot sits just past it for linking. The closest thing to MS-Project / Asana muscle memory.',
+    hint:'Hover a bar → grab the striped <code>right grip</code> to resize, or drag the <code>○ dot</code> onto another bar’s left edge to link.' },
+  { key:'v2', cls:'d2', n:'2', title:'Floating action pill',
+    tag:'Discoverable', model:'pill',
+    blurb:'A labeled pill floats above the bar on hover with explicit actions. You “arm” a mode, then drag. Most self-explanatory; costs vertical space and one extra click.',
+    hint:'Hover → click <code>↔ Duration</code> then drag the right edge, or click <code>↪ Link</code> then drag onto a target bar.' },
+  { key:'v3', cls:'d3', n:'3', title:'Ghost extension preview',
+    tag:'Direct', model:'ghost',
+    blurb:'Hovering reveals a translucent “ghost” you grab to stretch the bar, plus a glowing left-edge target that receives links. Minimal chrome, very tactile.',
+    hint:'Hover → drag the hatched <code>ghost</code> on the right to resize, or drag it onto another bar’s glowing <code>left lead</code> to link.' },
+  { key:'v4', cls:'d4', n:'4', title:'Magnetic connector ports',
+    tag:'Node-graph', model:'ports',
+    blurb:'Both ends sprout connector ports. The right port resizes (outer zone) or links (the node); approaching left ports magnetically snap. Feels like a flow editor.',
+    hint:'Hover → drag the <code>right ▣ resize-zone</code> to change duration, or drag the right <code>● port</code> onto a target’s left <code>● port</code> (it snaps green).' },
+];
+
+/* ---------------------------------------------------------------------
+   Build one design instance (its own cloned state + DOM + handlers)
+   --------------------------------------------------------------------- */
+function buildDesign(def){
+  const state = {
+    tasks: SEED.tasks.map(t=>({...t})),
+    links: SEED.links.map(l=>({...l})),
+  };
+
+  // ---- card scaffold ----
+  const card = document.createElement('section');
+  card.className = `design ${def.cls}`;
+  card.dataset.idx = DESIGNS.indexOf(def);
+  card.innerHTML = `
+    <div class="design-head">
+      <div class="badge">${def.n}</div>
+      <div>
+        <h2>${def.title}</h2>
+        <p>${def.blurb}</p>
+      </div>
+      <span class="design-tag">${def.tag}</span>
+    </div>
+    <div class="gantt ${def.key}">
+      <div class="sidebar">
+        <div class="side-head">Task</div>
+        <div class="side-rows"></div>
+      </div>
+      <div class="scroll">
+        <div class="canvas">
+          <div class="time-head"></div>
+          <div class="rows">
+            <svg class="links"></svg>
+            <svg class="rubber" style="display:none"></svg>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="hint">${def.hint}</div>
+    <div class="legend">
+      <span class="k"><b>Resize:</b> drag right edge → updates <i>duration</i></span>
+      <span class="k"><b>Link:</b> A.right → B.left → draws connector</span>
+      <span class="k">Hold <span class="kbd">Esc</span> to cancel a drag</span>
+    </div>`;
+
+  const sideRows = card.querySelector('.side-rows');
+  const canvas   = card.querySelector('.canvas');
+  const timeHead = card.querySelector('.time-head');
+  const rows     = card.querySelector('.rows');
+  const linksSvg = card.querySelector('.links');
+  const rubber   = card.querySelector('.rubber');
+  const scroll   = card.querySelector('.scroll');
+
+  const ctx = { def, state, card, sideRows, canvas, timeHead, rows, linksSvg, rubber, scroll };
+  render(ctx);
+  return card;
+}
+
+/* ---------------------------------------------------------------------
+   Render (idempotent): rebuild sidebar, header, rows, bars, links.
+   --------------------------------------------------------------------- */
+function render(ctx){
+  const { state } = ctx;
+  const bounds = projectBounds(state.tasks);
+  ctx.bounds = bounds;
+  const totalDays = diffDays(bounds.start, bounds.end);
+  const width = totalDays * PX_PER_DAY;
+  const height = state.tasks.length * ROW_H;
+
+  // sidebar
+  ctx.sideRows.innerHTML = state.tasks.map(t=>{
+    const dur = diffDays(parseDate(t.start), parseDate(t.end));
+    return `<div class="side-row" data-id="${t.id}">
+      <span class="swatch" style="background:${STATUS_COLOR[t.status]||'#2563eb'}"></span>
+      <span class="meta">
+        <span class="nm">${t.name}</span>
+        <span class="sub">${dur}d · ${t.status}</span>
+      </span></div>`;
+  }).join('');
+
+  // time header ticks
+  ctx.timeHead.style.width = width+'px';
+  ctx.timeHead.innerHTML = '';
+  for(let i=0;i<=totalDays;i++){
+    const date = addDays(bounds.start, i);
+    const isWeekStart = date.getDay()===1;
+    const isMonthStart = date.getDate()===1 || i===0;
+    if(isWeekStart || isMonthStart){
+      const tick = document.createElement('div');
+      tick.className = 'tick'+(isWeekStart?' week':'');
+      tick.style.left = (i*PX_PER_DAY)+'px';
+      tick.innerHTML = `<span class="mo">${MONTHS[date.getMonth()]}</span><span class="dy">${date.getDate()}</span>`;
+      ctx.timeHead.appendChild(tick);
+    }
+  }
+
+  // rows container
+  ctx.rows.style.width = width+'px';
+  ctx.rows.style.height = height+'px';
+  // clear bars/gridlines but keep the two svgs
+  [...ctx.rows.querySelectorAll('.grid-row,.vline,.bar,.today-line,.today-flag')].forEach(n=>n.remove());
+
+  // gridlines
+  state.tasks.forEach((t,i)=>{
+    const gr = document.createElement('div');
+    gr.className = 'grid-row'+(i%2?' alt':'');
+    gr.style.top = (i*ROW_H)+'px';
+    ctx.rows.appendChild(gr);
+  });
+  for(let i=0;i<=totalDays;i++){
+    const date = addDays(bounds.start,i);
+    if(date.getDay()===1){
+      const v=document.createElement('div'); v.className='vline week'; v.style.left=(i*PX_PER_DAY)+'px';
+      ctx.rows.appendChild(v);
+    }
+  }
+  // today
+  const todayOff = diffDays(bounds.start, parseDate(TODAY));
+  if(todayOff>=0 && todayOff<=totalDays){
+    const tl=document.createElement('div'); tl.className='today-line'; tl.style.left=(todayOff*PX_PER_DAY)+'px';
+    const tf=document.createElement('div'); tf.className='today-flag'; tf.style.left=(todayOff*PX_PER_DAY)+'px'; tf.textContent='TODAY';
+    ctx.rows.appendChild(tl); ctx.rows.appendChild(tf);
+  }
+
+  // size svgs
+  ctx.linksSvg.setAttribute('width', width); ctx.linksSvg.setAttribute('height', height);
+  ctx.linksSvg.style.width=width+'px'; ctx.linksSvg.style.height=height+'px';
+  ctx.rubber.setAttribute('width', width); ctx.rubber.setAttribute('height', height);
+  ctx.rubber.style.width=width+'px'; ctx.rubber.style.height=height+'px';
+
+  // bars
+  state.barEls = {};
+  state.tasks.forEach((t,i)=>{
+    const bar = makeBar(ctx, t, i);
+    ctx.rows.appendChild(bar);
+    state.barEls[t.id] = bar;
+  });
+
+  drawLinks(ctx);
+}
+
+function barGeom(ctx, t, i){
+  const left = diffDays(ctx.bounds.start, parseDate(t.start)) * PX_PER_DAY;
+  const dur  = diffDays(parseDate(t.start), parseDate(t.end));
+  const w = Math.max(PX_PER_DAY*0.6, dur*PX_PER_DAY);
+  const top = i*ROW_H + BAR_TOP;
+  return { left, w, top, dur };
+}
+
+function makeBar(ctx, t, i){
+  const g = barGeom(ctx, t, i);
+  const bar = document.createElement('div');
+  bar.className = 'bar';
+  bar.dataset.id = t.id;
+  bar.dataset.status = t.status;
+  bar.style.left = g.left+'px';
+  bar.style.width = g.w+'px';
+  bar.style.top = g.top+'px';
+
+  bar.innerHTML = `<div class="label">${t.name}</div><div class="dur-chip"></div>`;
+
+  // design-specific affordance markup
+  const m = ctx.def.model;
+  if(m==='edge-handle'){
+    bar.insertAdjacentHTML('beforeend',
+      `<div class="grip-r" data-role="resize"></div><div class="link-dot" data-role="link"></div>`);
+  } else if(m==='pill'){
+    bar.insertAdjacentHTML('beforeend',
+      `<div class="pill">
+         <button data-arm="dur"><span class="ic">↔</span> Duration</button>
+         <button data-arm="link"><span class="ic">↪</span> Link</button>
+       </div>`);
+  } else if(m==='ghost'){
+    bar.insertAdjacentHTML('beforeend',
+      `<div class="ghost" data-role="resize"></div><div class="lead" data-role="link-target"></div>`);
+    // ghost also acts as link source via modifier-free drag detection
+  } else if(m==='ports'){
+    bar.insertAdjacentHTML('beforeend',
+      `<div class="resize-zone" data-role="resize"></div>
+       <div class="port left" data-role="link-target"><span class="core"></span></div>
+       <div class="port right" data-role="link"><span class="core"></span></div>`);
+  }
+
+  attachBarHandlers(ctx, bar, t);
+  return bar;
+}
+
+/* ---------------------------------------------------------------------
+   Link rendering (orthogonal connector: A.right → B.left)
+   --------------------------------------------------------------------- */
+function drawLinks(ctx){
+  const { state } = ctx;
+  const ns='http://www.w3.org/2000/svg';
+  ctx.linksSvg.innerHTML = `<defs>
+     <marker id="arr-${ctx.def.key}" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto" markerUnits="userSpaceOnUse">
+       <path class="link-arrow" d="M0,0 L6,3 L0,6 Z"/></marker></defs>`;
+  state.links.forEach(l=>{
+    const a = state.tasks.find(x=>x.id===l.from), b = state.tasks.find(x=>x.id===l.to);
+    if(!a||!b) return;
+    const ai = state.tasks.indexOf(a), bi = state.tasks.indexOf(b);
+    const ag = barGeom(ctx,a,ai), bg = barGeom(ctx,b,bi);
+    const x1 = ag.left+ag.w, y1 = ag.top+15;
+    const x2 = bg.left,       y2 = bg.top+15;
+    const d = orthPath(x1,y1,x2,y2);
+    const p = document.createElementNS(ns,'path');
+    p.setAttribute('class','link-path');
+    p.setAttribute('d', d);
+    p.setAttribute('marker-end', `url(#arr-${ctx.def.key})`);
+    ctx.linksSvg.appendChild(p);
+  });
+}
+function orthPath(x1,y1,x2,y2){
+  const gap = 14;
+  if(x2 >= x1+gap*2){
+    const mx = x1 + (x2-x1)/2;
+    return `M${x1},${y1} H${mx} V${y2} H${x2-3}`;
+  }
+  // route around when target is left of / overlapping source
+  return `M${x1},${y1} h${gap} V${(y1+y2)/2} H${x2-gap} V${y2} H${x2-3}`;
+}
+
+/* ---------------------------------------------------------------------
+   Interaction: resize (right edge) + link (drag connector)
+   Shared engine; entry points differ per design model.
+   --------------------------------------------------------------------- */
+function attachBarHandlers(ctx, bar, t){
+  const m = ctx.def.model;
+
+  // ---------- RESIZE ----------
+  const startResize = (e) => {
+    e.preventDefault(); e.stopPropagation();
+    const i = ctx.state.tasks.indexOf(t);
+    const g = barGeom(ctx, t, i);
+    const startX = e.clientX;
+    const startDur = g.dur;
+    const chip = bar.querySelector('.dur-chip');
+    bar.classList.add('resizing');
+    document.body.style.cursor='ew-resize';
+
+    const move = (ev) => {
+      const dx = ev.clientX - startX;
+      let newDur = Math.max(1, Math.round((g.w + dx)/PX_PER_DAY));
+      const newW = newDur*PX_PER_DAY;
+      bar.style.width = newW+'px';
+      chip.textContent = `${newDur} day${newDur>1?'s':''}`;
+      // live preview of end date in subtitle
+      const sideSub = ctx.sideRows.querySelector(`[data-id="${t.id}"] .sub`);
+      if(sideSub) sideSub.textContent = `${newDur}d · ${t.status}`;
+      // live link redraw
+      const prevEnd = t.end;
+      t.end = fmtISO(addDays(parseDate(t.start), newDur));
+      drawLinks(ctx);
+      t.end = prevEnd; // keep authoritative until drop
+      bar._pendingDur = newDur;
+    };
+    const up = () => {
+      cleanup();
+      if(bar._pendingDur){
+        t.end = fmtISO(addDays(parseDate(t.start), bar._pendingDur));
+        toast(`“${t.name}” → ${bar._pendingDur} days`);
+        delete bar._pendingDur;
+      }
+      bar.classList.remove('resizing');
+      document.body.style.cursor='';
+      render(ctx);
+    };
+    const esc = (ev)=>{ if(ev.key==='Escape'){ delete bar._pendingDur; cleanup(); bar.classList.remove('resizing'); document.body.style.cursor=''; render(ctx);} };
+    function cleanup(){ window.removeEventListener('mousemove',move); window.removeEventListener('mouseup',up); window.removeEventListener('keydown',esc);}
+    window.addEventListener('mousemove',move); window.addEventListener('mouseup',up); window.addEventListener('keydown',esc);
+  };
+
+  // ---------- LINK ----------
+  const startLink = (e) => {
+    e.preventDefault(); e.stopPropagation();
+    const i = ctx.state.tasks.indexOf(t);
+    const g = barGeom(ctx, t, i);
+    const ox = g.left+g.w, oy = g.top+15;
+    ctx.rubber.style.display='block';
+    const rect = ctx.rows.getBoundingClientRect();
+    let targetId = null;
+
+    const move = (ev)=>{
+      const mx = ev.clientX - rect.left;
+      const my = ev.clientY - rect.top;
+      // detect hovered target bar (left-end)
+      targetId = null;
+      ctx.card.querySelectorAll('.bar').forEach(b=>{ b.classList.remove('drop-ok','drop-self','snap-target'); });
+      const el = document.elementFromPoint(ev.clientX, ev.clientY);
+      const tgtBar = el && el.closest && el.closest('.bar');
+      let snapX = mx, snapY = my;
+      if(tgtBar){
+        const tid = tgtBar.dataset.id;
+        if(tid===t.id){ tgtBar.classList.add('drop-self'); }
+        else if(!linkExists(ctx,t.id,tid) && !wouldCycle(ctx,tid,t.id)){
+          targetId = tid;
+          tgtBar.classList.add(m==='ports'?'snap-target':'drop-ok');
+          const ti = ctx.state.tasks.indexOf(ctx.state.tasks.find(x=>x.id===tid));
+          const tg = barGeom(ctx, ctx.state.tasks[ti], ti);
+          snapX = tg.left; snapY = tg.top+15; // magnetic snap to left port
+        } else {
+          tgtBar.classList.add('drop-self');
+        }
+      }
+      ctx.rubber.innerHTML = `<path d="${orthPath(ox,oy,snapX,snapY)}"/>`;
+    };
+    const up = ()=>{
+      cleanup();
+      ctx.rubber.style.display='none'; ctx.rubber.innerHTML='';
+      ctx.card.querySelectorAll('.bar').forEach(b=>b.classList.remove('drop-ok','drop-self','snap-target'));
+      if(targetId){
+        ctx.state.links.push({from:t.id, to:targetId});
+        const tgt = ctx.state.tasks.find(x=>x.id===targetId);
+        toast(`Linked “${t.name}” → “${tgt.name}”`);
+        render(ctx);
+      }
+    };
+    const esc = (ev)=>{ if(ev.key==='Escape'){ targetId=null; up(); } };
+    function cleanup(){ window.removeEventListener('mousemove',move); window.removeEventListener('mouseup',up); window.removeEventListener('keydown',esc);}
+    window.addEventListener('mousemove',move); window.addEventListener('mouseup',up); window.addEventListener('keydown',esc);
+  };
+
+  // ---- wire entry points per design ----
+  if(m==='edge-handle'){
+    bar.querySelector('.grip-r').addEventListener('mousedown', startResize);
+    bar.querySelector('.link-dot').addEventListener('mousedown', startLink);
+  }
+  else if(m==='pill'){
+    let armed=null;
+    bar.querySelectorAll('.pill button').forEach(btn=>{
+      btn.addEventListener('mousedown', ev=>ev.stopPropagation());
+      btn.addEventListener('click', ev=>{
+        ev.stopPropagation();
+        armed = btn.dataset.arm;
+        bar.classList.toggle('arm-dur', armed==='dur');
+        bar.classList.toggle('arm-link', armed==='link');
+        toast(armed==='dur' ? 'Drag the right edge to resize' : 'Drag onto a target bar to link');
+      });
+    });
+    bar.addEventListener('mousedown', ev=>{
+      if(armed==='dur'){ startResize(ev); armed=null; bar.classList.remove('arm-dur'); }
+      else if(armed==='link'){ startLink(ev); armed=null; bar.classList.remove('arm-link'); }
+    });
+  }
+  else if(m==='ghost'){
+    // ghost: drag = resize by default; if pointer leaves the source row vertically toward
+    // another bar, treat as link. We disambiguate by initial intent: ghost resizes,
+    // BUT holding on the ghost and moving onto another bar's lead links.
+    const ghost = bar.querySelector('.ghost');
+    ghost.addEventListener('mousedown', (e)=>{
+      e.preventDefault(); e.stopPropagation();
+      const startX=e.clientX, startY=e.clientY;
+      let decided=null;
+      const decide=(ev)=>{
+        const dx=ev.clientX-startX, dy=ev.clientY-startY;
+        if(decided) return;
+        // hand off using the CURRENT pointer position so there's no jump
+        if(Math.abs(dy)>14){ decided='link'; teardown(); startLink(ev); }     // vertical intent → link
+        else if(Math.abs(dx)>4){ decided='resize'; teardown(); startResize(ev); } // horizontal → resize
+      };
+      const teardown=()=>{ window.removeEventListener('mousemove',decide); window.removeEventListener('mouseup',teardown); };
+      window.addEventListener('mousemove',decide); window.addEventListener('mouseup',teardown);
+    });
+  }
+  else if(m==='ports'){
+    bar.querySelector('.resize-zone').addEventListener('mousedown', startResize);
+    bar.querySelector('.port.right').addEventListener('mousedown', startLink);
+  }
+}
+
+function linkExists(ctx, from, to){ return ctx.state.links.some(l=>l.from===from && l.to===to); }
+function wouldCycle(ctx, from, to){
+  // does adding from->to create a cycle? walk forward from `to`, see if we reach `from`
+  const adj = {}; ctx.state.links.forEach(l=>{ (adj[l.from]=adj[l.from]||[]).push(l.to); });
+  (adj[from]=adj[from]||[]).push(to);
+  const seen=new Set(); const stack=[to];
+  while(stack.length){ const n=stack.pop(); if(n===from) return true; if(seen.has(n))continue; seen.add(n); (adj[n]||[]).forEach(x=>stack.push(x)); }
+  return false;
+}
+
+/* ---------------------------------------------------------------------
+   App wiring
+   --------------------------------------------------------------------- */
+const designsRoot = document.getElementById('designs');
+let cards = [];
+function buildAll(){
+  designsRoot.innerHTML=''; cards=[];
+  DESIGNS.forEach(def=>{ const c = buildDesign(def); designsRoot.appendChild(c); cards.push(c); });
+  applyView(currentView);
+}
+buildAll();
+
+// view switcher
+let currentView='all';
+const seg = document.getElementById('view-seg');
+seg.addEventListener('click', e=>{
+  const btn = e.target.closest('button'); if(!btn) return;
+  currentView = btn.dataset.view;
+  [...seg.querySelectorAll('button')].forEach(b=>b.setAttribute('aria-pressed', String(b===btn)));
+  applyView(currentView);
+});
+function applyView(v){
+  cards.forEach((c,i)=>{ c.style.display = (v==='all'||String(i)===v) ? '' : 'none'; });
+}
+
+// reset
+document.getElementById('reset-btn').addEventListener('click', ()=>{ buildAll(); toast('Reset all designs'); });
+// theme
+document.getElementById('theme-btn').addEventListener('click', ()=>{ document.body.classList.toggle('dark'); });
+
+// toast
+let toastTimer;
+function toast(msg){
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.classList.add('show');
+  clearTimeout(toastTimer); toastTimer=setTimeout(()=>el.classList.remove('show'), 1800);
+}
+</script>
+</body>
+</html>
