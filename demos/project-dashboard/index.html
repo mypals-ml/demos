@@ -1,0 +1,848 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Project completion dashboard demo for GitHub Project task data.">
+    <title>Project Completion Dashboard</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f5f7fa;
+        --panel: #ffffff;
+        --ink: #17202a;
+        --muted: #64748b;
+        --line: #d8e0e8;
+        --green: #0f766e;
+        --blue: #2864a5;
+        --amber: #b86d18;
+        --red: #c2410c;
+        --violet: #7252aa;
+        --shadow: 0 18px 46px rgba(23, 32, 42, 0.08);
+        font-family:
+          Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+          sans-serif;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        min-height: 100vh;
+        margin: 0;
+        background:
+          linear-gradient(135deg, rgba(15, 118, 110, 0.1), transparent 34%),
+          linear-gradient(180deg, #ffffff 0%, var(--bg) 58%, #e9eef3 100%);
+        color: var(--ink);
+      }
+
+      button,
+      input,
+      select {
+        font: inherit;
+      }
+
+      .app {
+        width: min(1220px, calc(100% - 32px));
+        margin: 0 auto;
+        padding: 28px 0 48px;
+      }
+
+      .topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding-bottom: 22px;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .back {
+        color: var(--green);
+        font-size: 0.94rem;
+        font-weight: 800;
+        text-decoration: none;
+      }
+
+      .sync-chip {
+        display: inline-flex;
+        align-items: center;
+        min-height: 34px;
+        padding: 0 12px;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.82);
+        color: var(--blue);
+        font-size: 0.82rem;
+        font-weight: 850;
+      }
+
+      h1,
+      h2,
+      h3,
+      p {
+        margin-top: 0;
+      }
+
+      .hero {
+        display: grid;
+        grid-template-columns: minmax(0, 0.92fr) minmax(320px, 0.58fr);
+        gap: 28px;
+        align-items: end;
+        padding: 34px 0 26px;
+      }
+
+      .eyebrow {
+        margin: 0 0 10px;
+        color: var(--green);
+        font-size: 0.78rem;
+        font-weight: 850;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      h1 {
+        max-width: 760px;
+        margin-bottom: 16px;
+        font-size: clamp(2.55rem, 7vw, 5.4rem);
+        line-height: 0.95;
+        letter-spacing: 0;
+      }
+
+      .lede {
+        max-width: 680px;
+        margin-bottom: 0;
+        color: var(--muted);
+        font-size: 1.06rem;
+        line-height: 1.62;
+      }
+
+      .control-panel {
+        display: grid;
+        gap: 14px;
+        padding: 16px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.84);
+        box-shadow: var(--shadow);
+      }
+
+      .control-row {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 108px;
+        gap: 12px;
+        align-items: center;
+      }
+
+      .control-row label {
+        display: grid;
+        gap: 4px;
+        color: var(--ink);
+        font-size: 0.86rem;
+        font-weight: 850;
+      }
+
+      .control-row span {
+        color: var(--muted);
+        font-size: 0.78rem;
+        font-weight: 700;
+      }
+
+      input,
+      select {
+        min-width: 0;
+        min-height: 38px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #ffffff;
+        color: var(--ink);
+        font-weight: 800;
+      }
+
+      input {
+        padding: 0 10px;
+      }
+
+      select {
+        padding: 0 8px;
+      }
+
+      .metrics {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 12px;
+        margin-bottom: 18px;
+      }
+
+      .metric {
+        min-height: 132px;
+        padding: 16px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--panel);
+        box-shadow: var(--shadow);
+      }
+
+      .metric span {
+        display: block;
+        margin-bottom: 12px;
+        color: var(--muted);
+        font-size: 0.76rem;
+        font-weight: 850;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+      }
+
+      .metric strong {
+        display: block;
+        font-size: clamp(1.55rem, 3vw, 2.35rem);
+        line-height: 1;
+      }
+
+      .metric small {
+        display: block;
+        margin-top: 9px;
+        color: var(--muted);
+        font-size: 0.82rem;
+        line-height: 1.35;
+      }
+
+      .workspace {
+        display: grid;
+        grid-template-columns: minmax(0, 1.15fr) minmax(300px, 0.85fr);
+        gap: 18px;
+        align-items: start;
+      }
+
+      .panel {
+        min-width: 0;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.9);
+        box-shadow: var(--shadow);
+      }
+
+      .panel-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 16px;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .panel-header h2 {
+        margin: 0;
+        font-size: 1.02rem;
+      }
+
+      .panel-header span {
+        color: var(--muted);
+        font-size: 0.8rem;
+        font-weight: 800;
+      }
+
+      .table-wrap {
+        overflow-x: auto;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 720px;
+      }
+
+      th,
+      td {
+        padding: 12px 14px;
+        border-bottom: 1px solid #e7edf3;
+        text-align: left;
+        vertical-align: middle;
+      }
+
+      th {
+        color: var(--muted);
+        font-size: 0.74rem;
+        font-weight: 850;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+      }
+
+      td {
+        font-size: 0.9rem;
+        line-height: 1.35;
+      }
+
+      .task-title {
+        font-weight: 850;
+      }
+
+      .status {
+        display: inline-flex;
+        align-items: center;
+        min-height: 26px;
+        padding: 0 9px;
+        border-radius: 999px;
+        background: #edf2f7;
+        color: var(--ink);
+        font-size: 0.78rem;
+        font-weight: 850;
+      }
+
+      .status.done {
+        background: #dff7ea;
+        color: #11613d;
+      }
+
+      .status.progress {
+        background: #e3effc;
+        color: var(--blue);
+      }
+
+      .status.todo {
+        background: #f8ecd9;
+        color: var(--amber);
+      }
+
+      .side-stack {
+        display: grid;
+        gap: 18px;
+      }
+
+      .list {
+        display: grid;
+        gap: 10px;
+        padding: 16px;
+        margin: 0;
+        list-style: none;
+      }
+
+      .list li {
+        display: grid;
+        gap: 4px;
+        padding: 12px;
+        border: 1px solid #e7edf3;
+        border-radius: 8px;
+        background: #fbfdff;
+      }
+
+      .list strong {
+        font-size: 0.88rem;
+      }
+
+      .list span {
+        color: var(--muted);
+        font-size: 0.82rem;
+        line-height: 1.35;
+      }
+
+      .warnings li {
+        border-color: #f3d6bf;
+        background: #fff8f0;
+      }
+
+      .warnings strong {
+        color: var(--red);
+      }
+
+      .timeline {
+        display: grid;
+        gap: 10px;
+        padding: 16px;
+      }
+
+      .bar-row {
+        display: grid;
+        grid-template-columns: 132px minmax(0, 1fr);
+        gap: 12px;
+        align-items: center;
+      }
+
+      .bar-row span {
+        color: var(--muted);
+        font-size: 0.8rem;
+        font-weight: 850;
+      }
+
+      .bar-track {
+        min-height: 34px;
+        overflow: hidden;
+        border: 1px solid #dce4ec;
+        border-radius: 8px;
+        background: #f3f6f9;
+      }
+
+      .bar {
+        display: flex;
+        align-items: center;
+        min-height: 34px;
+        padding: 0 10px;
+        border-radius: 7px;
+        background: linear-gradient(90deg, var(--green), var(--blue));
+        color: #ffffff;
+        font-size: 0.78rem;
+        font-weight: 850;
+        white-space: nowrap;
+      }
+
+      .empty-state {
+        padding: 18px;
+        color: var(--muted);
+        font-size: 0.9rem;
+      }
+
+      @media (max-width: 980px) {
+        .hero,
+        .workspace {
+          grid-template-columns: 1fr;
+        }
+
+        .metrics {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+      }
+
+      @media (max-width: 640px) {
+        .app {
+          width: min(100% - 24px, 1220px);
+          padding-top: 22px;
+        }
+
+        .topbar,
+        .panel-header {
+          align-items: flex-start;
+          flex-direction: column;
+        }
+
+        .metrics {
+          grid-template-columns: 1fr;
+        }
+
+        .control-row,
+        .bar-row {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="app">
+      <header class="topbar">
+        <a class="back" href="/">Back to demo shelf</a>
+        <span class="sync-chip">GitHub Project sample synced 14:30 JST</span>
+      </header>
+
+      <section class="hero" aria-labelledby="page-title">
+        <div>
+          <p class="eyebrow">Project operations</p>
+          <h1 id="page-title">Project Completion Dashboard</h1>
+          <p class="lede">
+            A scheduling dashboard that turns task status, estimates, assignees, and dependency links into a completion forecast with explicit assumptions and warnings.
+          </p>
+        </div>
+        <form class="control-panel" aria-label="Forecast controls">
+          <div class="control-row">
+            <label for="start-date">
+              Forecast start date
+              <span>Work begins on the first available workday.</span>
+            </label>
+            <input id="start-date" type="date" value="2026-06-15">
+          </div>
+          <div class="control-row">
+            <label for="capacity">
+              Capacity per worker
+              <span>Default from task rule is 6 hours per day.</span>
+            </label>
+            <input id="capacity" type="number" min="1" max="12" step="0.5" value="6">
+          </div>
+          <div class="control-row">
+            <label for="scenario">
+              Scenario
+              <span>Change sample data quality and progress.</span>
+            </label>
+            <select id="scenario">
+              <option value="current">Current board</option>
+              <option value="clean">Fully estimated</option>
+              <option value="blocked">Blocked review</option>
+            </select>
+          </div>
+        </form>
+      </section>
+
+      <section class="metrics" aria-label="Forecast summary">
+        <div class="metric">
+          <span>Estimated Completion Date</span>
+          <strong id="completion-date">-</strong>
+          <small id="completion-note">Waiting for project data.</small>
+        </div>
+        <div class="metric">
+          <span>Total Remaining Effort</span>
+          <strong id="remaining-effort">-</strong>
+          <small>Done = 0, In Progress = 50%, Todo = 100%.</small>
+        </div>
+        <div class="metric">
+          <span>Missing Data Warnings</span>
+          <strong id="warning-count">-</strong>
+          <small>Defaults are visible in the warnings panel.</small>
+        </div>
+        <div class="metric">
+          <span>Active Workers</span>
+          <strong id="worker-count">-</strong>
+          <small>Unassigned tasks use the default worker.</small>
+        </div>
+      </section>
+
+      <section class="workspace">
+        <div class="panel">
+          <div class="panel-header">
+            <h2>GitHub Project Tasks</h2>
+            <span id="task-count">0 tasks</span>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Task</th>
+                  <th>Status</th>
+                  <th>Estimate</th>
+                  <th>Assignee</th>
+                  <th>Dependency</th>
+                  <th>Remaining</th>
+                  <th>Scheduled</th>
+                </tr>
+              </thead>
+              <tbody id="task-body"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="side-stack">
+          <div class="panel">
+            <div class="panel-header">
+              <h2>Assumptions Used</h2>
+              <span>Rules applied</span>
+            </div>
+            <ul class="list" id="assumptions-list"></ul>
+          </div>
+
+          <div class="panel">
+            <div class="panel-header">
+              <h2>Missing Data Warnings</h2>
+              <span id="warning-label">0 warnings</span>
+            </div>
+            <ul class="list warnings" id="warnings-list"></ul>
+          </div>
+
+          <div class="panel">
+            <div class="panel-header">
+              <h2>Capacity Timeline</h2>
+              <span>Dependency-aware order</span>
+            </div>
+            <div class="timeline" id="timeline"></div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      const scenarios = {
+        current: [
+          { id: 1, title: "Task list view demo", status: "Done", estimateDays: 1, assignee: "Hui", dependency: null },
+          { id: 3, title: "Unassigned assignee icon sizing", status: "Done", estimateDays: 0.5, assignee: "", dependency: null },
+          { id: 4, title: "Task List View V2 design", status: "Done", estimateDays: 1, assignee: "", dependency: 3 },
+          { id: 5, title: "Resizable edit box handles", status: "In review", estimateDays: 1, assignee: "", dependency: 4 },
+          { id: 6, title: "Project completion dashboard", status: "In progress", estimateDays: null, assignee: "", dependency: 5 }
+        ],
+        clean: [
+          { id: 1, title: "Task list view demo", status: "Done", estimateDays: 1, assignee: "Hui", dependency: null },
+          { id: 3, title: "Unassigned assignee icon sizing", status: "Done", estimateDays: 0.5, assignee: "Hui", dependency: null },
+          { id: 4, title: "Task List View V2 design", status: "Done", estimateDays: 1, assignee: "Hui", dependency: 3 },
+          { id: 5, title: "Resizable edit box handles", status: "In review", estimateDays: 1, assignee: "Hui", dependency: 4 },
+          { id: 6, title: "Project completion dashboard", status: "In progress", estimateDays: 1.5, assignee: "Hui", dependency: 5 }
+        ],
+        blocked: [
+          { id: 1, title: "Task list view demo", status: "Done", estimateDays: 1, assignee: "Hui", dependency: null },
+          { id: 3, title: "Unassigned assignee icon sizing", status: "Done", estimateDays: null, assignee: "", dependency: null },
+          { id: 4, title: "Task List View V2 design", status: "Done", estimateDays: 1, assignee: "", dependency: 3 },
+          { id: 5, title: "Resizable edit box handles", status: "Todo", estimateDays: null, assignee: "", dependency: 4 },
+          { id: 6, title: "Project completion dashboard", status: "Todo", estimateDays: null, assignee: "", dependency: 5 }
+        ]
+      };
+
+      const state = {
+        startDate: "2026-06-15",
+        capacityHours: 6,
+        scenario: "current"
+      };
+
+      const statusClass = {
+        Done: "done",
+        "In progress": "progress",
+        "In review": "progress",
+        Todo: "todo",
+        Draft: "todo"
+      };
+
+      const workdayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+      const elements = {
+        startDate: document.querySelector("#start-date"),
+        capacity: document.querySelector("#capacity"),
+        scenario: document.querySelector("#scenario"),
+        completionDate: document.querySelector("#completion-date"),
+        completionNote: document.querySelector("#completion-note"),
+        remainingEffort: document.querySelector("#remaining-effort"),
+        warningCount: document.querySelector("#warning-count"),
+        warningLabel: document.querySelector("#warning-label"),
+        workerCount: document.querySelector("#worker-count"),
+        taskCount: document.querySelector("#task-count"),
+        taskBody: document.querySelector("#task-body"),
+        assumptionsList: document.querySelector("#assumptions-list"),
+        warningsList: document.querySelector("#warnings-list"),
+        timeline: document.querySelector("#timeline")
+      };
+
+      function parseDate(value) {
+        const [year, month, day] = value.split("-").map(Number);
+        return new Date(year, month - 1, day);
+      }
+
+      function formatDate(date) {
+        return new Intl.DateTimeFormat("en", {
+          month: "short",
+          day: "numeric",
+          year: "numeric"
+        }).format(date);
+      }
+
+      function toISODate(date) {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, "0");
+        const day = String(date.getDate()).padStart(2, "0");
+        return `${year}-${month}-${day}`;
+      }
+
+      function isWorkday(date) {
+        const day = date.getDay();
+        return day >= 1 && day <= 5;
+      }
+
+      function nextWorkday(date) {
+        const candidate = new Date(date);
+        while (!isWorkday(candidate)) {
+          candidate.setDate(candidate.getDate() + 1);
+        }
+        return candidate;
+      }
+
+      function addWorkdays(date, days) {
+        let remaining = Math.max(0, Math.ceil(days));
+        const cursor = nextWorkday(date);
+        if (remaining === 0) {
+          return cursor;
+        }
+
+        while (remaining > 1) {
+          cursor.setDate(cursor.getDate() + 1);
+          if (isWorkday(cursor)) {
+            remaining -= 1;
+          }
+        }
+
+        return cursor;
+      }
+
+      function effortMultiplier(status) {
+        if (status === "Done") return 0;
+        if (status === "In progress" || status === "In review") return 0.5;
+        return 1;
+      }
+
+      function topologicalSort(tasks) {
+        const sorted = [];
+        const pending = [...tasks];
+        const seen = new Set();
+
+        while (pending.length) {
+          const index = pending.findIndex((task) => !task.dependency || seen.has(task.dependency));
+          const nextIndex = index === -1 ? 0 : index;
+          const [task] = pending.splice(nextIndex, 1);
+          sorted.push(task);
+          seen.add(task.id);
+        }
+
+        return sorted;
+      }
+
+      function buildForecast() {
+        const tasks = scenarios[state.scenario].map((task) => ({ ...task }));
+        const startDate = nextWorkday(parseDate(state.startDate));
+        const warnings = [];
+        const workerAvailability = new Map();
+        const finishByTask = new Map();
+
+        const scheduled = topologicalSort(tasks).map((task) => {
+          const estimateDays = Number.isFinite(task.estimateDays) ? task.estimateDays : 1;
+          const worker = task.assignee || "Default worker";
+          const remainingDays = estimateDays * effortMultiplier(task.status) * (6 / state.capacityHours);
+          const dependencyFinish = task.dependency ? finishByTask.get(task.dependency) : null;
+          const workerReady = workerAvailability.get(worker) || startDate;
+          const earliest = nextWorkday(new Date(Math.max(startDate, dependencyFinish || startDate, workerReady)));
+          const finish = remainingDays === 0 ? earliest : addWorkdays(earliest, remainingDays);
+
+          if (!Number.isFinite(task.estimateDays)) {
+            warnings.push({
+              task: `#${task.id} ${task.title}`,
+              message: "Missing estimate. Defaulted to 1 day."
+            });
+          }
+
+          if (!task.assignee) {
+            warnings.push({
+              task: `#${task.id} ${task.title}`,
+              message: "Missing assignee. Scheduled against Default worker."
+            });
+          }
+
+          finishByTask.set(task.id, finish);
+          if (remainingDays > 0) {
+            const nextAvailable = new Date(finish);
+            nextAvailable.setDate(nextAvailable.getDate() + 1);
+            workerAvailability.set(worker, nextWorkday(nextAvailable));
+          }
+
+          return {
+            ...task,
+            estimateDays,
+            worker,
+            remainingDays,
+            start: earliest,
+            finish
+          };
+        });
+
+        const openTasks = scheduled.filter((task) => task.remainingDays > 0);
+        const completion = openTasks.reduce((latest, task) => {
+          return task.finish > latest ? task.finish : latest;
+        }, startDate);
+
+        return {
+          tasks: scheduled,
+          startDate,
+          completion,
+          remainingDays: scheduled.reduce((sum, task) => sum + task.remainingDays, 0),
+          warnings,
+          workers: new Set(scheduled.map((task) => task.worker)),
+          openTasks
+        };
+      }
+
+      function renderMetrics(forecast) {
+        elements.completionDate.textContent = formatDate(forecast.completion);
+        elements.completionNote.textContent = `${workdayNames[forecast.completion.getDay()]} finish after dependency and capacity checks.`;
+        elements.remainingEffort.textContent = `${forecast.remainingDays.toFixed(1)}d`;
+        elements.warningCount.textContent = String(forecast.warnings.length);
+        elements.warningLabel.textContent = `${forecast.warnings.length} warnings`;
+        elements.workerCount.textContent = String(forecast.workers.size);
+        elements.taskCount.textContent = `${forecast.tasks.length} tasks`;
+      }
+
+      function renderTasks(forecast) {
+        elements.taskBody.innerHTML = forecast.tasks.map((task) => {
+          const statusKey = statusClass[task.status] || "todo";
+          const dependency = task.dependency ? `#${task.dependency}` : "None";
+          const estimate = Number.isFinite(task.estimateDays) ? `${task.estimateDays}d` : "1d default";
+          return `
+            <tr>
+              <td class="task-title">#${task.id} ${task.title}</td>
+              <td><span class="status ${statusKey}">${task.status}</span></td>
+              <td>${estimate}</td>
+              <td>${task.worker}</td>
+              <td>${dependency}</td>
+              <td>${task.remainingDays.toFixed(1)}d</td>
+              <td>${formatDate(task.start)} - ${formatDate(task.finish)}</td>
+            </tr>
+          `;
+        }).join("");
+      }
+
+      function renderAssumptions() {
+        const assumptions = [
+          ["Done = 0 remaining", "Completed work is excluded from the remaining effort total."],
+          ["In Progress = 50% remaining", "Tasks in active review or progress keep half their estimate."],
+          ["Todo = 100% remaining", "Not-started work keeps its full estimate."],
+          ["Missing estimate = 1 day", "A warning is emitted and one default workday is scheduled."],
+          ["Missing assignee = default worker", "Unassigned work uses a single default capacity bucket."],
+          [`Capacity = ${state.capacityHours}h/day`, "Scheduling uses Monday-Friday workdays only."],
+          ["Dependencies finish first", "Successors start after dependency completion and worker availability."]
+        ];
+
+        elements.assumptionsList.innerHTML = assumptions.map(([title, detail]) => `
+          <li>
+            <strong>${title}</strong>
+            <span>${detail}</span>
+          </li>
+        `).join("");
+      }
+
+      function renderWarnings(forecast) {
+        if (!forecast.warnings.length) {
+          elements.warningsList.innerHTML = `
+            <li>
+              <strong>No missing data</strong>
+              <span>All scheduled tasks include estimates and assignees.</span>
+            </li>
+          `;
+          return;
+        }
+
+        elements.warningsList.innerHTML = forecast.warnings.map((warning) => `
+          <li>
+            <strong>${warning.task}</strong>
+            <span>${warning.message}</span>
+          </li>
+        `).join("");
+      }
+
+      function renderTimeline(forecast) {
+        if (!forecast.openTasks.length) {
+          elements.timeline.innerHTML = `<p class="empty-state">No open work remains for this scenario.</p>`;
+          return;
+        }
+
+        const maxRemaining = Math.max(...forecast.openTasks.map((task) => task.remainingDays), 1);
+        elements.timeline.innerHTML = forecast.openTasks.map((task) => {
+          const width = Math.max(18, Math.round((task.remainingDays / maxRemaining) * 100));
+          return `
+            <div class="bar-row">
+              <span>#${task.id} ${toISODate(task.finish)}</span>
+              <div class="bar-track">
+                <div class="bar" style="width: ${width}%;">${task.remainingDays.toFixed(1)}d ${task.worker}</div>
+              </div>
+            </div>
+          `;
+        }).join("");
+      }
+
+      function render() {
+        state.startDate = elements.startDate.value;
+        state.capacityHours = Number(elements.capacity.value) || 6;
+        state.scenario = elements.scenario.value;
+
+        const forecast = buildForecast();
+        renderMetrics(forecast);
+        renderTasks(forecast);
+        renderAssumptions();
+        renderWarnings(forecast);
+        renderTimeline(forecast);
+      }
+
+      elements.startDate.addEventListener("change", render);
+      elements.capacity.addEventListener("input", render);
+      elements.scenario.addEventListener("change", render);
+
+      render();
+    </script>
+  </body>
+</html>

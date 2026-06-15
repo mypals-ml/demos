@@ -1,20 +1,28 @@
-# Implementation and Test Plan - Task #5
+# Implementation and Test Plan - Task #6
 
 ## Task
-Demo handle designs for a vertically resizable edit box.
+Demo a dashboard for a project.
 
-## Reopened Review Request
-Add a design treatment where the right end shows a draggable handle block, with a dot on the bottom-right of the block that can drag out a link line.
+## Requirements
+Build a project dashboard demo that consumes GitHub Project-style task data with estimates, status, assignee, and dependency links. It must show estimated completion date, total remaining effort, assumptions used, and missing data warnings.
 
 ## Implementation Plan
-1. Update `/Users/wanghui/coding/prj-demos/demos/demos/resizable-edit-box/index.html` in place.
-2. Add visible lower-right handle blocks to the editor treatments, including grip texture, a connector dot, and a link-line preview affordance.
-3. Preserve pointer-driven vertical resizing on the lower-border handle.
-4. Add dot-specific pointer interaction that draws a temporary line from the bottom-right dot without interfering with resize.
+1. Add `/Users/wanghui/coding/prj-demos/demos/demos/project-dashboard/index.html` as a standalone static dashboard demo.
+2. Include a GitHub Project-style input table with status, estimate, assignee, and dependency data.
+3. Implement deterministic browser-side scheduling rules:
+   - Done tasks contribute 0 remaining effort.
+   - In progress tasks contribute 50% remaining effort.
+   - Todo / Not Started / Draft tasks contribute 100% remaining effort.
+   - Missing estimates warn and default to 1 day.
+   - Missing assignees warn and schedule against a default worker.
+   - Capacity defaults to 6 hours/day, Monday-Friday.
+   - Dependencies must finish before successors start.
+4. Render the required outputs as dashboard metrics, assumptions, warnings, and a schedule table.
+5. Add the demo to the root HTML Demo Shelf.
 
 ## Test Plan
-1. Run an HTML/content check that the demo includes handle blocks, connector dots, and link-line elements for all variants.
+1. Run a content check for the required output labels, assumptions, warnings, and project-dashboard index link.
 2. Run an inline JavaScript syntax check for the demo script.
-3. Serve the static site locally and inspect the demo in a browser.
-4. Verify dragging a lower-border handle changes an edit box height.
-5. Verify dragging a connector dot renders an active link line and leaves no console errors.
+3. Serve the static site locally and inspect `/demos/project-dashboard/` in a browser.
+4. Verify the dashboard renders a completion date, total remaining effort, warning rows, and scheduled task rows.
+5. Change dashboard controls in the browser and verify metrics recalculate without console errors.
