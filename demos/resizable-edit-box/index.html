@@ -247,6 +247,7 @@
         padding: 0;
         cursor: ns-resize;
         touch-action: none;
+        z-index: 2;
       }
 
       .resize-handle:focus-visible {
@@ -260,8 +261,123 @@
         content: "";
       }
 
+      .handle-block {
+        position: absolute;
+        right: 12px;
+        bottom: 8px;
+        z-index: 4;
+        display: grid;
+        place-items: center;
+        width: 64px;
+        height: 34px;
+        border: 1px solid color-mix(in srgb, var(--handle-color, var(--accent)) 48%, white);
+        border-radius: 8px;
+        background:
+          linear-gradient(135deg, rgba(255, 255, 255, 0.86), rgba(255, 255, 255, 0.58)),
+          color-mix(in srgb, var(--handle-color, var(--accent)) 12%, white);
+        box-shadow:
+          0 10px 24px rgba(23, 32, 42, 0.14),
+          inset 0 0 0 1px rgba(255, 255, 255, 0.72);
+        pointer-events: none;
+      }
+
+      .block-grip,
+      .block-grip::before,
+      .block-grip::after {
+        display: block;
+        width: 30px;
+        height: 2px;
+        border-radius: 999px;
+        background: var(--handle-color, var(--accent));
+      }
+
+      .block-grip {
+        position: relative;
+      }
+
+      .block-grip::before,
+      .block-grip::after {
+        position: absolute;
+        left: 0;
+        content: "";
+      }
+
+      .block-grip::before {
+        top: -7px;
+      }
+
+      .block-grip::after {
+        top: 7px;
+      }
+
+      .connector-dot {
+        position: absolute;
+        right: -7px;
+        bottom: -7px;
+        appearance: none;
+        width: 18px;
+        height: 18px;
+        border: 3px solid #ffffff;
+        padding: 0;
+        border-radius: 999px;
+        background: var(--handle-color, var(--accent));
+        box-shadow: 0 4px 12px rgba(23, 32, 42, 0.25);
+        cursor: crosshair;
+        pointer-events: auto;
+        touch-action: none;
+      }
+
+      .connector-dot:focus-visible {
+        outline: 3px solid rgba(37, 99, 235, 0.42);
+        outline-offset: 2px;
+      }
+
+      .link-line {
+        position: absolute;
+        z-index: 3;
+        width: 0;
+        height: 3px;
+        border-radius: 999px;
+        background: linear-gradient(90deg, var(--handle-color, var(--accent)), transparent);
+        box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.72);
+        opacity: 0;
+        pointer-events: none;
+        transform-origin: 0 50%;
+      }
+
+      .link-line::after {
+        position: absolute;
+        right: -5px;
+        top: 50%;
+        width: 10px;
+        height: 10px;
+        border-radius: 999px;
+        background: var(--handle-color, var(--accent));
+        content: "";
+        transform: translateY(-50%);
+      }
+
+      .linking .link-line,
+      .link-complete .link-line {
+        opacity: 1;
+      }
+
+      .link-complete .link-line {
+        opacity: 0.64;
+      }
+
+      .bar {
+        --handle-color: var(--accent);
+      }
+
       .bar .resize-handle {
         background: linear-gradient(180deg, transparent 0 42%, rgba(15, 118, 110, 0.13) 42% 100%);
+      }
+
+      .bar .handle-block,
+      .bar .connector-dot,
+      .bar .link-line {
+        --handle-color: var(--accent);
       }
 
       .bar .resize-handle::before {
@@ -278,8 +394,18 @@
         border-color: rgba(37, 99, 235, 0.45);
       }
 
+      .rail {
+        --handle-color: var(--accent-2);
+      }
+
       .rail .resize-handle {
         background: #eff6ff;
+      }
+
+      .rail .handle-block,
+      .rail .connector-dot,
+      .rail .link-line {
+        --handle-color: var(--accent-2);
       }
 
       .rail .resize-handle::before {
@@ -299,6 +425,10 @@
         background: var(--accent-2);
       }
 
+      .thumb {
+        --handle-color: var(--accent-3);
+      }
+
       .thumb .resize-handle {
         left: auto;
         width: 112px;
@@ -306,6 +436,12 @@
         border-radius: 8px 0 0 0;
         background: var(--accent-3);
         color: #ffffff;
+      }
+
+      .thumb .handle-block,
+      .thumb .connector-dot,
+      .thumb .link-line {
+        --handle-color: var(--accent-3);
       }
 
       .thumb .resize-handle::before {
@@ -326,10 +462,20 @@
         );
       }
 
+      .metric {
+        --handle-color: var(--accent-4);
+      }
+
       .metric .resize-handle {
         min-height: 30px;
         border-top: 1px solid rgba(124, 58, 237, 0.22);
         background: rgba(245, 243, 255, 0.94);
+      }
+
+      .metric .handle-block,
+      .metric .connector-dot,
+      .metric .link-line {
+        --handle-color: var(--accent-4);
       }
 
       .metric .resize-handle::before {
@@ -348,6 +494,15 @@
       .dragging .editor-shell {
         border-color: var(--accent);
         box-shadow: 0 0 0 4px rgba(15, 118, 110, 0.14);
+      }
+
+      .linking .editor-shell {
+        border-color: var(--handle-color, var(--accent-2));
+        box-shadow: 0 0 0 4px color-mix(in srgb, var(--handle-color, var(--accent-2)) 18%, transparent);
+      }
+
+      .link-complete .editor-shell {
+        border-color: color-mix(in srgb, var(--handle-color, var(--accent-2)) 62%, #cbd5e1);
       }
 
       @media (max-width: 880px) {
@@ -427,6 +582,11 @@
             <div class="editor-toolbar"><span>Release notes</span><span>Draft</span></div>
             <textarea aria-label="Centered grip bar editor">Summarize the release notes, then drag the lower handle to create more room for detail.</textarea>
             <button class="resize-handle" type="button" aria-label="Resize centered grip bar editor"></button>
+            <div class="handle-block">
+              <span class="block-grip" aria-hidden="true"></span>
+              <button class="connector-dot" type="button" aria-label="Drag link line from centered grip bar editor"></button>
+            </div>
+            <div class="link-line" aria-hidden="true"></div>
           </div>
         </article>
 
@@ -442,6 +602,11 @@
             <div class="editor-toolbar"><span>Incident update</span><span>Ops</span></div>
             <textarea aria-label="Right-side rail editor">The right rail keeps the center of the edit box clean while still showing a clear drag surface.</textarea>
             <button class="resize-handle" type="button" aria-label="Resize right-side rail editor"></button>
+            <div class="handle-block">
+              <span class="block-grip" aria-hidden="true"></span>
+              <button class="connector-dot" type="button" aria-label="Drag link line from right-side rail editor"></button>
+            </div>
+            <div class="link-line" aria-hidden="true"></div>
           </div>
         </article>
 
@@ -457,6 +622,11 @@
             <div class="editor-toolbar"><span>Customer reply</span><span>Support</span></div>
             <textarea aria-label="Docked thumb editor">This treatment reserves a larger handle at the lower-right edge for easy touch dragging.</textarea>
             <button class="resize-handle" type="button" aria-label="Resize docked thumb editor"></button>
+            <div class="handle-block">
+              <span class="block-grip" aria-hidden="true"></span>
+              <button class="connector-dot" type="button" aria-label="Drag link line from docked thumb editor"></button>
+            </div>
+            <div class="link-line" aria-hidden="true"></div>
           </div>
         </article>
 
@@ -472,6 +642,11 @@
             <div class="editor-toolbar"><span>Research memo</span><span>Notes</span></div>
             <textarea aria-label="Measured baseline editor">The subtle ruled background pairs with the lower resize handle to signal that the field can grow vertically.</textarea>
             <button class="resize-handle" type="button" aria-label="Resize measured baseline editor"></button>
+            <div class="handle-block">
+              <span class="block-grip" aria-hidden="true"></span>
+              <button class="connector-dot" type="button" aria-label="Drag link line from measured baseline editor"></button>
+            </div>
+            <div class="link-line" aria-hidden="true"></div>
           </div>
         </article>
       </section>
@@ -484,7 +659,10 @@
       document.querySelectorAll("[data-resizable]").forEach((design) => {
         const shell = design.querySelector(".editor-shell");
         const handle = design.querySelector(".resize-handle");
+        const dot = design.querySelector(".connector-dot");
+        const line = design.querySelector(".link-line");
         const readout = design.querySelector("[data-height]");
+        let linkPreviewTimer;
 
         const setHeight = (height) => {
           const nextHeight = Math.min(maxHeight, Math.max(minHeight, Math.round(height)));
@@ -529,6 +707,55 @@
             event.preventDefault();
             setHeight(currentHeight + 12);
           }
+        });
+
+        dot.addEventListener("pointerdown", (event) => {
+          event.preventDefault();
+          event.stopPropagation();
+          dot.setPointerCapture(event.pointerId);
+          window.clearTimeout(linkPreviewTimer);
+          design.classList.remove("link-complete");
+          design.classList.add("linking");
+
+          const shellRect = shell.getBoundingClientRect();
+          const dotRect = dot.getBoundingClientRect();
+          const startX = dotRect.left + dotRect.width / 2 - shellRect.left;
+          const startY = dotRect.top + dotRect.height / 2 - shellRect.top;
+
+          line.style.left = `${startX}px`;
+          line.style.top = `${startY}px`;
+
+          const drawLine = (moveEvent) => {
+            const endX = moveEvent.clientX - shellRect.left;
+            const endY = moveEvent.clientY - shellRect.top;
+            const deltaX = endX - startX;
+            const deltaY = endY - startY;
+            const length = Math.max(18, Math.hypot(deltaX, deltaY));
+            const angle = Math.atan2(deltaY, deltaX) * 180 / Math.PI;
+
+            line.style.width = `${length}px`;
+            line.style.transform = `rotate(${angle}deg)`;
+          };
+
+          const endLine = (endEvent) => {
+            design.classList.remove("linking");
+            design.classList.add("link-complete");
+            linkPreviewTimer = window.setTimeout(() => {
+              design.classList.remove("link-complete");
+              line.style.width = "0";
+            }, 900);
+            if (dot.hasPointerCapture(endEvent.pointerId)) {
+              dot.releasePointerCapture(endEvent.pointerId);
+            }
+            window.removeEventListener("pointermove", drawLine);
+            window.removeEventListener("pointerup", endLine);
+            window.removeEventListener("pointercancel", endLine);
+          };
+
+          drawLine(event);
+          window.addEventListener("pointermove", drawLine);
+          window.addEventListener("pointerup", endLine);
+          window.addEventListener("pointercancel", endLine);
         });
       });
     </script>
