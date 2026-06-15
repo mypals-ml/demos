@@ -1,21 +1,30 @@
-# Implementation and Test Plan - Task #7
+# Implementation and Test Plan - Task #6 Review Refinement
 
 ## Task
-Refine: Gantt Hover Interactions — 4 UI Designs.
+Demo a dashboard for a project.
 
-## Requirements
-Compare four hover affordances for drag-to-resize duration and drag-to-link dependencies on Gantt bars. The visual should show a draggable right-end handle block and a bottom-right dot/port that can pull out a dependency link.
+## Review Notes
+- Emphasize Estimated Completion Date.
+- Move the information in "Forecast start date" to section "Assumptions Used".
+- Give an info button to explain what is "Capacity Timeline".
+- Use multiple tabs to show more designs.
+- Designs may contain charts and graphs.
 
 ## Implementation Plan
-1. Refine `/Users/wanghui/coding/prj-demos/demos/demos/gantt-chart/hover-features.html`.
-2. Keep the existing four-design comparison and shared interaction engine.
-3. Make each hover variant visibly expose a right-end resize handle/block.
-4. Move or add dependency link dots/ports to the bottom-right of that handle/block.
-5. Start new link rubber-band drags from the actual clicked dot/port coordinate.
-6. Keep the root demo shelf link pointing at the hover-features demo.
+1. Refine `/Users/wanghui/coding/prj-demos/demos/demos/project-dashboard/index.html`.
+2. Make the Estimated Completion Date the primary metric with stronger visual treatment.
+3. Keep the start-date control editable, but move its workday explanation into Assumptions Used.
+4. Add accessible info buttons on Capacity Timeline panels.
+5. Add tabbed dashboard designs:
+   - Operations Table
+   - Charts
+   - Capacity
+   - Dependencies
+6. Reuse one forecast calculation engine so all views update from the same start date, capacity, and scenario controls.
 
 ## Test Plan
-1. Run a content check for the required variant labels and bottom-right dot language.
-2. Run an inline JavaScript syntax check for the hover-features script.
-3. Serve the static site locally and inspect `/demos/gantt-chart/hover-features.html` in a browser.
-4. Verify the four cards render, hover affordances appear, reset/theme controls work, and no console errors are present.
+1. Check static content for the review-requested labels and tab names.
+2. Parse the inline JavaScript with Node.
+3. Run `git diff --check`.
+4. Serve the static site locally.
+5. Verify in browser that the dashboard renders, tabs switch, capacity/scenario changes recalculate the visible charts, and no local console errors appear.

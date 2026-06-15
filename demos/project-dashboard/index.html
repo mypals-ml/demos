@@ -184,6 +184,23 @@
         box-shadow: var(--shadow);
       }
 
+      .metric.primary {
+        position: relative;
+        overflow: hidden;
+        border-color: rgba(15, 118, 110, 0.34);
+        background:
+          linear-gradient(135deg, rgba(15, 118, 110, 0.13), rgba(40, 100, 165, 0.08)),
+          #ffffff;
+      }
+
+      .metric.primary::before {
+        position: absolute;
+        inset: 0 auto 0 0;
+        width: 6px;
+        background: linear-gradient(180deg, var(--green), var(--blue));
+        content: "";
+      }
+
       .metric span {
         display: block;
         margin-bottom: 12px;
@@ -200,6 +217,11 @@
         line-height: 1;
       }
 
+      .metric.primary strong {
+        color: var(--green);
+        font-size: clamp(2rem, 4vw, 3.3rem);
+      }
+
       .metric small {
         display: block;
         margin-top: 9px;
@@ -213,6 +235,39 @@
         grid-template-columns: minmax(0, 1.15fr) minmax(300px, 0.85fr);
         gap: 18px;
         align-items: start;
+      }
+
+      .view-tabs {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin: 0 0 18px;
+      }
+
+      .tab-button {
+        min-height: 38px;
+        padding: 0 14px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #ffffff;
+        color: var(--muted);
+        font-size: 0.86rem;
+        font-weight: 850;
+        cursor: pointer;
+      }
+
+      .tab-button[aria-selected="true"] {
+        border-color: rgba(15, 118, 110, 0.42);
+        background: #e9f6f2;
+        color: var(--green);
+      }
+
+      .design-view {
+        display: none;
+      }
+
+      .design-view.active {
+        display: block;
       }
 
       .panel {
@@ -241,6 +296,49 @@
         color: var(--muted);
         font-size: 0.8rem;
         font-weight: 800;
+      }
+
+      .panel-title {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .info-button {
+        display: inline-grid;
+        place-items: center;
+        width: 24px;
+        height: 24px;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        background: #ffffff;
+        color: var(--blue);
+        font-size: 0.82rem;
+        font-weight: 900;
+        cursor: help;
+      }
+
+      .info-button:focus-visible {
+        outline: 3px solid rgba(40, 100, 165, 0.25);
+        outline-offset: 2px;
+      }
+
+      .info-button:hover::after,
+      .info-button:focus-visible::after {
+        position: absolute;
+        z-index: 2;
+        width: min(260px, calc(100vw - 48px));
+        margin: 38px 0 0 -24px;
+        padding: 10px 12px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #ffffff;
+        box-shadow: var(--shadow);
+        color: var(--ink);
+        font-size: 0.78rem;
+        font-weight: 750;
+        line-height: 1.4;
+        content: attr(aria-label);
       }
 
       .table-wrap {
@@ -352,6 +450,139 @@
         padding: 16px;
       }
 
+      .chart-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 18px;
+      }
+
+      .chart-panel {
+        min-height: 320px;
+      }
+
+      .chart-body {
+        display: grid;
+        gap: 14px;
+        padding: 16px;
+      }
+
+      .donut-wrap {
+        display: grid;
+        grid-template-columns: 180px minmax(0, 1fr);
+        gap: 16px;
+        align-items: center;
+      }
+
+      .donut {
+        width: 180px;
+        height: 180px;
+        border-radius: 50%;
+        background: conic-gradient(var(--green) 0deg, var(--green) 0deg, var(--blue) 0deg, var(--blue) 0deg, #edf2f7 0deg);
+        display: grid;
+        place-items: center;
+      }
+
+      .donut-core {
+        display: grid;
+        place-items: center;
+        width: 112px;
+        height: 112px;
+        border-radius: 50%;
+        background: #ffffff;
+        text-align: center;
+      }
+
+      .donut-core strong {
+        display: block;
+        font-size: 1.8rem;
+        line-height: 1;
+      }
+
+      .legend {
+        display: grid;
+        gap: 8px;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+      }
+
+      .legend li,
+      .signal-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        min-height: 34px;
+        color: var(--muted);
+        font-size: 0.84rem;
+        font-weight: 800;
+      }
+
+      .legend b,
+      .signal-row b {
+        color: var(--ink);
+      }
+
+      .chart-bars,
+      .signal-list {
+        display: grid;
+        gap: 10px;
+      }
+
+      .chart-bar {
+        display: grid;
+        grid-template-columns: 118px minmax(0, 1fr) 54px;
+        gap: 10px;
+        align-items: center;
+      }
+
+      .chart-bar span {
+        color: var(--muted);
+        font-size: 0.78rem;
+        font-weight: 850;
+      }
+
+      .mini-track {
+        height: 28px;
+        overflow: hidden;
+        border: 1px solid #dce4ec;
+        border-radius: 8px;
+        background: #f3f6f9;
+      }
+
+      .mini-fill {
+        height: 100%;
+        border-radius: 7px;
+        background: linear-gradient(90deg, var(--green), var(--blue));
+      }
+
+      .dependency-flow {
+        display: grid;
+        gap: 10px;
+      }
+
+      .flow-step {
+        display: grid;
+        grid-template-columns: 46px minmax(0, 1fr) 84px;
+        gap: 10px;
+        align-items: center;
+        padding: 12px;
+        border: 1px solid #e7edf3;
+        border-radius: 8px;
+        background: #fbfdff;
+      }
+
+      .flow-step b {
+        color: var(--blue);
+        font-size: 0.88rem;
+      }
+
+      .flow-step span {
+        color: var(--muted);
+        font-size: 0.82rem;
+        font-weight: 800;
+      }
+
       .bar-row {
         display: grid;
         grid-template-columns: 132px minmax(0, 1fr);
@@ -401,6 +632,11 @@
         .metrics {
           grid-template-columns: repeat(2, minmax(0, 1fr));
         }
+
+        .chart-grid,
+        .donut-wrap {
+          grid-template-columns: 1fr;
+        }
       }
 
       @media (max-width: 640px) {
@@ -420,8 +656,15 @@
         }
 
         .control-row,
-        .bar-row {
+        .bar-row,
+        .chart-bar,
+        .flow-step {
           grid-template-columns: 1fr;
+        }
+
+        .view-tabs {
+          display: grid;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
         }
       }
     </style>
@@ -444,8 +687,8 @@
         <form class="control-panel" aria-label="Forecast controls">
           <div class="control-row">
             <label for="start-date">
-              Forecast start date
-              <span>Work begins on the first available workday.</span>
+              Start date
+              <span>Editable forecast anchor.</span>
             </label>
             <input id="start-date" type="date" value="2026-06-15">
           </div>
@@ -471,7 +714,7 @@
       </section>
 
       <section class="metrics" aria-label="Forecast summary">
-        <div class="metric">
+        <div class="metric primary">
           <span>Estimated Completion Date</span>
           <strong id="completion-date">-</strong>
           <small id="completion-note">Waiting for project data.</small>
@@ -493,7 +736,15 @@
         </div>
       </section>
 
-      <section class="workspace">
+      <nav class="view-tabs" aria-label="Dashboard designs">
+        <button class="tab-button" type="button" data-view="overview" aria-selected="true">Operations Table</button>
+        <button class="tab-button" type="button" data-view="charts" aria-selected="false">Charts</button>
+        <button class="tab-button" type="button" data-view="capacity" aria-selected="false">Capacity</button>
+        <button class="tab-button" type="button" data-view="dependency" aria-selected="false">Dependencies</button>
+      </nav>
+
+      <section class="design-view active" id="view-overview" aria-label="Operations table design">
+      <div class="workspace">
         <div class="panel">
           <div class="panel-header">
             <h2>GitHub Project Tasks</h2>
@@ -536,10 +787,103 @@
 
           <div class="panel">
             <div class="panel-header">
-              <h2>Capacity Timeline</h2>
+              <div class="panel-title">
+                <h2>Capacity Timeline</h2>
+                <button
+                  class="info-button"
+                  type="button"
+                  aria-label="Capacity Timeline shows each open task after dependency, worker availability, workday, and capacity rules are applied."
+                >i</button>
+              </div>
               <span>Dependency-aware order</span>
             </div>
             <div class="timeline" id="timeline"></div>
+          </div>
+        </div>
+      </div>
+      </section>
+
+      <section class="design-view" id="view-charts" aria-label="Charts dashboard design">
+        <div class="chart-grid">
+          <div class="panel chart-panel">
+            <div class="panel-header">
+              <h2>Completion Mix</h2>
+              <span>Status-weighted effort</span>
+            </div>
+            <div class="chart-body">
+              <div class="donut-wrap">
+                <div class="donut" id="status-donut">
+                  <div class="donut-core">
+                    <strong id="done-percent">0%</strong>
+                    <span>done</span>
+                  </div>
+                </div>
+                <ul class="legend" id="status-legend"></ul>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel chart-panel">
+            <div class="panel-header">
+              <h2>Remaining Effort by Task</h2>
+              <span>Default estimates included</span>
+            </div>
+            <div class="chart-body">
+              <div class="chart-bars" id="effort-bars"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="design-view" id="view-capacity" aria-label="Capacity dashboard design">
+        <div class="chart-grid">
+          <div class="panel chart-panel">
+            <div class="panel-header">
+              <div class="panel-title">
+                <h2>Capacity Timeline</h2>
+                <button
+                  class="info-button"
+                  type="button"
+                  aria-label="Capacity Timeline converts estimates into workdays, skips weekends, waits for predecessors, and queues work by assignee."
+                >i</button>
+              </div>
+              <span>Workday schedule</span>
+            </div>
+            <div class="timeline" id="capacity-timeline"></div>
+          </div>
+
+          <div class="panel chart-panel">
+            <div class="panel-header">
+              <h2>Worker Load</h2>
+              <span>Remaining days</span>
+            </div>
+            <div class="chart-body">
+              <div class="chart-bars" id="worker-bars"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="design-view" id="view-dependency" aria-label="Dependency dashboard design">
+        <div class="chart-grid">
+          <div class="panel chart-panel">
+            <div class="panel-header">
+              <h2>Dependency Path</h2>
+              <span>Successors wait for predecessors</span>
+            </div>
+            <div class="chart-body">
+              <div class="dependency-flow" id="dependency-flow"></div>
+            </div>
+          </div>
+
+          <div class="panel chart-panel">
+            <div class="panel-header">
+              <h2>Forecast Signals</h2>
+              <span>Review checklist</span>
+            </div>
+            <div class="chart-body">
+              <div class="signal-list" id="signal-list"></div>
+            </div>
           </div>
         </div>
       </section>
@@ -590,6 +934,8 @@
         startDate: document.querySelector("#start-date"),
         capacity: document.querySelector("#capacity"),
         scenario: document.querySelector("#scenario"),
+        tabs: [...document.querySelectorAll(".tab-button")],
+        views: [...document.querySelectorAll(".design-view")],
         completionDate: document.querySelector("#completion-date"),
         completionNote: document.querySelector("#completion-note"),
         remainingEffort: document.querySelector("#remaining-effort"),
@@ -600,7 +946,15 @@
         taskBody: document.querySelector("#task-body"),
         assumptionsList: document.querySelector("#assumptions-list"),
         warningsList: document.querySelector("#warnings-list"),
-        timeline: document.querySelector("#timeline")
+        timeline: document.querySelector("#timeline"),
+        capacityTimeline: document.querySelector("#capacity-timeline"),
+        statusDonut: document.querySelector("#status-donut"),
+        donePercent: document.querySelector("#done-percent"),
+        statusLegend: document.querySelector("#status-legend"),
+        effortBars: document.querySelector("#effort-bars"),
+        workerBars: document.querySelector("#worker-bars"),
+        dependencyFlow: document.querySelector("#dependency-flow"),
+        signalList: document.querySelector("#signal-list")
       };
 
       function parseDate(value) {
@@ -767,8 +1121,9 @@
         }).join("");
       }
 
-      function renderAssumptions() {
+      function renderAssumptions(forecast) {
         const assumptions = [
+          ["Forecast start date", `${formatDate(forecast.startDate)} is normalized to the first available workday.`],
           ["Done = 0 remaining", "Completed work is excluded from the remaining effort total."],
           ["In Progress = 50% remaining", "Tasks in active review or progress keep half their estimate."],
           ["Todo = 100% remaining", "Not-started work keeps its full estimate."],
@@ -805,14 +1160,14 @@
         `).join("");
       }
 
-      function renderTimeline(forecast) {
+      function renderTimelineInto(container, forecast) {
         if (!forecast.openTasks.length) {
-          elements.timeline.innerHTML = `<p class="empty-state">No open work remains for this scenario.</p>`;
+          container.innerHTML = `<p class="empty-state">No open work remains for this scenario.</p>`;
           return;
         }
 
         const maxRemaining = Math.max(...forecast.openTasks.map((task) => task.remainingDays), 1);
-        elements.timeline.innerHTML = forecast.openTasks.map((task) => {
+        container.innerHTML = forecast.openTasks.map((task) => {
           const width = Math.max(18, Math.round((task.remainingDays / maxRemaining) * 100));
           return `
             <div class="bar-row">
@@ -825,6 +1180,91 @@
         }).join("");
       }
 
+      function renderCharts(forecast) {
+        const totalEstimate = forecast.tasks.reduce((sum, task) => sum + task.estimateDays, 0) || 1;
+        const doneDays = forecast.tasks
+          .filter((task) => task.status === "Done")
+          .reduce((sum, task) => sum + task.estimateDays, 0);
+        const inFlightDays = forecast.tasks
+          .filter((task) => task.status === "In progress" || task.status === "In review")
+          .reduce((sum, task) => sum + task.estimateDays, 0);
+        const todoDays = Math.max(0, totalEstimate - doneDays - inFlightDays);
+        const doneDegrees = Math.round((doneDays / totalEstimate) * 360);
+        const inFlightDegrees = Math.round((inFlightDays / totalEstimate) * 360);
+        const donePercent = Math.round((doneDays / totalEstimate) * 100);
+
+        elements.statusDonut.style.background = `conic-gradient(var(--green) 0deg ${doneDegrees}deg, var(--blue) ${doneDegrees}deg ${doneDegrees + inFlightDegrees}deg, var(--amber) ${doneDegrees + inFlightDegrees}deg 360deg)`;
+        elements.donePercent.textContent = `${donePercent}%`;
+        elements.statusLegend.innerHTML = [
+          ["Done estimate", `${doneDays.toFixed(1)}d`],
+          ["In progress or review", `${inFlightDays.toFixed(1)}d`],
+          ["Todo estimate", `${todoDays.toFixed(1)}d`]
+        ].map(([label, value]) => `<li><span>${label}</span><b>${value}</b></li>`).join("");
+
+        const maxRemaining = Math.max(...forecast.tasks.map((task) => task.remainingDays), 1);
+        elements.effortBars.innerHTML = forecast.tasks.map((task) => {
+          const width = Math.max(4, Math.round((task.remainingDays / maxRemaining) * 100));
+          return `
+            <div class="chart-bar">
+              <span>#${task.id}</span>
+              <div class="mini-track"><div class="mini-fill" style="width: ${width}%;"></div></div>
+              <b>${task.remainingDays.toFixed(1)}d</b>
+            </div>
+          `;
+        }).join("");
+
+        const workerLoad = forecast.tasks.reduce((load, task) => {
+          load.set(task.worker, (load.get(task.worker) || 0) + task.remainingDays);
+          return load;
+        }, new Map());
+        const maxWorkerLoad = Math.max(...workerLoad.values(), 1);
+        elements.workerBars.innerHTML = [...workerLoad.entries()].map(([worker, days]) => {
+          const width = Math.max(6, Math.round((days / maxWorkerLoad) * 100));
+          return `
+            <div class="chart-bar">
+              <span>${worker}</span>
+              <div class="mini-track"><div class="mini-fill" style="width: ${width}%;"></div></div>
+              <b>${days.toFixed(1)}d</b>
+            </div>
+          `;
+        }).join("");
+      }
+
+      function renderDependencyDesign(forecast) {
+        elements.dependencyFlow.innerHTML = forecast.tasks.map((task) => {
+          const dependency = task.dependency ? `after #${task.dependency}` : "no predecessor";
+          return `
+            <div class="flow-step">
+              <b>#${task.id}</b>
+              <span>${dependency}</span>
+              <span>${toISODate(task.finish)}</span>
+            </div>
+          `;
+        }).join("");
+
+        const finalTask = forecast.openTasks.at(-1) || forecast.tasks.at(-1);
+        elements.signalList.innerHTML = [
+          ["Estimated Completion Date", formatDate(forecast.completion)],
+          ["Open tasks", String(forecast.openTasks.length)],
+          ["Warnings", String(forecast.warnings.length)],
+          ["Critical finish", finalTask ? `#${finalTask.id}` : "None"]
+        ].map(([label, value]) => `
+          <div class="signal-row">
+            <span>${label}</span>
+            <b>${value}</b>
+          </div>
+        `).join("");
+      }
+
+      function activateView(viewName) {
+        elements.tabs.forEach((tab) => {
+          tab.setAttribute("aria-selected", String(tab.dataset.view === viewName));
+        });
+        elements.views.forEach((view) => {
+          view.classList.toggle("active", view.id === `view-${viewName}`);
+        });
+      }
+
       function render() {
         state.startDate = elements.startDate.value;
         state.capacityHours = Number(elements.capacity.value) || 6;
@@ -833,14 +1273,20 @@
         const forecast = buildForecast();
         renderMetrics(forecast);
         renderTasks(forecast);
-        renderAssumptions();
+        renderAssumptions(forecast);
         renderWarnings(forecast);
-        renderTimeline(forecast);
+        renderTimelineInto(elements.timeline, forecast);
+        renderTimelineInto(elements.capacityTimeline, forecast);
+        renderCharts(forecast);
+        renderDependencyDesign(forecast);
       }
 
       elements.startDate.addEventListener("change", render);
       elements.capacity.addEventListener("input", render);
       elements.scenario.addEventListener("change", render);
+      elements.tabs.forEach((tab) => {
+        tab.addEventListener("click", () => activateView(tab.dataset.view));
+      });
 
       render();
     </script>
