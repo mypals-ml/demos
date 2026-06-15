@@ -223,13 +223,13 @@
   .v1 .bar .grip-r::before{content:""; position:absolute; left:2px; top:50%; transform:translateY(-50%);
     width:2px; height:12px; border-left:2px dotted rgba(15,23,42,.5)}
   .v1 .bar .link-dot{
-    position:absolute; right:-7px; top:50%; transform:translate(0,-50%) scale(.3);
+    position:absolute; right:-7px; bottom:-7px; transform:scale(.3);
     width:14px; height:14px; border-radius:50%; background:var(--panel);
     border:2px solid var(--accent); cursor:crosshair; z-index:7;
     opacity:0; transition:all .16s var(--ease); box-shadow:var(--shadow-sm);
   }
-  .v1 .bar:hover .link-dot{opacity:1; transform:translate(0,-50%) scale(1)}
-  .v1 .bar .link-dot:hover{background:var(--accent); transform:translate(0,-50%) scale(1.25)}
+  .v1 .bar:hover .link-dot{opacity:1; transform:scale(1)}
+  .v1 .bar .link-dot:hover{background:var(--accent); transform:scale(1.25)}
 
   /* =========================================================
      DESIGN 2 — FLOATING ACTION PILL
@@ -254,6 +254,25 @@
   .v2 .bar.arm-dur::after{content:""; position:absolute; right:0; top:0; bottom:0; width:6px;
     background:var(--accent-ink); border-radius:0 7px 7px 0}
   .v2 .bar.arm-link{cursor:crosshair}
+  .v2 .bar .handle-block{
+    position:absolute; right:-2px; top:4px; bottom:4px; width:18px;
+    border-radius:7px; background:color-mix(in srgb, var(--accent) 76%, #fff);
+    border:1px solid rgba(255,255,255,.62); box-shadow:var(--shadow-sm);
+    opacity:0; transform:translateX(6px); transition:all .16s var(--ease); z-index:7;
+    cursor:ew-resize;
+  }
+  .v2 .bar .handle-block::before{
+    content:""; position:absolute; left:5px; top:5px; bottom:5px;
+    border-left:2px dotted rgba(255,255,255,.78);
+  }
+  .v2 .bar .handle-block .link-dot{
+    position:absolute; right:-6px; bottom:-8px; width:13px; height:13px;
+    border-radius:50%; background:var(--panel); border:2px solid var(--violet);
+    cursor:crosshair; box-shadow:var(--shadow-sm);
+  }
+  .v2 .bar:hover .handle-block,
+  .v2 .bar.arm-dur .handle-block,
+  .v2 .bar.arm-link .handle-block{opacity:1; transform:translateX(0)}
 
   /* =========================================================
      DESIGN 3 — GHOST EXTENSION PREVIEW
@@ -271,6 +290,11 @@
   .v3 .bar:hover .ghost{opacity:1; transform:scaleX(1)}
   .v3 .bar .ghost::before{content:"↔"; position:absolute; right:8px; top:50%; transform:translateY(-50%);
     color:#fff; font-weight:700; font-size:13px}
+  .v3 .bar .ghost::after{
+    content:""; position:absolute; right:-7px; bottom:-8px; width:14px; height:14px;
+    border-radius:50%; background:var(--panel); border:2px solid var(--cyan);
+    box-shadow:var(--shadow-sm);
+  }
   .v3 .bar .lead{
     position:absolute; left:-3px; top:50%; transform:translateY(-50%) scaleY(.4);
     width:6px; height:calc(100% + 8px); border-radius:4px; background:var(--cyan); z-index:7;
@@ -293,7 +317,7 @@
   }
   .v4 .bar .port .core{position:absolute; inset:3px; border-radius:50%; background:var(--violet);
     transform:scale(0); transition:transform .15s var(--ease)}
-  .v4 .bar .port.right{right:-9px; cursor:crosshair}
+  .v4 .bar .port.right{right:-9px; top:100%; cursor:crosshair}
   .v4 .bar .port.left{left:-9px; cursor:crosshair}
   .v4 .bar:hover .port{transform:translateY(-50%) scale(1)}
   .v4 .bar .port:hover .core{transform:scale(1)}
@@ -389,19 +413,19 @@ const DESIGNS = [
   { key:'v1', cls:'d1', n:'1', title:'Classic edge handle + link dot',
     tag:'Familiar', model:'edge-handle',
     blurb:'A grip appears on the right edge for resizing; a small connector dot sits just past it for linking. The closest thing to MS-Project / Asana muscle memory.',
-    hint:'Hover a bar → grab the striped <code>right grip</code> to resize, or drag the <code>○ dot</code> onto another bar’s left edge to link.' },
+    hint:'Hover a bar → grab the striped <code>right grip</code> to resize, or drag the <code>bottom-right dot</code> onto another bar’s left edge to link.' },
   { key:'v2', cls:'d2', n:'2', title:'Floating action pill',
     tag:'Discoverable', model:'pill',
     blurb:'A labeled pill floats above the bar on hover with explicit actions. You “arm” a mode, then drag. Most self-explanatory; costs vertical space and one extra click.',
-    hint:'Hover → click <code>↔ Duration</code> then drag the right edge, or click <code>↪ Link</code> then drag onto a target bar.' },
+    hint:'Hover → the right handle block appears. Click <code>↔ Duration</code> to resize it, or drag the <code>bottom-right dot</code> onto a target bar.' },
   { key:'v3', cls:'d3', n:'3', title:'Ghost extension preview',
     tag:'Direct', model:'ghost',
     blurb:'Hovering reveals a translucent “ghost” you grab to stretch the bar, plus a glowing left-edge target that receives links. Minimal chrome, very tactile.',
-    hint:'Hover → drag the hatched <code>ghost</code> on the right to resize, or drag it onto another bar’s glowing <code>left lead</code> to link.' },
+    hint:'Hover → drag the hatched <code>ghost handle</code> to resize; move vertically from its <code>bottom-right dot</code> toward another bar to link.' },
   { key:'v4', cls:'d4', n:'4', title:'Magnetic connector ports',
     tag:'Node-graph', model:'ports',
     blurb:'Both ends sprout connector ports. The right port resizes (outer zone) or links (the node); approaching left ports magnetically snap. Feels like a flow editor.',
-    hint:'Hover → drag the <code>right ▣ resize-zone</code> to change duration, or drag the right <code>● port</code> onto a target’s left <code>● port</code> (it snaps green).' },
+    hint:'Hover → drag the <code>right handle block</code> to change duration, or drag the <code>bottom-right port</code> onto a target’s left <code>● port</code> (it snaps green).' },
 ];
 
 /* ---------------------------------------------------------------------
@@ -574,7 +598,8 @@ function makeBar(ctx, t, i){
       `<div class="pill">
          <button data-arm="dur"><span class="ic">↔</span> Duration</button>
          <button data-arm="link"><span class="ic">↪</span> Link</button>
-       </div>`);
+       </div>
+       <div class="handle-block" data-role="resize"><span class="link-dot" data-role="link"></span></div>`);
   } else if(m==='ghost'){
     bar.insertAdjacentHTML('beforeend',
       `<div class="ghost" data-role="resize"></div><div class="lead" data-role="link-target"></div>`);
@@ -677,11 +702,12 @@ function attachBarHandlers(ctx, bar, t){
   // ---------- LINK ----------
   const startLink = (e) => {
     e.preventDefault(); e.stopPropagation();
-    const i = ctx.state.tasks.indexOf(t);
-    const g = barGeom(ctx, t, i);
-    const ox = g.left+g.w, oy = g.top+15;
     ctx.rubber.style.display='block';
     const rect = ctx.rows.getBoundingClientRect();
+    const i = ctx.state.tasks.indexOf(t);
+    const g = barGeom(ctx, t, i);
+    const ox = e.clientX ? e.clientX - rect.left : g.left+g.w;
+    const oy = e.clientY ? e.clientY - rect.top : g.top+15;
     let targetId = null;
 
     const move = (ev)=>{
@@ -745,6 +771,8 @@ function attachBarHandlers(ctx, bar, t){
       if(armed==='dur'){ startResize(ev); armed=null; bar.classList.remove('arm-dur'); }
       else if(armed==='link'){ startLink(ev); armed=null; bar.classList.remove('arm-link'); }
     });
+    bar.querySelector('.handle-block').addEventListener('mousedown', startResize);
+    bar.querySelector('.link-dot').addEventListener('mousedown', startLink);
   }
   else if(m==='ghost'){
     // ghost: drag = resize by default; if pointer leaves the source row vertically toward
@@ -787,6 +815,7 @@ function wouldCycle(ctx, from, to){
    --------------------------------------------------------------------- */
 const designsRoot = document.getElementById('designs');
 let cards = [];
+let currentView='all';
 function buildAll(){
   designsRoot.innerHTML=''; cards=[];
   DESIGNS.forEach(def=>{ const c = buildDesign(def); designsRoot.appendChild(c); cards.push(c); });
@@ -795,7 +824,6 @@ function buildAll(){
 buildAll();
 
 // view switcher
-let currentView='all';
 const seg = document.getElementById('view-seg');
 seg.addEventListener('click', e=>{
   const btn = e.target.closest('button'); if(!btn) return;
