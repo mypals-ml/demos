@@ -1,28 +1,26 @@
-# Implementation and Test Plan - Task #6 Review Refinement
+# Implementation and Test Plan - Task #6 Separate Dashboard Pages
 
 ## Task
-Demo a dashboard for a project.
-
-## Review Notes
-- Need more design patterns for review.
-- In every design, do not use tabs to group sections.
+Put the project dashboard designs in separate pages.
 
 ## Implementation Plan
-1. Refine `/Users/wanghui/coding/prj-demos/demos/demos/project-dashboard/index.html`.
-2. Remove the tabbed design selector so all design patterns are visible for side-by-side review.
-3. Keep the existing forecast calculation engine and shared controls.
-4. Add more reviewable dashboard patterns:
-   - Executive Brief
-   - Operations Table
-   - Chart Wall
-   - Capacity Planner
-   - Dependency Map
-   - Risk Review Board
-5. Ensure each pattern is a self-contained layout and does not use tabs to group sections.
+1. Keep `/Users/wanghui/coding/prj-demos/demos/demos/project-dashboard/index.html` as a design-picker landing page.
+2. Move each dashboard design pattern to its own standalone HTML page:
+   - `executive-brief.html`
+   - `operations-table.html`
+   - `chart-wall.html`
+   - `capacity-planner.html`
+   - `dependency-map.html`
+   - `risk-review.html`
+3. Extract shared styling into `shared.css`.
+4. Extract the shared forecast model and render logic into `shared.js`.
+5. Keep the common forecast controls and summary metrics on each design page.
+6. Add cross-links between the separate design pages.
 
 ## Test Plan
-1. Check static content for the review-requested labels and confirm dashboard tab affordances were removed.
-2. Parse the inline JavaScript with Node.
+1. Check that the landing page links to all six separate design pages.
+2. Parse the shared JavaScript with Node.
 3. Run `git diff --check`.
 4. Serve the static site locally.
-5. Verify in browser that the dashboard renders all six design patterns, capacity/scenario changes recalculate visible cards/charts, and no local console errors appear.
+5. Verify in browser that the landing page and all six design pages render without console errors.
+6. Verify controls still recalculate at least one separate design page.
