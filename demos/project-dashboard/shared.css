@@ -887,3 +887,226 @@
           grid-template-columns: 1fr;
         }
       }
+
+      .switch-app {
+        width: min(1340px, calc(100% - 32px));
+      }
+
+      .switch-tabs {
+        position: sticky;
+        top: 0;
+        z-index: 5;
+        display: grid;
+        grid-template-columns: repeat(6, minmax(0, 1fr));
+        gap: 8px;
+        padding: 12px 0 18px;
+        background:
+          linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(255, 255, 255, 0.86)),
+          linear-gradient(180deg, #ffffff, var(--bg));
+        backdrop-filter: blur(10px);
+      }
+
+      .switch-tab {
+        min-height: 42px;
+        padding: 0 10px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #ffffff;
+        color: var(--muted);
+        font-size: 0.82rem;
+        font-weight: 900;
+        cursor: pointer;
+      }
+
+      .switch-tab.active,
+      .switch-tab:hover {
+        border-color: rgba(15, 118, 110, 0.48);
+        background: #e9f6f2;
+        color: var(--green);
+      }
+
+      .design-screen {
+        display: none;
+        gap: 20px;
+        min-height: calc(100vh - 120px);
+        padding: 26px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #ffffff;
+        box-shadow: var(--shadow);
+      }
+
+      .design-screen.active {
+        display: grid;
+      }
+
+      .forecast-lead {
+        display: grid;
+        grid-template-columns: minmax(0, 1.25fr) minmax(360px, 0.75fr);
+        gap: 16px;
+        align-items: stretch;
+      }
+
+      .forecast-date-card {
+        min-height: 210px;
+        padding: 24px;
+        border: 1px solid rgba(15, 118, 110, 0.3);
+        border-radius: 8px;
+        background:
+          linear-gradient(135deg, rgba(15, 118, 110, 0.14), rgba(40, 100, 165, 0.09)),
+          #ffffff;
+      }
+
+      .forecast-date-card span,
+      .mini-metrics span {
+        display: block;
+        color: var(--muted);
+        font-size: 0.75rem;
+        font-weight: 900;
+        letter-spacing: 0.07em;
+        text-transform: uppercase;
+      }
+
+      .forecast-date-card strong {
+        display: block;
+        margin-top: 12px;
+        color: var(--green);
+        font-size: clamp(3.2rem, 8vw, 6.4rem);
+        line-height: 0.9;
+      }
+
+      .forecast-date-card small {
+        display: block;
+        margin-top: 16px;
+        color: var(--muted);
+        font-size: 0.92rem;
+      }
+
+      .mini-metrics {
+        display: grid;
+        gap: 10px;
+      }
+
+      .mini-metrics div {
+        display: grid;
+        align-content: center;
+        min-height: 62px;
+        padding: 14px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #fbfdff;
+      }
+
+      .mini-metrics strong {
+        display: block;
+        margin-top: 6px;
+        font-size: 1.65rem;
+      }
+
+      .design-hero {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(360px, 0.48fr);
+        gap: 20px;
+        align-items: end;
+        padding: 18px 0 4px;
+      }
+
+      .switch-controls {
+        display: grid;
+        gap: 10px;
+        padding: 14px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.82);
+      }
+
+      .switch-controls label {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 138px;
+        gap: 10px;
+        align-items: center;
+        color: var(--ink);
+        font-size: 0.82rem;
+        font-weight: 900;
+      }
+
+      .executive-screen {
+        background:
+          linear-gradient(135deg, rgba(15, 118, 110, 0.08), transparent 38%),
+          #ffffff;
+      }
+
+      .chart-screen {
+        background:
+          linear-gradient(135deg, rgba(114, 82, 170, 0.08), transparent 36%),
+          #ffffff;
+      }
+
+      .chart-screen .forecast-date-card,
+      .chart-screen .mini-fill {
+        background: linear-gradient(90deg, var(--violet), var(--blue));
+      }
+
+      .chart-screen .forecast-date-card strong {
+        color: var(--violet);
+      }
+
+      .capacity-screen {
+        background:
+          linear-gradient(135deg, rgba(40, 100, 165, 0.09), transparent 38%),
+          #ffffff;
+      }
+
+      .dependency-screen {
+        background:
+          linear-gradient(135deg, rgba(184, 109, 24, 0.1), transparent 36%),
+          #ffffff;
+      }
+
+      .risk-screen {
+        background:
+          linear-gradient(135deg, rgba(194, 65, 12, 0.08), transparent 36%),
+          #ffffff;
+      }
+
+      .warning-meter {
+        display: grid;
+        gap: 12px;
+      }
+
+      .warning-meter strong {
+        font-size: 3rem;
+      }
+
+      .mini-fill.amber {
+        background: linear-gradient(90deg, var(--amber), var(--red));
+      }
+
+      @media (max-width: 1060px) {
+        .switch-tabs {
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+
+        .forecast-lead,
+        .design-hero {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media (max-width: 640px) {
+        .switch-app {
+          width: min(100% - 20px, 1340px);
+        }
+
+        .switch-tabs {
+          grid-template-columns: 1fr 1fr;
+        }
+
+        .design-screen {
+          padding: 16px;
+        }
+
+        .switch-controls label {
+          grid-template-columns: 1fr;
+        }
+      }

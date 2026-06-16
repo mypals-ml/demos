@@ -8,59 +8,310 @@
     <link rel="stylesheet" href="/demos/project-dashboard/shared.css">
   </head>
   <body>
-    <main class="app">
+    <main class="app switch-app">
       <header class="topbar">
         <a class="back" href="/">Back to demo shelf</a>
         <span class="sync-chip">GitHub Project sample synced 14:30 JST</span>
       </header>
 
-      <section class="hero" aria-labelledby="page-title">
-        <div>
-          <p class="eyebrow">Project operations</p>
-          <h1 id="page-title">Project Completion Dashboard Designs</h1>
-          <p class="lede">Six separate dashboard pages for reviewing alternate ways to forecast completion dates from task status, estimates, assignees, and dependency links.</p>
+      <nav class="switch-tabs" aria-label="Dashboard design switcher">
+          <button class="switch-tab active" type="button" data-switch="executive" aria-selected="true">Executive Brief</button>
+          <button class="switch-tab" type="button" data-switch="operations" aria-selected="false">Operations Table</button>
+          <button class="switch-tab" type="button" data-switch="charts" aria-selected="false">Chart Wall</button>
+          <button class="switch-tab" type="button" data-switch="capacity" aria-selected="false">Capacity Planner</button>
+          <button class="switch-tab" type="button" data-switch="dependency" aria-selected="false">Dependency Map</button>
+          <button class="switch-tab" type="button" data-switch="risk" aria-selected="false">Risk Review Board</button>
+      </nav>
+
+      <section class="design-screen executive-screen active" data-panel="executive" aria-label="Executive Brief design">
+            <section class="forecast-lead executive-forecast" aria-label="Forecast summary">
+              <div class="forecast-date-card">
+                <span>Estimated Completion Date</span>
+                <strong data-value="completion">-</strong>
+                <small data-value="completion-note">Waiting for project data.</small>
+              </div>
+              <div class="mini-metrics">
+                <div><span>Total Remaining Effort</span><strong data-value="remaining">-</strong></div>
+                <div><span>Missing Data Warnings</span><strong data-value="warnings">-</strong></div>
+                <div><span>Active Workers</span><strong data-value="workers">-</strong></div>
+              </div>
+            </section>
+        <div class="design-hero executive-hero">
+          <div>
+            <p class="eyebrow">Executive brief</p>
+            <h1>Delivery forecast at a glance</h1>
+            <p class="lede">A board-room view that leads with the date, then compresses effort, risk, and capacity signals into a scan-friendly brief.</p>
+          </div>
+              <form class="switch-controls compact" aria-label="Forecast controls">
+                <label>
+                  <span>Start date</span>
+                  <input class="js-start-date" type="date" value="2026-06-15">
+                </label>
+                <label>
+                  <span>Capacity</span>
+                  <input class="js-capacity" type="number" min="1" max="12" step="0.5" value="6">
+                </label>
+                <label>
+                  <span>Scenario</span>
+                  <select class="js-scenario">
+                  <option value="current">Current board</option>
+                  <option value="clean">Fully estimated</option>
+                  <option value="blocked">Blocked review</option>
+                  </select>
+                </label>
+              </form>
         </div>
+        <section class="brief-grid">
+          <div class="brief-hero">
+            <span>Forecast headline</span>
+            <strong data-value="completion">-</strong>
+            <p data-value="brief-summary">Waiting for project data.</p>
+          </div>
+          <div class="brief-stack">
+            <div class="brief-card"><span>Remaining effort</span><strong data-value="remaining">-</strong><small>Capacity-adjusted open work.</small></div>
+            <div class="brief-card"><span>Warnings</span><strong data-value="warnings">-</strong><small>Missing estimates and assignees to resolve.</small></div>
+            <div class="brief-card"><span>Workers</span><strong data-value="workers">-</strong><small>Includes the default worker bucket.</small></div>
+          </div>
+        </section>
+        <section class="panel chart-panel">
+          <div class="panel-header"><h2>Remaining Effort Graph</h2><span>Forecast-weighted task load</span></div>
+          <div class="chart-body"><div class="chart-bars" data-bars="effort"></div></div>
+        </section>
       </section>
 
-      <section class="page-grid" aria-label="Dashboard design pages">
-<a class="design-card" href="/demos/project-dashboard/executive-brief.html">
-            <span>Design 01</span>
-            <strong>Executive Brief</strong>
-            <small>An executive-ready headline forecast with the completion date, remaining effort, warnings, and worker count surfaced above the fold.</small>
-            <b>Open design</b>
-          </a>
-<a class="design-card" href="/demos/project-dashboard/operations-table.html">
-            <span>Design 02</span>
-            <strong>Operations Table</strong>
-            <small>A dense operations table with assumptions, missing-data warnings, and a dependency-aware capacity timeline.</small>
-            <b>Open design</b>
-          </a>
-<a class="design-card" href="/demos/project-dashboard/chart-wall.html">
-            <span>Design 03</span>
-            <strong>Chart Wall</strong>
-            <small>A chart wall for comparing status-weighted completion mix and remaining effort by task.</small>
-            <b>Open design</b>
-          </a>
-<a class="design-card" href="/demos/project-dashboard/capacity-planner.html">
-            <span>Design 04</span>
-            <strong>Capacity Planner</strong>
-            <small>A planner layout focused on workday scheduling, worker capacity, and queue pressure.</small>
-            <b>Open design</b>
-          </a>
-<a class="design-card" href="/demos/project-dashboard/dependency-map.html">
-            <span>Design 05</span>
-            <strong>Dependency Map</strong>
-            <small>A dependency map that emphasizes predecessor order, finish dates, and forecast signals.</small>
-            <b>Open design</b>
-          </a>
-<a class="design-card" href="/demos/project-dashboard/risk-review.html">
-            <span>Design 06</span>
-            <strong>Risk Review Board</strong>
-            <small>A risk review board for identifying missing data, ownership gaps, and forecast confidence.</small>
-            <b>Open design</b>
-          </a>
+      <section class="design-screen operations-screen" data-panel="operations" aria-label="Operations Table design">
+            <section class="forecast-lead operations-forecast" aria-label="Forecast summary">
+              <div class="forecast-date-card">
+                <span>Estimated Completion Date</span>
+                <strong data-value="completion">-</strong>
+                <small data-value="completion-note">Waiting for project data.</small>
+              </div>
+              <div class="mini-metrics">
+                <div><span>Total Remaining Effort</span><strong data-value="remaining">-</strong></div>
+                <div><span>Missing Data Warnings</span><strong data-value="warnings">-</strong></div>
+                <div><span>Active Workers</span><strong data-value="workers">-</strong></div>
+              </div>
+            </section>
+        <div class="design-hero operations-hero">
+          <div>
+            <p class="eyebrow">Operations table</p>
+            <h1>Task-level forecast controls</h1>
+            <p class="lede">A dense operating view for reviewing every task, default, dependency, and scheduled finish date.</p>
+          </div>
+              <form class="switch-controls compact" aria-label="Forecast controls">
+                <label>
+                  <span>Start date</span>
+                  <input class="js-start-date" type="date" value="2026-06-15">
+                </label>
+                <label>
+                  <span>Capacity</span>
+                  <input class="js-capacity" type="number" min="1" max="12" step="0.5" value="6">
+                </label>
+                <label>
+                  <span>Scenario</span>
+                  <select class="js-scenario">
+                  <option value="current">Current board</option>
+                  <option value="clean">Fully estimated</option>
+                  <option value="blocked">Blocked review</option>
+                  </select>
+                </label>
+              </form>
+        </div>
+        <section class="workspace">
+          <div class="panel">
+            <div class="panel-header"><h2>GitHub Project Tasks</h2><span data-value="task-count">0 tasks</span></div>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Task</th><th>Status</th><th>Estimate</th><th>Assignee</th><th>Dependency</th><th>Remaining</th><th>Scheduled</th></tr></thead>
+                <tbody data-table="tasks"></tbody>
+              </table>
+            </div>
+          </div>
+          <div class="side-stack">
+            <div class="panel"><div class="panel-header"><h2>Assumptions Used</h2><span>Rules applied</span></div><ul class="list" data-list="assumptions"></ul></div>
+            <div class="panel"><div class="panel-header"><h2>Missing Data Warnings</h2><span data-value="warning-label">0 warnings</span></div><ul class="list warnings" data-list="warnings"></ul></div>
+            <div class="panel"><div class="panel-header"><div class="panel-title"><h2>Capacity Timeline</h2><button class="info-button" type="button" aria-label="Capacity Timeline shows each open task after dependency, worker availability, workday, and capacity rules are applied.">i</button></div><span>Dependency-aware order</span></div><div class="timeline" data-timeline="default"></div></div>
+          </div>
+        </section>
+      </section>
+
+      <section class="design-screen chart-screen" data-panel="charts" aria-label="Chart Wall design">
+            <section class="forecast-lead chart-forecast" aria-label="Forecast summary">
+              <div class="forecast-date-card">
+                <span>Estimated Completion Date</span>
+                <strong data-value="completion">-</strong>
+                <small data-value="completion-note">Waiting for project data.</small>
+              </div>
+              <div class="mini-metrics">
+                <div><span>Total Remaining Effort</span><strong data-value="remaining">-</strong></div>
+                <div><span>Missing Data Warnings</span><strong data-value="warnings">-</strong></div>
+                <div><span>Active Workers</span><strong data-value="workers">-</strong></div>
+              </div>
+            </section>
+        <div class="design-hero chart-hero">
+          <div>
+            <p class="eyebrow">Chart wall</p>
+            <h1>Forecast shape in charts</h1>
+            <p class="lede">A visual-first dashboard for comparing completed estimate, in-flight work, remaining effort, and warning volume.</p>
+          </div>
+              <form class="switch-controls compact" aria-label="Forecast controls">
+                <label>
+                  <span>Start date</span>
+                  <input class="js-start-date" type="date" value="2026-06-15">
+                </label>
+                <label>
+                  <span>Capacity</span>
+                  <input class="js-capacity" type="number" min="1" max="12" step="0.5" value="6">
+                </label>
+                <label>
+                  <span>Scenario</span>
+                  <select class="js-scenario">
+                  <option value="current">Current board</option>
+                  <option value="clean">Fully estimated</option>
+                  <option value="blocked">Blocked review</option>
+                  </select>
+                </label>
+              </form>
+        </div>
+        <section class="chart-grid feature-charts">
+          <div class="panel chart-panel"><div class="panel-header"><h2>Completion Mix</h2><span>Status-weighted effort</span></div><div class="chart-body"><div class="donut-wrap"><div class="donut" data-donut="status"><div class="donut-core"><strong data-value="done-percent">0%</strong><span>done</span></div></div><ul class="legend" data-list="status-legend"></ul></div></div></div>
+          <div class="panel chart-panel"><div class="panel-header"><h2>Remaining Effort by Task</h2><span>Default estimates included</span></div><div class="chart-body"><div class="chart-bars" data-bars="effort"></div></div></div>
+          <div class="panel chart-panel"><div class="panel-header"><h2>Worker Load</h2><span>Remaining days</span></div><div class="chart-body"><div class="chart-bars" data-bars="workers"></div></div></div>
+          <div class="panel chart-panel"><div class="panel-header"><h2>Warning Count</h2><span>Data quality pressure</span></div><div class="chart-body"><div class="warning-meter"><strong data-value="warnings">-</strong><div class="mini-track"><div class="mini-fill amber" data-bar="warning-meter"></div></div></div></div></div>
+        </section>
+      </section>
+
+      <section class="design-screen capacity-screen" data-panel="capacity" aria-label="Capacity Planner design">
+            <section class="forecast-lead capacity-forecast" aria-label="Forecast summary">
+              <div class="forecast-date-card">
+                <span>Estimated Completion Date</span>
+                <strong data-value="completion">-</strong>
+                <small data-value="completion-note">Waiting for project data.</small>
+              </div>
+              <div class="mini-metrics">
+                <div><span>Total Remaining Effort</span><strong data-value="remaining">-</strong></div>
+                <div><span>Missing Data Warnings</span><strong data-value="warnings">-</strong></div>
+                <div><span>Active Workers</span><strong data-value="workers">-</strong></div>
+              </div>
+            </section>
+        <div class="design-hero capacity-hero">
+          <div>
+            <p class="eyebrow">Capacity planner</p>
+            <h1>Workday and worker load plan</h1>
+            <p class="lede">A planning surface focused on when work fits, which bucket carries it, and how capacity changes the forecast.</p>
+          </div>
+              <form class="switch-controls compact" aria-label="Forecast controls">
+                <label>
+                  <span>Start date</span>
+                  <input class="js-start-date" type="date" value="2026-06-15">
+                </label>
+                <label>
+                  <span>Capacity</span>
+                  <input class="js-capacity" type="number" min="1" max="12" step="0.5" value="6">
+                </label>
+                <label>
+                  <span>Scenario</span>
+                  <select class="js-scenario">
+                  <option value="current">Current board</option>
+                  <option value="clean">Fully estimated</option>
+                  <option value="blocked">Blocked review</option>
+                  </select>
+                </label>
+              </form>
+        </div>
+        <section class="chart-grid">
+          <div class="panel chart-panel"><div class="panel-header"><div class="panel-title"><h2>Capacity Timeline</h2><button class="info-button" type="button" aria-label="Capacity Timeline converts estimates into workdays, skips weekends, waits for predecessors, and queues work by assignee.">i</button></div><span>Workday schedule</span></div><div class="timeline" data-timeline="default"></div></div>
+          <div class="panel chart-panel"><div class="panel-header"><h2>Worker Load Graph</h2><span>Remaining days</span></div><div class="chart-body"><div class="chart-bars" data-bars="workers"></div></div></div>
+        </section>
+      </section>
+
+      <section class="design-screen dependency-screen" data-panel="dependency" aria-label="Dependency Map design">
+            <section class="forecast-lead dependency-forecast" aria-label="Forecast summary">
+              <div class="forecast-date-card">
+                <span>Estimated Completion Date</span>
+                <strong data-value="completion">-</strong>
+                <small data-value="completion-note">Waiting for project data.</small>
+              </div>
+              <div class="mini-metrics">
+                <div><span>Total Remaining Effort</span><strong data-value="remaining">-</strong></div>
+                <div><span>Missing Data Warnings</span><strong data-value="warnings">-</strong></div>
+                <div><span>Active Workers</span><strong data-value="workers">-</strong></div>
+              </div>
+            </section>
+        <div class="design-hero dependency-hero">
+          <div>
+            <p class="eyebrow">Dependency map</p>
+            <h1>Predecessors drive the finish date</h1>
+            <p class="lede">A path-oriented view that makes dependency order and critical finish signals explicit.</p>
+          </div>
+              <form class="switch-controls compact" aria-label="Forecast controls">
+                <label>
+                  <span>Start date</span>
+                  <input class="js-start-date" type="date" value="2026-06-15">
+                </label>
+                <label>
+                  <span>Capacity</span>
+                  <input class="js-capacity" type="number" min="1" max="12" step="0.5" value="6">
+                </label>
+                <label>
+                  <span>Scenario</span>
+                  <select class="js-scenario">
+                  <option value="current">Current board</option>
+                  <option value="clean">Fully estimated</option>
+                  <option value="blocked">Blocked review</option>
+                  </select>
+                </label>
+              </form>
+        </div>
+        <section class="chart-grid">
+          <div class="panel chart-panel"><div class="panel-header"><h2>Dependency Path</h2><span>Successors wait for predecessors</span></div><div class="chart-body"><div class="dependency-flow" data-flow="dependency"></div></div></div>
+          <div class="panel chart-panel"><div class="panel-header"><h2>Forecast Signals</h2><span>Review checklist</span></div><div class="chart-body"><div class="signal-list" data-list="signals"></div></div></div>
+        </section>
+      </section>
+
+      <section class="design-screen risk-screen" data-panel="risk" aria-label="Risk Review Board design">
+            <section class="forecast-lead risk-forecast" aria-label="Forecast summary">
+              <div class="forecast-date-card">
+                <span>Estimated Completion Date</span>
+                <strong data-value="completion">-</strong>
+                <small data-value="completion-note">Waiting for project data.</small>
+              </div>
+              <div class="mini-metrics">
+                <div><span>Total Remaining Effort</span><strong data-value="remaining">-</strong></div>
+                <div><span>Missing Data Warnings</span><strong data-value="warnings">-</strong></div>
+                <div><span>Active Workers</span><strong data-value="workers">-</strong></div>
+              </div>
+            </section>
+        <div class="design-hero risk-hero">
+          <div>
+            <p class="eyebrow">Risk review board</p>
+            <h1>Confidence, warnings, and cleanup</h1>
+            <p class="lede">A review surface for identifying missing data, ownership gaps, dependency pressure, and forecast confidence.</p>
+          </div>
+              <form class="switch-controls compact" aria-label="Forecast controls">
+                <label>
+                  <span>Start date</span>
+                  <input class="js-start-date" type="date" value="2026-06-15">
+                </label>
+                <label>
+                  <span>Capacity</span>
+                  <input class="js-capacity" type="number" min="1" max="12" step="0.5" value="6">
+                </label>
+                <label>
+                  <span>Scenario</span>
+                  <select class="js-scenario">
+                  <option value="current">Current board</option>
+                  <option value="clean">Fully estimated</option>
+                  <option value="blocked">Blocked review</option>
+                  </select>
+                </label>
+              </form>
+        </div>
+        <section class="risk-grid" data-grid="risk"></section>
+        <section class="panel chart-panel"><div class="panel-header"><h2>Worker Load Graph</h2><span>Remaining days by capacity bucket</span></div><div class="chart-body"><div class="chart-bars" data-bars="workers"></div></div></section>
+        <section class="review-grid" data-grid="review"></section>
       </section>
     </main>
-
+    <script src="/demos/project-dashboard/switcher.js"></script>
   </body>
 </html>

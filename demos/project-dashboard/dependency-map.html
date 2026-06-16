@@ -3,113 +3,12 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="Project completion dashboard demo for GitHub Project task data.">
-    <title>Project Dashboard - Dependency Map</title>
-    <link rel="stylesheet" href="/demos/project-dashboard/shared.css">
+    <meta http-equiv="refresh" content="0; url=/demos/project-dashboard/#dependency">
+    <title>Project Dashboard - Redirecting</title>
+    <link rel="canonical" href="/demos/project-dashboard/#dependency">
+    <script>location.replace('/demos/project-dashboard/#dependency');</script>
   </head>
   <body>
-    <main class="app">
-      <header class="topbar">
-        <a class="back" href="/demos/project-dashboard/index.html">Back to dashboard designs</a>
-        <span class="sync-chip">GitHub Project sample synced 14:30 JST</span>
-      </header>
-
-<section class="metrics forecast-first" aria-label="Forecast summary">
-        <div class="metric primary">
-          <span>Estimated Completion Date</span>
-          <strong id="completion-date">-</strong>
-          <small id="completion-note">Waiting for project data.</small>
-        </div>
-        <div class="metric">
-          <span>Total Remaining Effort</span>
-          <strong id="remaining-effort">-</strong>
-          <small>Done = 0, In Progress = 50%, Todo = 100%.</small>
-        </div>
-        <div class="metric">
-          <span>Missing Data Warnings</span>
-          <strong id="warning-count">-</strong>
-          <small>Defaults are visible in the warnings panel.</small>
-        </div>
-        <div class="metric">
-          <span>Active Workers</span>
-          <strong id="worker-count">-</strong>
-          <small>Unassigned tasks use the default worker.</small>
-        </div>
-      </section>
-
-<section class="hero" aria-labelledby="page-title">
-        <div>
-          <p class="eyebrow">Project operations</p>
-          <h1 id="page-title">Project Completion Dashboard</h1>
-          <p class="lede">
-            A scheduling dashboard that turns task status, estimates, assignees, and dependency links into a completion forecast with explicit assumptions and warnings.
-          </p>
-        </div>
-        <form class="control-panel" aria-label="Forecast controls">
-          <div class="control-row">
-            <label for="start-date">
-              Start date
-              <span>Set the scenario anchor date.</span>
-            </label>
-            <input id="start-date" type="date" value="2026-06-15">
-          </div>
-          <div class="control-row">
-            <label for="capacity">
-              Capacity per worker
-              <span>Default from task rule is 6 hours per day.</span>
-            </label>
-            <input id="capacity" type="number" min="1" max="12" step="0.5" value="6">
-          </div>
-          <div class="control-row">
-            <label for="scenario">
-              Scenario
-              <span>Change sample data quality and progress.</span>
-            </label>
-            <select id="scenario">
-              <option value="current">Current board</option>
-              <option value="clean">Fully estimated</option>
-              <option value="blocked">Blocked review</option>
-            </select>
-          </div>
-        </form>
-      </section>
-
-      <nav class="design-nav" aria-label="Dashboard design pages">
-          <a class="design-link" href="/demos/project-dashboard/executive-brief.html">Executive Brief</a>
-          <a class="design-link" href="/demos/project-dashboard/operations-table.html">Operations Table</a>
-          <a class="design-link" href="/demos/project-dashboard/chart-wall.html">Chart Wall</a>
-          <a class="design-link" href="/demos/project-dashboard/capacity-planner.html">Capacity Planner</a>
-          <a class="design-link active" href="/demos/project-dashboard/dependency-map.html">Dependency Map</a>
-          <a class="design-link" href="/demos/project-dashboard/risk-review.html">Risk Review Board</a>
-      </nav>
-
-      <section class="design-gallery" aria-label="Dependency Map dashboard page">
-        <section class="design-view" id="view-dependency" aria-label="Dependency map dashboard design">
-          <div class="pattern-kicker">Design pattern 05 <span>Dependency map</span></div>
-          <div class="chart-grid">
-            <div class="panel chart-panel">
-              <div class="panel-header">
-                <h2>Dependency Path</h2>
-                <span>Successors wait for predecessors</span>
-              </div>
-              <div class="chart-body">
-                <div class="dependency-flow" id="dependency-flow"></div>
-              </div>
-            </div>
-
-            <div class="panel chart-panel">
-              <div class="panel-header">
-                <h2>Forecast Signals</h2>
-                <span>Review checklist</span>
-              </div>
-              <div class="chart-body">
-                <div class="signal-list" id="signal-list"></div>
-              </div>
-            </div>
-          </div>
-        </section>
-      </section>
-    </main>
-    <script src="/demos/project-dashboard/shared.js"></script>
+    <a href="/demos/project-dashboard/#dependency">Open dashboard design</a>
   </body>
 </html>
