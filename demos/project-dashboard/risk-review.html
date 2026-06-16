@@ -14,6 +14,29 @@
         <span class="sync-chip">GitHub Project sample synced 14:30 JST</span>
       </header>
 
+<section class="metrics forecast-first" aria-label="Forecast summary">
+        <div class="metric primary">
+          <span>Estimated Completion Date</span>
+          <strong id="completion-date">-</strong>
+          <small id="completion-note">Waiting for project data.</small>
+        </div>
+        <div class="metric">
+          <span>Total Remaining Effort</span>
+          <strong id="remaining-effort">-</strong>
+          <small>Done = 0, In Progress = 50%, Todo = 100%.</small>
+        </div>
+        <div class="metric">
+          <span>Missing Data Warnings</span>
+          <strong id="warning-count">-</strong>
+          <small>Defaults are visible in the warnings panel.</small>
+        </div>
+        <div class="metric">
+          <span>Active Workers</span>
+          <strong id="worker-count">-</strong>
+          <small>Unassigned tasks use the default worker.</small>
+        </div>
+      </section>
+
 <section class="hero" aria-labelledby="page-title">
         <div>
           <p class="eyebrow">Project operations</p>
@@ -26,7 +49,7 @@
           <div class="control-row">
             <label for="start-date">
               Start date
-              <span>Editable forecast anchor.</span>
+              <span>Set the scenario anchor date.</span>
             </label>
             <input id="start-date" type="date" value="2026-06-15">
           </div>
@@ -51,29 +74,6 @@
         </form>
       </section>
 
-<section class="metrics" aria-label="Forecast summary">
-        <div class="metric primary">
-          <span>Estimated Completion Date</span>
-          <strong id="completion-date">-</strong>
-          <small id="completion-note">Waiting for project data.</small>
-        </div>
-        <div class="metric">
-          <span>Total Remaining Effort</span>
-          <strong id="remaining-effort">-</strong>
-          <small>Done = 0, In Progress = 50%, Todo = 100%.</small>
-        </div>
-        <div class="metric">
-          <span>Missing Data Warnings</span>
-          <strong id="warning-count">-</strong>
-          <small>Defaults are visible in the warnings panel.</small>
-        </div>
-        <div class="metric">
-          <span>Active Workers</span>
-          <strong id="worker-count">-</strong>
-          <small>Unassigned tasks use the default worker.</small>
-        </div>
-      </section>
-
       <nav class="design-nav" aria-label="Dashboard design pages">
           <a class="design-link" href="/demos/project-dashboard/executive-brief.html">Executive Brief</a>
           <a class="design-link" href="/demos/project-dashboard/operations-table.html">Operations Table</a>
@@ -87,6 +87,15 @@
         <section class="design-view" id="view-review" aria-label="Risk review dashboard design">
           <div class="pattern-kicker">Design pattern 06 <span>Risk review board</span></div>
           <div class="risk-grid" id="risk-grid"></div>
+          <div class="panel chart-panel">
+            <div class="panel-header">
+              <h2>Worker Load Graph</h2>
+              <span>Remaining days by capacity bucket</span>
+            </div>
+            <div class="chart-body">
+              <div class="chart-bars" id="worker-bars"></div>
+            </div>
+          </div>
           <div class="review-grid" id="review-grid"></div>
         </section>
       </section>
