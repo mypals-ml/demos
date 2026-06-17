@@ -77,6 +77,23 @@
           <div class="panel-header"><h2>Remaining Effort Graph</h2><span>Forecast-weighted task load</span></div>
           <div class="chart-body"><div class="chart-bars" data-bars="effort"></div></div>
         </section>
+        <section class="insight-grid">
+          <div class="insight-card priority">
+            <span>Decision needed</span>
+            <strong data-value="next-action">-</strong>
+            <small>Most useful action to improve forecast confidence.</small>
+          </div>
+          <div class="insight-card">
+            <span>Forecast confidence</span>
+            <strong data-value="confidence">-</strong>
+            <small data-value="confidence-note">Waiting for data quality checks.</small>
+          </div>
+          <div class="insight-card">
+            <span>Critical driver</span>
+            <strong data-value="critical-task">-</strong>
+            <small>Last open item on the dependency-aware schedule.</small>
+          </div>
+        </section>
       </section>
 
       <section class="design-screen operations-screen" data-panel="operations" aria-label="Operations Table design">
@@ -131,6 +148,7 @@
             <div class="panel"><div class="panel-header"><h2>Assumptions Used</h2><span>Rules applied</span></div><ul class="list" data-list="assumptions"></ul></div>
             <div class="panel"><div class="panel-header"><h2>Missing Data Warnings</h2><span data-value="warning-label">0 warnings</span></div><ul class="list warnings" data-list="warnings"></ul></div>
             <div class="panel"><div class="panel-header"><div class="panel-title"><h2>Capacity Timeline</h2><button class="info-button" type="button" aria-label="Capacity Timeline shows each open task after dependency, worker availability, workday, and capacity rules are applied.">i</button></div><span>Dependency-aware order</span></div><div class="timeline" data-timeline="default"></div></div>
+            <div class="panel"><div class="panel-header"><h2>Operational Focus</h2><span>Next cleanup</span></div><div class="signal-list" data-list="operations-focus"></div></div>
           </div>
         </section>
       </section>
@@ -178,6 +196,7 @@
           <div class="panel chart-panel"><div class="panel-header"><h2>Remaining Effort by Task</h2><span>Default estimates included</span></div><div class="chart-body"><div class="chart-bars" data-bars="effort"></div></div></div>
           <div class="panel chart-panel"><div class="panel-header"><h2>Worker Load</h2><span>Remaining days</span></div><div class="chart-body"><div class="chart-bars" data-bars="workers"></div></div></div>
           <div class="panel chart-panel"><div class="panel-header"><h2>Warning Count</h2><span>Data quality pressure</span></div><div class="chart-body"><div class="warning-meter"><strong data-value="warnings">-</strong><div class="mini-track"><div class="mini-fill amber" data-bar="warning-meter"></div></div></div></div></div>
+          <div class="panel chart-panel wide-panel"><div class="panel-header"><h2>Forecast Trend</h2><span>Work remaining by sequence</span></div><div class="chart-body"><div class="trend-chart" data-chart="trend"></div></div></div>
         </section>
       </section>
 
@@ -222,6 +241,7 @@
         <section class="chart-grid">
           <div class="panel chart-panel"><div class="panel-header"><div class="panel-title"><h2>Capacity Timeline</h2><button class="info-button" type="button" aria-label="Capacity Timeline converts estimates into workdays, skips weekends, waits for predecessors, and queues work by assignee.">i</button></div><span>Workday schedule</span></div><div class="timeline" data-timeline="default"></div></div>
           <div class="panel chart-panel"><div class="panel-header"><h2>Worker Load Graph</h2><span>Remaining days</span></div><div class="chart-body"><div class="chart-bars" data-bars="workers"></div></div></div>
+          <div class="panel chart-panel wide-panel"><div class="panel-header"><h2>Capacity Buckets</h2><span>Scheduled workdays</span></div><div class="chart-body"><div class="capacity-days" data-grid="capacity-days"></div></div></div>
         </section>
       </section>
 
@@ -266,6 +286,7 @@
         <section class="chart-grid">
           <div class="panel chart-panel"><div class="panel-header"><h2>Dependency Path</h2><span>Successors wait for predecessors</span></div><div class="chart-body"><div class="dependency-flow" data-flow="dependency"></div></div></div>
           <div class="panel chart-panel"><div class="panel-header"><h2>Forecast Signals</h2><span>Review checklist</span></div><div class="chart-body"><div class="signal-list" data-list="signals"></div></div></div>
+          <div class="panel chart-panel wide-panel"><div class="panel-header"><h2>Critical Chain</h2><span>Start-to-finish logic</span></div><div class="chart-body"><div class="chain-map" data-flow="chain"></div></div></div>
         </section>
       </section>
 
@@ -310,6 +331,7 @@
         <section class="risk-grid" data-grid="risk"></section>
         <section class="panel chart-panel"><div class="panel-header"><h2>Worker Load Graph</h2><span>Remaining days by capacity bucket</span></div><div class="chart-body"><div class="chart-bars" data-bars="workers"></div></div></section>
         <section class="review-grid" data-grid="review"></section>
+        <section class="panel"><div class="panel-header"><h2>Mitigation Actions</h2><span>Ordered by leverage</span></div><div class="action-list" data-list="actions"></div></section>
       </section>
     </main>
     <script src="/demos/project-dashboard/switcher.js"></script>

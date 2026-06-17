@@ -78,7 +78,8 @@ function addWorkdays(date, days) {
 
 function effortMultiplier(status) {
   if (status === "Done") return 0;
-  if (status === "In progress" || status === "In review") return 0.5;
+  if (status === "In progress") return 0.5;
+  if (status === "In review") return 0.25;
   return 1;
 }
 
@@ -104,6 +105,7 @@ function buildForecast() {
 
   const scheduled = topologicalSort(tasks).map((task) => {
     const estimateDays = Number.isFinite(task.estimateDays) ? task.estimateDays : 1;
+    const estimateDefaulted = !Number.isFinite(task.estimateDays);
     const worker = task.assignee || "Default worker";
     const remainingDays = estimateDays * effortMultiplier(task.status) * (6 / state.capacityHours);
     const dependencyFinish = task.dependency ? finishByTask.get(task.dependency) : null;
@@ -124,7 +126,7 @@ function buildForecast() {
       nextAvailable.setDate(nextAvailable.getDate() + 1);
       workerAvailability.set(worker, nextWorkday(nextAvailable));
     }
-    return { ...task, estimateDays, worker, remainingDays, start: earliest, finish };
+    return { ...task, estimateDays, estimateDefaulted, worker, remainingDays, start: earliest, finish };
   });
 
   const openTasks = scheduled.filter((task) => task.remainingDays > 0);
@@ -147,6 +149,13 @@ function setAllText(selector, value, root = document) {
 }
 
 function renderSharedValues(forecast, root) {
+  const criticalTask = forecast.openTasks.reduce((latest, task) => task.finish > latest.finish ? task : latest, forecast.openTasks[0] || forecast.tasks.at(-1));
+  const confidence = forecast.warnings.length >= 5 ? "Low" : forecast.warnings.length ? "Medium" : "High";
+  const nextAction = forecast.warnings.length
+    ? "Fill missing estimates and owners"
+    : forecast.openTasks.length
+      ? "Watch critical dependency"
+      : "No open work";
   setAllText('[data-value="completion"]', formatDate(forecast.completion), root);
   setAllText('[data-value="completion-note"]', `${workdayNames[forecast.completion.getDay()]} finish after dependency and capacity checks.`, root);
   setAllText('[data-value="remaining"]', `${forecast.remainingDays.toFixed(1)}d`, root);
@@ -154,6 +163,10 @@ function renderSharedValues(forecast, root) {
   setAllText('[data-value="workers"]', String(forecast.workers.size), root);
   setAllText('[data-value="task-count"]', `${forecast.tasks.length} tasks`, root);
   setAllText('[data-value="warning-label"]', `${forecast.warnings.length} warnings`, root);
+  setAllText('[data-value="confidence"]', confidence, root);
+  setAllText('[data-value="confidence-note"]', confidence === "High" ? "All core data is present." : "Forecast depends on defaulted data.", root);
+  setAllText('[data-value="next-action"]', nextAction, root);
+  setAllText('[data-value="critical-task"]', criticalTask ? `#${criticalTask.id}` : "None", root);
   setAllText(
     '[data-value="brief-summary"]',
     `${forecast.openTasks.length} ${forecast.openTasks.length === 1 ? "open task" : "open tasks"} remain after applying status, estimates, missing-data defaults, dependencies, and ${state.capacityHours}h/day capacity.`,
@@ -166,11 +179,12 @@ function renderTasks(forecast, root) {
     table.innerHTML = forecast.tasks.map((task) => {
       const statusKey = statusClass[task.status] || "todo";
       const dependency = task.dependency ? `#${task.dependency}` : "None";
+      const estimate = task.estimateDefaulted ? `${task.estimateDays}d default` : `${task.estimateDays}d`;
       return `
         <tr>
           <td class="task-title">#${task.id} ${task.title}</td>
           <td><span class="status ${statusKey}">${task.status}</span></td>
-          <td>${task.estimateDays}d</td>
+          <td>${estimate}</td>
           <td>${task.worker}</td>
           <td>${dependency}</td>
           <td>${task.remainingDays.toFixed(1)}d</td>
@@ -185,7 +199,8 @@ function renderLists(forecast, root) {
   const assumptions = [
     ["Forecast start date", `${formatDate(forecast.startDate)} is normalized to the first available workday.`],
     ["Done = 0 remaining", "Completed work is excluded from the remaining effort total."],
-    ["In Progress = 50% remaining", "Tasks in active review or progress keep half their estimate."],
+    ["In Progress = 50% remaining", "Active work keeps half its estimate."],
+    ["In Review = 25% remaining", "Review work keeps a small completion buffer."],
     ["Todo = 100% remaining", "Not-started work keeps its full estimate."],
     ["Missing estimate = 1 day", "A warning is emitted and one default workday is scheduled."],
     ["Missing assignee = default worker", "Unassigned work uses a single default capacity bucket."],
@@ -199,6 +214,23 @@ function renderLists(forecast, root) {
     list.innerHTML = forecast.warnings.length
       ? forecast.warnings.map((warning) => `<li><strong>${warning.task}</strong><span>${warning.message}</span></li>`).join("")
       : `<li><strong>No missing data</strong><span>All scheduled tasks include estimates and assignees.</span></li>`;
+  });
+  root.querySelectorAll('[data-list="operations-focus"]').forEach((list) => {
+    const criticalTask = forecast.openTasks.reduce((latest, task) => task.finish > latest.finish ? task : latest, forecast.openTasks[0] || forecast.tasks.at(-1));
+    list.innerHTML = [
+      ["Clean data first", forecast.warnings.length ? `${forecast.warnings.length} warnings need owner/estimate cleanup` : "No cleanup required"],
+      ["Critical finish", criticalTask ? `#${criticalTask.id} finishes ${formatDate(criticalTask.finish)}` : "No open critical task"],
+      ["Capacity model", `${state.capacityHours}h/day across ${forecast.workers.size} worker bucket(s)`]
+    ].map(([label, value]) => `<div class="signal-row"><span>${label}</span><b>${value}</b></div>`).join("");
+  });
+  root.querySelectorAll('[data-list="actions"]').forEach((list) => {
+    const estimateCount = forecast.tasks.filter((task) => task.estimateDefaulted).length;
+    const defaultWorkerCount = forecast.tasks.filter((task) => task.worker === "Default worker").length;
+    list.innerHTML = [
+      ["1", "Replace default estimates", estimateCount ? `${estimateCount} task(s) still use 1d default estimates.` : "All tasks have estimates."],
+      ["2", "Assign owners", defaultWorkerCount ? `${defaultWorkerCount} task(s) use the default worker bucket.` : "All tasks have owners."],
+      ["3", "Confirm predecessor finish", "Critical chain dates should be confirmed before sharing the forecast."]
+    ].map(([step, title, detail]) => `<div class="action-item"><b>${step}</b><span><strong>${title}</strong><small>${detail}</small></span></div>`).join("");
   });
 }
 
@@ -255,6 +287,15 @@ function renderCharts(forecast, root) {
   root.querySelectorAll('[data-bar="warning-meter"]').forEach((bar) => {
     bar.style.width = `${Math.min(100, forecast.warnings.length * 14)}%`;
   });
+  root.querySelectorAll('[data-chart="trend"]').forEach((chart) => {
+    let remaining = forecast.tasks.reduce((sum, task) => sum + task.remainingDays, 0);
+    const max = Math.max(remaining, 1);
+    chart.innerHTML = forecast.tasks.map((task) => {
+      remaining = Math.max(0, remaining - task.remainingDays);
+      const height = Math.max(8, Math.round((remaining / max) * 100));
+      return `<div class="trend-column"><span style="height: ${height}%;"></span><b>#${task.id}</b></div>`;
+    }).join("");
+  });
 }
 
 function renderDependency(forecast, root) {
@@ -271,6 +312,11 @@ function renderDependency(forecast, root) {
       ["Warnings", String(forecast.warnings.length)],
       ["Critical finish", finalTask ? `#${finalTask.id}` : "None"]
     ].map(([label, value]) => `<div class="signal-row"><span>${label}</span><b>${value}</b></div>`).join("");
+  });
+  root.querySelectorAll('[data-flow="chain"]').forEach((chain) => {
+    chain.innerHTML = forecast.tasks.map((task, index) => (
+      `<div class="chain-node ${task.remainingDays > 0 ? "open" : "done"}"><span>#${task.id}</span><strong>${task.status}</strong><small>${index === 0 ? "Start" : task.dependency ? `After #${task.dependency}` : "Parallel"}</small></div>`
+    )).join("");
   });
 }
 
@@ -294,6 +340,11 @@ function renderRisk(forecast, root) {
       ["Completion driver", forecast.openTasks.at(-1) ? `#${forecast.openTasks.at(-1).id}` : "None", "Last open task in the dependency-aware schedule."],
       ["Review outcome", forecast.warnings.length ? "Needs cleanup" : "Ready to trust", "Data quality determines forecast confidence."]
     ].map(([label, value, detail]) => `<div class="review-card"><span>${label}</span><strong>${value}</strong><small>${detail}</small></div>`).join("");
+  });
+  root.querySelectorAll('[data-grid="capacity-days"]').forEach((grid) => {
+    grid.innerHTML = forecast.openTasks.map((task) => (
+      `<div class="day-bucket"><span>${toISODate(task.finish)}</span><strong>#${task.id}</strong><small>${task.remainingDays.toFixed(1)}d ${task.worker}</small></div>`
+    )).join("") || `<p class="empty-state">No capacity buckets remain.</p>`;
   });
 }
 

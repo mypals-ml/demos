@@ -546,6 +546,10 @@
         gap: 18px;
       }
 
+      .wide-panel {
+        grid-column: 1 / -1;
+      }
+
       .chart-panel {
         min-height: 320px;
       }
@@ -644,6 +648,181 @@
         height: 100%;
         border-radius: 7px;
         background: linear-gradient(90deg, var(--green), var(--blue));
+      }
+
+      .insight-grid,
+      .capacity-days,
+      .action-list {
+        display: grid;
+        gap: 12px;
+      }
+
+      .insight-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .insight-card,
+      .day-bucket,
+      .action-item {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #ffffff;
+      }
+
+      .insight-card {
+        min-height: 142px;
+        padding: 16px;
+      }
+
+      .insight-card.priority {
+        border-color: rgba(15, 118, 110, 0.38);
+        background: #f4fbf8;
+      }
+
+      .insight-card span,
+      .day-bucket span {
+        display: block;
+        margin-bottom: 8px;
+        color: var(--muted);
+        font-size: 0.74rem;
+        font-weight: 900;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+      }
+
+      .insight-card strong,
+      .day-bucket strong {
+        display: block;
+        font-size: 1.28rem;
+      }
+
+      .insight-card small,
+      .day-bucket small {
+        display: block;
+        margin-top: 8px;
+        color: var(--muted);
+        font-size: 0.82rem;
+        line-height: 1.35;
+      }
+
+      .trend-chart {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 12px;
+        align-items: end;
+        min-height: 220px;
+        padding-top: 12px;
+      }
+
+      .trend-column {
+        display: grid;
+        grid-template-rows: minmax(160px, 1fr) auto;
+        gap: 8px;
+        align-items: end;
+        text-align: center;
+      }
+
+      .trend-column span {
+        align-self: end;
+        width: 100%;
+        border-radius: 8px 8px 4px 4px;
+        background: linear-gradient(180deg, var(--violet), var(--blue));
+      }
+
+      .trend-column b {
+        color: var(--muted);
+        font-size: 0.78rem;
+      }
+
+      .capacity-days {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .day-bucket {
+        padding: 14px;
+        background: #fbfdff;
+      }
+
+      .chain-map {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 10px;
+      }
+
+      .chain-node {
+        position: relative;
+        display: grid;
+        gap: 8px;
+        min-height: 112px;
+        padding: 14px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #ffffff;
+      }
+
+      .chain-node:not(:last-child)::after {
+        position: absolute;
+        top: 50%;
+        right: -10px;
+        width: 10px;
+        height: 2px;
+        background: var(--line);
+        content: "";
+      }
+
+      .chain-node span {
+        color: var(--blue);
+        font-weight: 900;
+      }
+
+      .chain-node strong {
+        font-size: 0.95rem;
+      }
+
+      .chain-node small {
+        color: var(--muted);
+        line-height: 1.35;
+      }
+
+      .chain-node.open {
+        border-color: rgba(184, 109, 24, 0.36);
+        background: #fffaf0;
+      }
+
+      .action-list {
+        padding: 16px;
+      }
+
+      .action-item {
+        display: grid;
+        grid-template-columns: 38px minmax(0, 1fr);
+        gap: 12px;
+        align-items: start;
+        padding: 12px;
+        background: #fbfdff;
+      }
+
+      .action-item > b {
+        display: grid;
+        place-items: center;
+        width: 32px;
+        height: 32px;
+        border-radius: 999px;
+        background: #e9f6f2;
+        color: var(--green);
+      }
+
+      .action-item strong {
+        display: block;
+        font-size: 0.94rem;
+      }
+
+      .action-item small {
+        display: block;
+        margin-top: 4px;
+        color: var(--muted);
+        font-size: 0.82rem;
+        line-height: 1.35;
       }
 
       .dependency-flow {
@@ -761,7 +940,10 @@
         }
 
         .risk-grid,
-        .review-grid {
+        .review-grid,
+        .insight-grid,
+        .capacity-days,
+        .chain-map {
           grid-template-columns: repeat(2, minmax(0, 1fr));
         }
       }
@@ -794,7 +976,10 @@
         }
 
         .risk-grid,
-        .review-grid {
+        .review-grid,
+        .insight-grid,
+        .capacity-days,
+        .chain-map {
           grid-template-columns: 1fr;
         }
       }
