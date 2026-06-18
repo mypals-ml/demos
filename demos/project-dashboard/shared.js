@@ -1,29 +1,68 @@
 const scenarios = {
         current: [
-          { id: 1, title: "Task list view demo", status: "Done", estimateDays: 1, assignee: "Hui", dependency: null },
-          { id: 3, title: "Unassigned assignee icon sizing", status: "Done", estimateDays: 0.5, assignee: "", dependency: null },
-          { id: 4, title: "Task List View V2 design", status: "Done", estimateDays: 1, assignee: "", dependency: 3 },
-          { id: 5, title: "Resizable edit box handles", status: "In review", estimateDays: 1, assignee: "", dependency: 4 },
-          { id: 6, title: "Project completion dashboard", status: "In progress", estimateDays: null, assignee: "", dependency: 5 }
+          { id: 1, title: "Discovery workshop", status: "Done", estimateDays: 2, assignee: "Hui", dependency: null },
+          { id: 2, title: "Project plan and milestones", status: "Done", estimateDays: 1.5, assignee: "Mina", dependency: 1 },
+          { id: 3, title: "Data contract audit", status: "Done", estimateDays: 2, assignee: "Ken", dependency: 1 },
+          { id: 4, title: "GitHub project ingestion", status: "Done", estimateDays: 3, assignee: "Hui", dependency: 3 },
+          { id: 5, title: "Forecast rules baseline", status: "Done", estimateDays: 2, assignee: "Mina", dependency: 4 },
+          { id: 6, title: "Dashboard information architecture", status: "In review", estimateDays: 4, assignee: "Aki", dependency: 5 },
+          { id: 7, title: "Executive brief layout", status: "In progress", estimateDays: 5, assignee: "Aki", dependency: 6 },
+          { id: 8, title: "Operations table behavior", status: "In progress", estimateDays: 4, assignee: "Hui", dependency: 5 },
+          { id: 9, title: "Capacity planner model", status: "Todo", estimateDays: 6, assignee: "Ken", dependency: 8 },
+          { id: 10, title: "Dependency map interactions", status: "Todo", estimateDays: 5, assignee: "Mina", dependency: 8 },
+          { id: 11, title: "Risk review workflow", status: "Todo", estimateDays: 4, assignee: "", dependency: 10 },
+          { id: 12, title: "Chart wall analytics", status: "Todo", estimateDays: 7, assignee: "Hui", dependency: 9 },
+          { id: 13, title: "Burndown chart polish", status: "Todo", estimateDays: 4, assignee: "Aki", dependency: 12 },
+          { id: 14, title: "Scenario sync QA", status: "Todo", estimateDays: 3, assignee: "Ken", dependency: 13 },
+          { id: 15, title: "Accessibility pass", status: "Todo", estimateDays: 2, assignee: "", dependency: 14 },
+          { id: 16, title: "Stakeholder signoff pack", status: "Todo", estimateDays: 3, assignee: "Mina", dependency: 15 },
+          { id: 17, title: "Launch rehearsal", status: "Todo", estimateDays: 2, assignee: "Hui", dependency: 16 },
+          { id: 18, title: "Production handoff", status: "Todo", estimateDays: 6, assignee: "Hui", dependency: 17 }
         ],
         clean: [
-          { id: 1, title: "Task list view demo", status: "Done", estimateDays: 1, assignee: "Hui", dependency: null },
-          { id: 3, title: "Unassigned assignee icon sizing", status: "Done", estimateDays: 0.5, assignee: "Hui", dependency: null },
-          { id: 4, title: "Task List View V2 design", status: "Done", estimateDays: 1, assignee: "Hui", dependency: 3 },
-          { id: 5, title: "Resizable edit box handles", status: "In review", estimateDays: 1, assignee: "Hui", dependency: 4 },
-          { id: 6, title: "Project completion dashboard", status: "In progress", estimateDays: 1.5, assignee: "Hui", dependency: 5 }
+          { id: 1, title: "Discovery workshop", status: "Done", estimateDays: 2, assignee: "Hui", dependency: null },
+          { id: 2, title: "Project plan and milestones", status: "Done", estimateDays: 1.5, assignee: "Mina", dependency: 1 },
+          { id: 3, title: "Data contract audit", status: "Done", estimateDays: 2, assignee: "Ken", dependency: 1 },
+          { id: 4, title: "GitHub project ingestion", status: "Done", estimateDays: 3, assignee: "Hui", dependency: 3 },
+          { id: 5, title: "Forecast rules baseline", status: "Done", estimateDays: 2, assignee: "Mina", dependency: 4 },
+          { id: 6, title: "Dashboard information architecture", status: "In review", estimateDays: 4, assignee: "Aki", dependency: 5 },
+          { id: 7, title: "Executive brief layout", status: "In progress", estimateDays: 5, assignee: "Aki", dependency: 6 },
+          { id: 8, title: "Operations table behavior", status: "In progress", estimateDays: 4, assignee: "Hui", dependency: 5 },
+          { id: 9, title: "Capacity planner model", status: "Todo", estimateDays: 6, assignee: "Ken", dependency: 8 },
+          { id: 10, title: "Dependency map interactions", status: "Todo", estimateDays: 5, assignee: "Mina", dependency: 8 },
+          { id: 11, title: "Risk review workflow", status: "Todo", estimateDays: 4, assignee: "Aki", dependency: 10 },
+          { id: 12, title: "Chart wall analytics", status: "Todo", estimateDays: 7, assignee: "Hui", dependency: 9 },
+          { id: 13, title: "Burndown chart polish", status: "Todo", estimateDays: 4, assignee: "Aki", dependency: 12 },
+          { id: 14, title: "Scenario sync QA", status: "Todo", estimateDays: 3, assignee: "Ken", dependency: 13 },
+          { id: 15, title: "Accessibility pass", status: "Todo", estimateDays: 2, assignee: "Mina", dependency: 14 },
+          { id: 16, title: "Stakeholder signoff pack", status: "Todo", estimateDays: 3, assignee: "Mina", dependency: 15 },
+          { id: 17, title: "Launch rehearsal", status: "Todo", estimateDays: 2, assignee: "Hui", dependency: 16 },
+          { id: 18, title: "Production handoff", status: "Todo", estimateDays: 6, assignee: "Hui", dependency: 17 }
         ],
         blocked: [
-          { id: 1, title: "Task list view demo", status: "Done", estimateDays: 1, assignee: "Hui", dependency: null },
-          { id: 3, title: "Unassigned assignee icon sizing", status: "Done", estimateDays: null, assignee: "", dependency: null },
-          { id: 4, title: "Task List View V2 design", status: "Done", estimateDays: 1, assignee: "", dependency: 3 },
-          { id: 5, title: "Resizable edit box handles", status: "Todo", estimateDays: null, assignee: "", dependency: 4 },
-          { id: 6, title: "Project completion dashboard", status: "Todo", estimateDays: null, assignee: "", dependency: 5 }
+          { id: 1, title: "Discovery workshop", status: "Done", estimateDays: 2, assignee: "Hui", dependency: null },
+          { id: 2, title: "Project plan and milestones", status: "Done", estimateDays: 1.5, assignee: "Mina", dependency: 1 },
+          { id: 3, title: "Data contract audit", status: "Done", estimateDays: null, assignee: "Ken", dependency: 1 },
+          { id: 4, title: "GitHub project ingestion", status: "Done", estimateDays: 3, assignee: "", dependency: 3 },
+          { id: 5, title: "Forecast rules baseline", status: "Done", estimateDays: 2, assignee: "Mina", dependency: 4 },
+          { id: 6, title: "Dashboard information architecture", status: "Todo", estimateDays: null, assignee: "Aki", dependency: 5 },
+          { id: 7, title: "Executive brief layout", status: "Todo", estimateDays: 5, assignee: "Aki", dependency: 6 },
+          { id: 8, title: "Operations table behavior", status: "Todo", estimateDays: 4, assignee: "", dependency: 5 },
+          { id: 9, title: "Capacity planner model", status: "Todo", estimateDays: 6, assignee: "Ken", dependency: 8 },
+          { id: 10, title: "Dependency map interactions", status: "Todo", estimateDays: null, assignee: "Mina", dependency: 8 },
+          { id: 11, title: "Risk review workflow", status: "Todo", estimateDays: 4, assignee: "", dependency: 10 },
+          { id: 12, title: "Chart wall analytics", status: "Todo", estimateDays: 7, assignee: "Hui", dependency: 9 },
+          { id: 13, title: "Burndown chart polish", status: "Todo", estimateDays: 4, assignee: "Aki", dependency: 12 },
+          { id: 14, title: "Scenario sync QA", status: "Todo", estimateDays: 3, assignee: "Ken", dependency: 13 },
+          { id: 15, title: "Accessibility pass", status: "Todo", estimateDays: null, assignee: "", dependency: 14 },
+          { id: 16, title: "Stakeholder signoff pack", status: "Todo", estimateDays: 3, assignee: "Mina", dependency: 15 },
+          { id: 17, title: "Launch rehearsal", status: "Todo", estimateDays: 2, assignee: "Hui", dependency: 16 },
+          { id: 18, title: "Production handoff", status: "Todo", estimateDays: 6, assignee: "Hui", dependency: 17 }
         ]
       };
 
       const state = {
-        startDate: "2026-06-15",
+        startDate: "2026-06-01",
         capacityHours: 6,
         scenario: "current"
       };

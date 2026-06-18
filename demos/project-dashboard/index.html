@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="Project completion dashboard demo for GitHub Project task data.">
     <title>Project Completion Dashboard Designs</title>
-    <link rel="stylesheet" href="/demos/project-dashboard/shared.css">
+    <link rel="stylesheet" href="/demos/project-dashboard/shared.css?v=20260618m">
   </head>
   <body>
     <main class="app switch-app">
@@ -18,6 +18,10 @@
           <button class="switch-tab active" type="button" data-switch="executive" aria-selected="true">Executive Brief</button>
           <button class="switch-tab" type="button" data-switch="operations" aria-selected="false">Operations Table</button>
           <button class="switch-tab" type="button" data-switch="charts" aria-selected="false">Chart Wall</button>
+          <button class="switch-tab" type="button" data-switch="charts2" aria-selected="false">Chart Wall 2</button>
+          <button class="switch-tab" type="button" data-switch="charts3" aria-selected="false">Chart Wall 3</button>
+          <button class="switch-tab" type="button" data-switch="charts4" aria-selected="false">Chart Wall 4</button>
+          <button class="switch-tab" type="button" data-switch="charts5" aria-selected="false">Chart Wall 5</button>
           <button class="switch-tab" type="button" data-switch="capacity" aria-selected="false">Capacity Planner</button>
           <button class="switch-tab" type="button" data-switch="dependency" aria-selected="false">Dependency Map</button>
           <button class="switch-tab" type="button" data-switch="risk" aria-selected="false">Risk Review Board</button>
@@ -45,7 +49,7 @@
               <form class="switch-controls compact" aria-label="Forecast controls">
                 <label>
                   <span>Start date</span>
-                  <input class="js-start-date" type="date" value="2026-06-15">
+                  <input class="js-start-date" type="date" value="2026-06-01">
                 </label>
                 <label>
                   <span>Capacity</span>
@@ -118,7 +122,7 @@
               <form class="switch-controls compact" aria-label="Forecast controls">
                 <label>
                   <span>Start date</span>
-                  <input class="js-start-date" type="date" value="2026-06-15">
+                  <input class="js-start-date" type="date" value="2026-06-01">
                 </label>
                 <label>
                   <span>Capacity</span>
@@ -160,43 +164,156 @@
                 <strong data-value="completion">-</strong>
                 <small data-value="completion-note">Waiting for project data.</small>
               </div>
-              <div class="mini-metrics">
-                <div><span>Total Remaining Effort</span><strong data-value="remaining">-</strong></div>
-                <div><span>Missing Data Warnings</span><strong data-value="warnings">-</strong></div>
-                <div><span>Active Workers</span><strong data-value="workers">-</strong></div>
+            </section>
+        <section class="panel chart-panel wide-panel"><div class="panel-header"><h2>Burndown by date</h2><span>Forecast trend</span></div><div class="chart-body"><div class="trend-chart burndown-chart" data-chart="trend"></div></div></section>
+        <section class="chart-grid feature-charts">
+          <div class="panel chart-panel"><div class="panel-header"><h2>Current Status Days</h2><span>Task duration by status today</span></div><div class="chart-body"><div class="donut-wrap"><div class="donut" data-donut="status"><div class="donut-core" aria-hidden="true"></div></div><ul class="legend" data-list="status-legend"></ul></div></div></div>
+          <div class="panel chart-panel"><div class="panel-header"><h2>Top 5 Worker Loads</h2><span>Daily workload</span></div><div class="chart-body"><div class="chart-bars worker-load-daily" data-bars="workers" data-unit="daily"></div></div></div>
+        </section>
+        <section class="panel assumptions-section" aria-label="Assumptions">
+          <div class="panel-header"><h2>Assumptions</h2><span>Forecast inputs</span></div>
+          <form class="switch-controls compact assumptions-controls" aria-label="Forecast assumptions">
+            <label>
+              <span>Start date</span>
+              <input class="js-start-date" type="date" value="2026-06-01">
+            </label>
+            <label>
+              <span>Capacity (days per week)</span>
+              <input class="js-capacity" type="number" min="1" max="12" step="0.5" value="6">
+            </label>
+            <label>
+              <span>Workers count</span>
+              <input class="js-human-count" type="number" min="1" max="20" step="1" value="5">
+            </label>
+          </form>
+        </section>
+      </section>
+
+      <section class="design-screen chart-screen chart-screen-v2" data-panel="charts2" aria-label="Chart Wall 2 design">
+            <section class="forecast-lead chart-forecast" aria-label="Forecast summary">
+              <div class="forecast-date-card">
+                <span>Estimated Completion Date</span>
+                <strong data-value="completion">-</strong>
+                <small data-value="completion-note">Waiting for project data.</small>
               </div>
             </section>
-        <div class="design-hero chart-hero">
-          <div>
-            <p class="eyebrow">Chart wall</p>
-            <h1>Forecast shape in charts</h1>
-            <p class="lede">A visual-first dashboard for comparing completed estimate, in-flight work, remaining effort, and warning volume.</p>
-          </div>
-              <form class="switch-controls compact" aria-label="Forecast controls">
-                <label>
-                  <span>Start date</span>
-                  <input class="js-start-date" type="date" value="2026-06-15">
-                </label>
-                <label>
-                  <span>Capacity</span>
-                  <input class="js-capacity" type="number" min="1" max="12" step="0.5" value="6">
-                </label>
-                <label>
-                  <span>Scenario</span>
-                  <select class="js-scenario">
-                  <option value="current">Current board</option>
-                  <option value="clean">Fully estimated</option>
-                  <option value="blocked">Blocked review</option>
-                  </select>
-                </label>
-              </form>
-        </div>
+        <section class="panel chart-panel wide-panel"><div class="panel-header"><h2>Burndown by date</h2><span>Forecast trend</span></div><div class="chart-body"><div class="trend-chart line-burndown-chart" data-chart="trend-line"></div></div></section>
         <section class="chart-grid feature-charts">
-          <div class="panel chart-panel"><div class="panel-header"><h2>Completion Mix</h2><span>Status-weighted effort</span></div><div class="chart-body"><div class="donut-wrap"><div class="donut" data-donut="status"><div class="donut-core"><strong data-value="done-percent">0%</strong><span>done</span></div></div><ul class="legend" data-list="status-legend"></ul></div></div></div>
-          <div class="panel chart-panel"><div class="panel-header"><h2>Remaining Effort by Task</h2><span>Default estimates included</span></div><div class="chart-body"><div class="chart-bars" data-bars="effort"></div></div></div>
-          <div class="panel chart-panel"><div class="panel-header"><h2>Worker Load</h2><span>Remaining days</span></div><div class="chart-body"><div class="chart-bars" data-bars="workers"></div></div></div>
-          <div class="panel chart-panel"><div class="panel-header"><h2>Warning Count</h2><span>Data quality pressure</span></div><div class="chart-body"><div class="warning-meter"><strong data-value="warnings">-</strong><div class="mini-track"><div class="mini-fill amber" data-bar="warning-meter"></div></div></div></div></div>
-          <div class="panel chart-panel wide-panel"><div class="panel-header"><h2>Forecast Trend</h2><span>Work remaining by sequence</span></div><div class="chart-body"><div class="trend-chart" data-chart="trend"></div></div></div>
+          <div class="panel chart-panel"><div class="panel-header"><h2>Current Status Days</h2><span>Task duration by status today</span></div><div class="chart-body"><div class="donut-wrap"><div class="donut" data-donut="status"><div class="donut-core" aria-hidden="true"></div></div><ul class="legend" data-list="status-legend"></ul></div></div></div>
+          <div class="panel chart-panel"><div class="panel-header"><h2>Top 5 Worker Loads</h2><span>Daily workload</span></div><div class="chart-body"><div class="chart-bars worker-load-daily" data-bars="workers" data-unit="daily"></div></div></div>
+        </section>
+        <section class="panel assumptions-section" aria-label="Assumptions">
+          <div class="panel-header"><h2>Assumptions</h2><span>Forecast inputs</span></div>
+          <form class="switch-controls compact assumptions-controls" aria-label="Forecast assumptions">
+            <label>
+              <span>Start date</span>
+              <input class="js-start-date" type="date" value="2026-06-01">
+            </label>
+            <label>
+              <span>Capacity (days per week)</span>
+              <input class="js-capacity" type="number" min="1" max="12" step="0.5" value="6">
+            </label>
+            <label>
+              <span>Workers count</span>
+              <input class="js-human-count" type="number" min="1" max="20" step="1" value="5">
+            </label>
+          </form>
+        </section>
+      </section>
+
+      <section class="design-screen chart-screen chart-screen-v3" data-panel="charts3" aria-label="Chart Wall 3 design">
+            <section class="forecast-lead chart-forecast" aria-label="Forecast summary">
+              <div class="forecast-date-card">
+                <span>Estimated Completion Date</span>
+                <strong data-value="completion">-</strong>
+                <small data-value="completion-note">Waiting for project data.</small>
+              </div>
+            </section>
+        <section class="panel chart-panel wide-panel spotlight-panel"><div class="panel-header"><h2>Burndown by date</h2><span>Filled forecast ribbon</span></div><div class="chart-body"><div class="trend-chart line-burndown-chart filled-line-chart" data-chart="trend-line" data-style="ribbon"></div></div></section>
+        <section class="chart-grid feature-charts">
+          <div class="panel chart-panel"><div class="panel-header"><h2>Current Status Days</h2><span>Task duration by status today</span></div><div class="chart-body"><div class="donut-wrap"><div class="donut" data-donut="status"><div class="donut-core" aria-hidden="true"></div></div><ul class="legend" data-list="status-legend"></ul></div></div></div>
+          <div class="panel chart-panel"><div class="panel-header"><h2>Top 5 Worker Loads</h2><span>Daily workload</span></div><div class="chart-body"><div class="chart-bars worker-load-daily" data-bars="workers" data-unit="daily"></div></div></div>
+        </section>
+        <section class="panel assumptions-section" aria-label="Assumptions">
+          <div class="panel-header"><h2>Assumptions</h2><span>Forecast inputs</span></div>
+          <form class="switch-controls compact assumptions-controls" aria-label="Forecast assumptions">
+            <label>
+              <span>Start date</span>
+              <input class="js-start-date" type="date" value="2026-06-01">
+            </label>
+            <label>
+              <span>Capacity (days per week)</span>
+              <input class="js-capacity" type="number" min="1" max="12" step="0.5" value="6">
+            </label>
+            <label>
+              <span>Workers count</span>
+              <input class="js-human-count" type="number" min="1" max="20" step="1" value="5">
+            </label>
+          </form>
+        </section>
+      </section>
+
+      <section class="design-screen chart-screen chart-screen-v4" data-panel="charts4" aria-label="Chart Wall 4 design">
+            <section class="forecast-lead chart-forecast" aria-label="Forecast summary">
+              <div class="forecast-date-card">
+                <span>Estimated Completion Date</span>
+                <strong data-value="completion">-</strong>
+                <small data-value="completion-note">Waiting for project data.</small>
+              </div>
+            </section>
+        <section class="panel chart-panel wide-panel spotlight-panel"><div class="panel-header"><h2>Burndown by date</h2><span>Contrast forecast area</span></div><div class="chart-body"><div class="trend-chart line-burndown-chart filled-line-chart" data-chart="trend-line" data-style="contrast"></div></div></section>
+        <section class="chart-grid feature-charts">
+          <div class="panel chart-panel"><div class="panel-header"><h2>Current Status Days</h2><span>Task duration by status today</span></div><div class="chart-body"><div class="donut-wrap"><div class="donut" data-donut="status"><div class="donut-core" aria-hidden="true"></div></div><ul class="legend" data-list="status-legend"></ul></div></div></div>
+          <div class="panel chart-panel"><div class="panel-header"><h2>Top 5 Worker Loads</h2><span>Daily workload</span></div><div class="chart-body"><div class="chart-bars worker-load-daily" data-bars="workers" data-unit="daily"></div></div></div>
+        </section>
+        <section class="panel assumptions-section" aria-label="Assumptions">
+          <div class="panel-header"><h2>Assumptions</h2><span>Forecast inputs</span></div>
+          <form class="switch-controls compact assumptions-controls" aria-label="Forecast assumptions">
+            <label>
+              <span>Start date</span>
+              <input class="js-start-date" type="date" value="2026-06-01">
+            </label>
+            <label>
+              <span>Capacity (days per week)</span>
+              <input class="js-capacity" type="number" min="1" max="12" step="0.5" value="6">
+            </label>
+            <label>
+              <span>Workers count</span>
+              <input class="js-human-count" type="number" min="1" max="20" step="1" value="5">
+            </label>
+          </form>
+        </section>
+      </section>
+
+      <section class="design-screen chart-screen chart-screen-v5" data-panel="charts5" aria-label="Chart Wall 5 design">
+            <section class="forecast-lead chart-forecast" aria-label="Forecast summary">
+              <div class="forecast-date-card">
+                <span>Estimated Completion Date</span>
+                <strong data-value="completion">-</strong>
+                <small data-value="completion-note">Waiting for project data.</small>
+              </div>
+            </section>
+        <section class="panel chart-panel wide-panel spotlight-panel"><div class="panel-header"><h2>Burndown by date</h2><span>Progress basin</span></div><div class="chart-body"><div class="trend-chart line-burndown-chart filled-line-chart" data-chart="trend-line" data-style="basin"></div></div></section>
+        <section class="chart-grid feature-charts">
+          <div class="panel chart-panel"><div class="panel-header"><h2>Current Status Days</h2><span>Task duration by status today</span></div><div class="chart-body"><div class="donut-wrap"><div class="donut" data-donut="status"><div class="donut-core" aria-hidden="true"></div></div><ul class="legend" data-list="status-legend"></ul></div></div></div>
+          <div class="panel chart-panel"><div class="panel-header"><h2>Top 5 Worker Loads</h2><span>Daily workload</span></div><div class="chart-body"><div class="chart-bars worker-load-daily" data-bars="workers" data-unit="daily"></div></div></div>
+        </section>
+        <section class="panel assumptions-section" aria-label="Assumptions">
+          <div class="panel-header"><h2>Assumptions</h2><span>Forecast inputs</span></div>
+          <form class="switch-controls compact assumptions-controls" aria-label="Forecast assumptions">
+            <label>
+              <span>Start date</span>
+              <input class="js-start-date" type="date" value="2026-06-01">
+            </label>
+            <label>
+              <span>Capacity (days per week)</span>
+              <input class="js-capacity" type="number" min="1" max="12" step="0.5" value="6">
+            </label>
+            <label>
+              <span>Workers count</span>
+              <input class="js-human-count" type="number" min="1" max="20" step="1" value="5">
+            </label>
+          </form>
         </section>
       </section>
 
@@ -222,7 +339,7 @@
               <form class="switch-controls compact" aria-label="Forecast controls">
                 <label>
                   <span>Start date</span>
-                  <input class="js-start-date" type="date" value="2026-06-15">
+                  <input class="js-start-date" type="date" value="2026-06-01">
                 </label>
                 <label>
                   <span>Capacity</span>
@@ -267,7 +384,7 @@
               <form class="switch-controls compact" aria-label="Forecast controls">
                 <label>
                   <span>Start date</span>
-                  <input class="js-start-date" type="date" value="2026-06-15">
+                  <input class="js-start-date" type="date" value="2026-06-01">
                 </label>
                 <label>
                   <span>Capacity</span>
@@ -312,7 +429,7 @@
               <form class="switch-controls compact" aria-label="Forecast controls">
                 <label>
                   <span>Start date</span>
-                  <input class="js-start-date" type="date" value="2026-06-15">
+                  <input class="js-start-date" type="date" value="2026-06-01">
                 </label>
                 <label>
                   <span>Capacity</span>
@@ -334,6 +451,6 @@
         <section class="panel"><div class="panel-header"><h2>Mitigation Actions</h2><span>Ordered by leverage</span></div><div class="action-list" data-list="actions"></div></section>
       </section>
     </main>
-    <script src="/demos/project-dashboard/switcher.js"></script>
+    <script src="/demos/project-dashboard/switcher.js?v=20260618q"></script>
   </body>
 </html>

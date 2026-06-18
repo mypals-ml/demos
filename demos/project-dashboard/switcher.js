@@ -1,31 +1,71 @@
 const scenarios = {
   current: [
-    { id: 1, title: "Task list view demo", status: "Done", estimateDays: 1, assignee: "Hui", dependency: null },
-    { id: 3, title: "Unassigned assignee icon sizing", status: "Done", estimateDays: 0.5, assignee: "", dependency: null },
-    { id: 4, title: "Task List View V2 design", status: "Done", estimateDays: 1, assignee: "", dependency: 3 },
-    { id: 5, title: "Resizable edit box handles", status: "In review", estimateDays: 1, assignee: "", dependency: 4 },
-    { id: 6, title: "Project completion dashboard", status: "In progress", estimateDays: null, assignee: "", dependency: 5 }
+    { id: 1, title: "Discovery workshop", status: "Done", estimateDays: 2, assignee: "Hui", dependency: null, doneDate: "2026-06-02" },
+    { id: 2, title: "Project plan and milestones", status: "Done", estimateDays: 1.5, assignee: "Mina", dependency: 1, doneDate: "2026-06-04" },
+    { id: 3, title: "Data contract audit", status: "Done", estimateDays: 2, assignee: "Ken", dependency: 1, doneDate: "2026-06-05" },
+    { id: 4, title: "GitHub project ingestion", status: "Done", estimateDays: 3, assignee: "Hui", dependency: 3, doneDate: "2026-06-10" },
+    { id: 5, title: "Forecast rules baseline", status: "Done", estimateDays: 2, assignee: "Mina", dependency: 4, doneDate: "2026-06-16" },
+    { id: 6, title: "Dashboard information architecture", status: "In review", estimateDays: 4, assignee: "Aki", dependency: 5 },
+    { id: 7, title: "Executive brief layout", status: "In progress", estimateDays: 5, assignee: "Aki", dependency: 6 },
+    { id: 8, title: "Operations table behavior", status: "In progress", estimateDays: 4, assignee: "Hui", dependency: 5 },
+    { id: 9, title: "Capacity planner model", status: "Todo", estimateDays: 6, assignee: "Ken", dependency: 8 },
+    { id: 10, title: "Dependency map interactions", status: "Todo", estimateDays: 5, assignee: "Mina", dependency: 8 },
+    { id: 11, title: "Risk review workflow", status: "Todo", estimateDays: 4, assignee: "", dependency: 10 },
+    { id: 12, title: "Chart wall analytics", status: "Todo", estimateDays: 7, assignee: "Hui", dependency: 9 },
+    { id: 13, title: "Burndown chart polish", status: "Todo", estimateDays: 4, assignee: "Aki", dependency: 12 },
+    { id: 14, title: "Scenario sync QA", status: "Todo", estimateDays: 3, assignee: "Ken", dependency: 13 },
+    { id: 15, title: "Accessibility pass", status: "Todo", estimateDays: 2, assignee: "", dependency: 14 },
+    { id: 16, title: "Stakeholder signoff pack", status: "Todo", estimateDays: 3, assignee: "Mina", dependency: 15 },
+    { id: 17, title: "Launch rehearsal", status: "Todo", estimateDays: 2, assignee: "Hui", dependency: 16 },
+    { id: 18, title: "Production handoff", status: "Todo", estimateDays: 6, assignee: "Hui", dependency: 17 }
   ],
   clean: [
-    { id: 1, title: "Task list view demo", status: "Done", estimateDays: 1, assignee: "Hui", dependency: null },
-    { id: 3, title: "Unassigned assignee icon sizing", status: "Done", estimateDays: 0.5, assignee: "Hui", dependency: null },
-    { id: 4, title: "Task List View V2 design", status: "Done", estimateDays: 1, assignee: "Hui", dependency: 3 },
-    { id: 5, title: "Resizable edit box handles", status: "In review", estimateDays: 1, assignee: "Hui", dependency: 4 },
-    { id: 6, title: "Project completion dashboard", status: "In progress", estimateDays: 1.5, assignee: "Hui", dependency: 5 }
+    { id: 1, title: "Discovery workshop", status: "Done", estimateDays: 2, assignee: "Hui", dependency: null, doneDate: "2026-06-02" },
+    { id: 2, title: "Project plan and milestones", status: "Done", estimateDays: 1.5, assignee: "Mina", dependency: 1, doneDate: "2026-06-04" },
+    { id: 3, title: "Data contract audit", status: "Done", estimateDays: 2, assignee: "Ken", dependency: 1, doneDate: "2026-06-05" },
+    { id: 4, title: "GitHub project ingestion", status: "Done", estimateDays: 3, assignee: "Hui", dependency: 3, doneDate: "2026-06-10" },
+    { id: 5, title: "Forecast rules baseline", status: "Done", estimateDays: 2, assignee: "Mina", dependency: 4, doneDate: "2026-06-16" },
+    { id: 6, title: "Dashboard information architecture", status: "In review", estimateDays: 4, assignee: "Aki", dependency: 5 },
+    { id: 7, title: "Executive brief layout", status: "In progress", estimateDays: 5, assignee: "Aki", dependency: 6 },
+    { id: 8, title: "Operations table behavior", status: "In progress", estimateDays: 4, assignee: "Hui", dependency: 5 },
+    { id: 9, title: "Capacity planner model", status: "Todo", estimateDays: 6, assignee: "Ken", dependency: 8 },
+    { id: 10, title: "Dependency map interactions", status: "Todo", estimateDays: 5, assignee: "Mina", dependency: 8 },
+    { id: 11, title: "Risk review workflow", status: "Todo", estimateDays: 4, assignee: "Aki", dependency: 10 },
+    { id: 12, title: "Chart wall analytics", status: "Todo", estimateDays: 7, assignee: "Hui", dependency: 9 },
+    { id: 13, title: "Burndown chart polish", status: "Todo", estimateDays: 4, assignee: "Aki", dependency: 12 },
+    { id: 14, title: "Scenario sync QA", status: "Todo", estimateDays: 3, assignee: "Ken", dependency: 13 },
+    { id: 15, title: "Accessibility pass", status: "Todo", estimateDays: 2, assignee: "Mina", dependency: 14 },
+    { id: 16, title: "Stakeholder signoff pack", status: "Todo", estimateDays: 3, assignee: "Mina", dependency: 15 },
+    { id: 17, title: "Launch rehearsal", status: "Todo", estimateDays: 2, assignee: "Hui", dependency: 16 },
+    { id: 18, title: "Production handoff", status: "Todo", estimateDays: 6, assignee: "Hui", dependency: 17 }
   ],
   blocked: [
-    { id: 1, title: "Task list view demo", status: "Done", estimateDays: 1, assignee: "Hui", dependency: null },
-    { id: 3, title: "Unassigned assignee icon sizing", status: "Done", estimateDays: null, assignee: "", dependency: null },
-    { id: 4, title: "Task List View V2 design", status: "Done", estimateDays: 1, assignee: "", dependency: 3 },
-    { id: 5, title: "Resizable edit box handles", status: "Todo", estimateDays: null, assignee: "", dependency: 4 },
-    { id: 6, title: "Project completion dashboard", status: "Todo", estimateDays: null, assignee: "", dependency: 5 }
+    { id: 1, title: "Discovery workshop", status: "Done", estimateDays: 2, assignee: "Hui", dependency: null, doneDate: "2026-06-02" },
+    { id: 2, title: "Project plan and milestones", status: "Done", estimateDays: 1.5, assignee: "Mina", dependency: 1, doneDate: "2026-06-04" },
+    { id: 3, title: "Data contract audit", status: "Done", estimateDays: null, assignee: "Ken", dependency: 1, doneDate: "2026-06-05" },
+    { id: 4, title: "GitHub project ingestion", status: "Done", estimateDays: 3, assignee: "", dependency: 3, doneDate: "2026-06-10" },
+    { id: 5, title: "Forecast rules baseline", status: "Done", estimateDays: 2, assignee: "Mina", dependency: 4, doneDate: "2026-06-16" },
+    { id: 6, title: "Dashboard information architecture", status: "Todo", estimateDays: null, assignee: "Aki", dependency: 5 },
+    { id: 7, title: "Executive brief layout", status: "Todo", estimateDays: 5, assignee: "Aki", dependency: 6 },
+    { id: 8, title: "Operations table behavior", status: "Todo", estimateDays: 4, assignee: "", dependency: 5 },
+    { id: 9, title: "Capacity planner model", status: "Todo", estimateDays: 6, assignee: "Ken", dependency: 8 },
+    { id: 10, title: "Dependency map interactions", status: "Todo", estimateDays: null, assignee: "Mina", dependency: 8 },
+    { id: 11, title: "Risk review workflow", status: "Todo", estimateDays: 4, assignee: "", dependency: 10 },
+    { id: 12, title: "Chart wall analytics", status: "Todo", estimateDays: 7, assignee: "Hui", dependency: 9 },
+    { id: 13, title: "Burndown chart polish", status: "Todo", estimateDays: 4, assignee: "Aki", dependency: 12 },
+    { id: 14, title: "Scenario sync QA", status: "Todo", estimateDays: 3, assignee: "Ken", dependency: 13 },
+    { id: 15, title: "Accessibility pass", status: "Todo", estimateDays: null, assignee: "", dependency: 14 },
+    { id: 16, title: "Stakeholder signoff pack", status: "Todo", estimateDays: 3, assignee: "Mina", dependency: 15 },
+    { id: 17, title: "Launch rehearsal", status: "Todo", estimateDays: 2, assignee: "Hui", dependency: 16 },
+    { id: 18, title: "Production handoff", status: "Todo", estimateDays: 6, assignee: "Hui", dependency: 17 }
   ]
 };
 
 const state = {
   active: location.hash.replace("#", "") || "executive",
-  startDate: "2026-06-15",
+  startDate: "2026-06-01",
   capacityHours: 6,
+  humanCount: 5,
   scenario: "current"
 };
 
@@ -54,6 +94,10 @@ function toISODate(date) {
   return `${year}-${month}-${day}`;
 }
 
+function startOfDay(date) {
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+}
+
 function isWorkday(date) {
   const day = date.getDay();
   return day >= 1 && day <= 5;
@@ -74,6 +118,46 @@ function addWorkdays(date, days) {
     if (isWorkday(cursor)) remaining -= 1;
   }
   return cursor;
+}
+
+function eachDate(start, end) {
+  const dates = [];
+  const cursor = new Date(start);
+  while (cursor <= end) {
+    dates.push(new Date(cursor));
+    cursor.setDate(cursor.getDate() + 1);
+  }
+  return dates;
+}
+
+function dateWindow(start, daysAhead) {
+  const dates = [];
+  const cursor = startOfDay(start);
+  for (let offset = 0; offset <= daysAhead; offset += 1) {
+    dates.push(new Date(cursor));
+    cursor.setDate(cursor.getDate() + 1);
+  }
+  return dates;
+}
+
+function workdayIndex(start, target) {
+  let index = 0;
+  const cursor = startOfDay(start);
+  const targetDay = startOfDay(target);
+  while (cursor < targetDay) {
+    if (isWorkday(cursor)) index += 1;
+    cursor.setDate(cursor.getDate() + 1);
+  }
+  return index;
+}
+
+function taskLoadOnDate(task, date) {
+  const day = startOfDay(date);
+  if (task.remainingDays <= 0 || !isWorkday(day) || day < startOfDay(task.start) || day > startOfDay(task.finish)) {
+    return 0;
+  }
+  const assignedBeforeDate = workdayIndex(task.start, day);
+  return Math.max(0, Math.min(1, task.remainingDays - assignedBeforeDate));
 }
 
 function effortMultiplier(status) {
@@ -160,7 +244,7 @@ function renderSharedValues(forecast, root) {
   setAllText('[data-value="completion-note"]', `${workdayNames[forecast.completion.getDay()]} finish after dependency and capacity checks.`, root);
   setAllText('[data-value="remaining"]', `${forecast.remainingDays.toFixed(1)}d`, root);
   setAllText('[data-value="warnings"]', String(forecast.warnings.length), root);
-  setAllText('[data-value="workers"]', String(forecast.workers.size), root);
+  setAllText('[data-value="workers"]', String(state.humanCount), root);
   setAllText('[data-value="task-count"]', `${forecast.tasks.length} tasks`, root);
   setAllText('[data-value="warning-label"]', `${forecast.warnings.length} warnings`, root);
   setAllText('[data-value="confidence"]', confidence, root);
@@ -220,7 +304,7 @@ function renderLists(forecast, root) {
     list.innerHTML = [
       ["Clean data first", forecast.warnings.length ? `${forecast.warnings.length} warnings need owner/estimate cleanup` : "No cleanup required"],
       ["Critical finish", criticalTask ? `#${criticalTask.id} finishes ${formatDate(criticalTask.finish)}` : "No open critical task"],
-      ["Capacity model", `${state.capacityHours}h/day across ${forecast.workers.size} worker bucket(s)`]
+      ["Capacity model", `${state.capacityHours}h/day across ${state.humanCount} human(s)`]
     ].map(([label, value]) => `<div class="signal-row"><span>${label}</span><b>${value}</b></div>`).join("");
   });
   root.querySelectorAll('[data-list="actions"]').forEach((list) => {
@@ -244,6 +328,20 @@ function renderTimeline(forecast, root) {
   });
 }
 
+function doneDaysAtDate(forecast, date, today) {
+  const chartDate = startOfDay(date);
+  return forecast.tasks.reduce((sum, task) => {
+    if (task.status === "Done") {
+      const doneDate = task.doneDate ? parseDate(task.doneDate) : task.finish;
+      return startOfDay(doneDate) <= chartDate ? sum + task.estimateDays : sum;
+    }
+    if (chartDate > today && startOfDay(task.finish) <= chartDate) {
+      return sum + task.estimateDays;
+    }
+    return sum;
+  }, 0);
+}
+
 function renderCharts(forecast, root) {
   const totalEstimate = forecast.tasks.reduce((sum, task) => sum + task.estimateDays, 0) || 1;
   const doneDays = forecast.tasks.filter((task) => task.status === "Done").reduce((sum, task) => sum + task.estimateDays, 0);
@@ -259,10 +357,13 @@ function renderCharts(forecast, root) {
   setAllText('[data-value="done-percent"]', `${donePercent}%`, root);
   root.querySelectorAll('[data-list="status-legend"]').forEach((legend) => {
     legend.innerHTML = [
-      ["Done estimate", `${doneDays.toFixed(1)}d`],
-      ["In progress or review", `${inFlightDays.toFixed(1)}d`],
-      ["Todo estimate", `${todoDays.toFixed(1)}d`]
-    ].map(([label, value]) => `<li><span>${label}</span><b>${value}</b></li>`).join("");
+      ["Done", doneDays, "status-done"],
+      ["In progress or review", inFlightDays, "status-progress"],
+      ["Todo", todoDays, "status-todo"]
+    ].map(([label, days, colorClass]) => {
+      const percentage = Math.round((days / totalEstimate) * 100);
+      return `<li class="${colorClass}"><span>${label}</span><b>${percentage}% / ${days.toFixed(1)}d</b></li>`;
+    }).join("");
   });
 
   const maxRemaining = Math.max(...forecast.tasks.map((task) => task.remainingDays), 1);
@@ -278,23 +379,143 @@ function renderCharts(forecast, root) {
     return load;
   }, new Map());
   const maxWorkerLoad = Math.max(...workerLoad.values(), 1);
+  const totalWorkerLoad = [...workerLoad.values()].reduce((sum, days) => sum + days, 0) || 1;
   root.querySelectorAll('[data-bars="workers"]').forEach((bars) => {
+    const useDailyColumns = bars.dataset.unit === "daily";
+    if (useDailyColumns) {
+      const dates = dateWindow(new Date(), 10);
+      const workerRows = [...forecast.workers].map((worker) => {
+        const dailyLoads = dates.map((date) => (
+          forecast.tasks
+            .filter((task) => task.worker === worker)
+            .reduce((sum, task) => sum + taskLoadOnDate(task, date), 0)
+        ));
+        return { worker, dailyLoads };
+      }).sort((left, right) => (
+        right.dailyLoads.reduce((sum, load) => sum + load, 0) -
+        left.dailyLoads.reduce((sum, load) => sum + load, 0)
+      )).slice(0, 5);
+      const maxDailyLoad = Math.max(...workerRows.flatMap((row) => row.dailyLoads), 1);
+      bars.innerHTML = `
+        <div class="worker-load-date-axis">
+          ${dates.map((date) => `<span>${date.getMonth() + 1}/${date.getDate()}</span>`).join("")}
+        </div>
+        ${workerRows.map(({ worker, dailyLoads }) => `
+          <div class="worker-load-chart-row">
+            <strong>${worker}</strong>
+            <div class="worker-load-columns">
+              ${dailyLoads.map((load, index) => {
+                const height = Math.round((load / maxDailyLoad) * 100);
+                const percentage = Math.round(load * 100);
+                return `
+                  <span class="worker-load-column" title="${worker} ${toISODate(dates[index])}: ${percentage}% workload (${load.toFixed(1)}d)">
+                    <i style="height: ${height}%;"></i>
+                    <b>${percentage}%</b>
+                  </span>
+                `;
+              }).join("")}
+            </div>
+          </div>
+        `).join("")}
+      `;
+      return;
+    }
+    const usePercent = bars.dataset.unit === "percent";
     bars.innerHTML = [...workerLoad.entries()].map(([worker, days]) => {
-      const width = Math.max(6, Math.round((days / maxWorkerLoad) * 100));
-      return `<div class="chart-bar"><span>${worker}</span><div class="mini-track"><div class="mini-fill" style="width: ${width}%;"></div></div><b>${days.toFixed(1)}d</b></div>`;
+      const percentage = Math.round((days / totalWorkerLoad) * 100);
+      const width = usePercent ? percentage : Math.max(6, Math.round((days / maxWorkerLoad) * 100));
+      const value = usePercent ? `${percentage}%` : `${days.toFixed(1)}d`;
+      return `<div class="chart-bar"><span>${worker}</span><div class="mini-track"><div class="mini-fill" style="width: ${width}%;"></div></div><b>${value}</b></div>`;
     }).join("");
   });
   root.querySelectorAll('[data-bar="warning-meter"]').forEach((bar) => {
     bar.style.width = `${Math.min(100, forecast.warnings.length * 14)}%`;
   });
   root.querySelectorAll('[data-chart="trend"]').forEach((chart) => {
-    let remaining = forecast.tasks.reduce((sum, task) => sum + task.remainingDays, 0);
-    const max = Math.max(remaining, 1);
-    chart.innerHTML = forecast.tasks.map((task) => {
-      remaining = Math.max(0, remaining - task.remainingDays);
-      const height = Math.max(8, Math.round((remaining / max) * 100));
-      return `<div class="trend-column"><span style="height: ${height}%;"></span><b>#${task.id}</b></div>`;
-    }).join("");
+    const maxDays = forecast.tasks.reduce((sum, task) => sum + task.estimateDays, 0) || 1;
+    const dates = eachDate(forecast.startDate, forecast.completion);
+    const today = startOfDay(new Date());
+    chart.innerHTML = `
+      <div class="burndown-axis"><span>${maxDays.toFixed(1)}d</span><span>0d</span></div>
+      <div class="burndown-columns">
+        ${dates.map((date) => {
+          const chartDate = startOfDay(date);
+          const dailyDoneDays = Math.min(maxDays, doneDaysAtDate(forecast, chartDate, today));
+          const remainingDays = Math.max(0, maxDays - dailyDoneDays);
+          const doneHeight = Math.round((dailyDoneDays / maxDays) * 100);
+          const remainingHeight = 100 - doneHeight;
+          const basis = chartDate > today ? "projected from assumptions" : "actual completed";
+          return `
+            <div class="trend-column" title="${toISODate(date)}: ${dailyDoneDays.toFixed(1)}d done, ${remainingDays.toFixed(1)}d remaining (${basis})">
+              <div class="burndown-stack" aria-label="${toISODate(date)} ${dailyDoneDays.toFixed(1)} days done ${remainingDays.toFixed(1)} days remaining ${basis}">
+                <span class="done-segment" style="height: ${doneHeight}%;"></span>
+                <span class="remaining-segment" style="height: ${remainingHeight}%;"></span>
+              </div>
+              <b>${date.getMonth() + 1}/${date.getDate()}</b>
+            </div>
+          `;
+        }).join("")}
+      </div>
+    `;
+  });
+  root.querySelectorAll('[data-chart="trend-line"]').forEach((chart) => {
+    const maxDays = forecast.tasks.reduce((sum, task) => sum + task.estimateDays, 0) || 1;
+    const dates = eachDate(forecast.startDate, forecast.completion);
+    const today = startOfDay(new Date());
+    const panelId = chart.closest("[data-panel]")?.dataset.panel || "charts2";
+    const styleKey = chart.dataset.style || "simple";
+    const width = 1000;
+    const height = 220;
+    const top = 12;
+    const plotHeight = 184;
+    const bottom = top + plotHeight;
+    const lastIndex = Math.max(1, dates.length - 1);
+    const points = dates.map((date, index) => {
+      const chartDate = startOfDay(date);
+      const dailyDoneDays = Math.min(maxDays, doneDaysAtDate(forecast, chartDate, today));
+      const remainingDays = Math.max(0, maxDays - dailyDoneDays);
+      return {
+        date,
+        future: chartDate > today,
+        doneDays: dailyDoneDays,
+        remainingDays,
+        x: (index / lastIndex) * width,
+        y: top + (1 - remainingDays / maxDays) * plotHeight
+      };
+    });
+    const actualPoints = points.filter((point) => !point.future);
+    const projectedPoints = points.filter((point) => point.future);
+    if (actualPoints.length && projectedPoints.length) projectedPoints.unshift(actualPoints.at(-1));
+    const pointList = (items) => items.map((point) => `${point.x.toFixed(1)},${point.y.toFixed(1)}`).join(" ");
+    const areaPath = (items) => {
+      if (items.length < 2) return "";
+      const line = items.map((point, index) => `${index === 0 ? "M" : "L"} ${point.x.toFixed(1)} ${point.y.toFixed(1)}`).join(" ");
+      const first = items[0];
+      const last = items.at(-1);
+      return `${line} L ${last.x.toFixed(1)} ${bottom} L ${first.x.toFixed(1)} ${bottom} Z`;
+    };
+    chart.innerHTML = `
+      <div class="burndown-axis"><span>${maxDays.toFixed(1)}d</span><span>0d</span></div>
+      <div class="line-burndown-plot">
+        <svg class="line-burndown-svg line-style-${styleKey}" viewBox="0 0 ${width} ${height}" role="img" aria-label="Remaining task days by date" data-panel-id="${panelId}">
+          <line class="line-grid" x1="0" y1="${top}" x2="${width}" y2="${top}"></line>
+          <line class="line-grid line-grid-mid" x1="0" y1="${top + plotHeight * 0.5}" x2="${width}" y2="${top + plotHeight * 0.5}"></line>
+          <line class="line-grid" x1="0" y1="${bottom}" x2="${width}" y2="${bottom}"></line>
+          <path class="line-area line-area-actual" d="${areaPath(actualPoints)}"></path>
+          <path class="line-area line-area-projected" d="${areaPath(projectedPoints)}"></path>
+          <polyline class="line-actual" points="${pointList(actualPoints)}"></polyline>
+          <polyline class="line-projected" points="${pointList(projectedPoints)}"></polyline>
+          ${points.map((point) => `
+            <circle class="${point.future ? "dot-projected" : "dot-actual"}" cx="${point.x.toFixed(1)}" cy="${point.y.toFixed(1)}" r="5" data-remaining-days="${point.remainingDays.toFixed(1)}" data-done-days="${point.doneDays.toFixed(1)}">
+              <title>${toISODate(point.date)}: ${maxDays.toFixed(1)}d total - ${point.doneDays.toFixed(1)}d done = ${point.remainingDays.toFixed(1)}d remaining</title>
+            </circle>
+          `).join("")}
+        </svg>
+        <div class="line-date-axis">
+          ${dates.map((date) => `<span>${date.getMonth() + 1}/${date.getDate()}</span>`).join("")}
+        </div>
+      </div>
+    `;
   });
 }
 
@@ -351,9 +572,11 @@ function renderRisk(forecast, root) {
 function syncControls(source) {
   if (source?.classList.contains("js-start-date")) state.startDate = source.value;
   if (source?.classList.contains("js-capacity")) state.capacityHours = Number(source.value) || 6;
+  if (source?.classList.contains("js-human-count")) state.humanCount = Math.max(1, Math.round(Number(source.value) || 1));
   if (source?.classList.contains("js-scenario")) state.scenario = source.value;
   document.querySelectorAll(".js-start-date").forEach((input) => { input.value = state.startDate; });
   document.querySelectorAll(".js-capacity").forEach((input) => { input.value = state.capacityHours; });
+  document.querySelectorAll(".js-human-count").forEach((input) => { input.value = state.humanCount; });
   document.querySelectorAll(".js-scenario").forEach((select) => { select.value = state.scenario; });
 }
 
@@ -390,13 +613,13 @@ document.querySelectorAll(".switch-tab").forEach((tab) => {
   tab.addEventListener("click", () => activate(tab.dataset.switch));
 });
 document.addEventListener("input", (event) => {
-  if (event.target.matches(".js-start-date, .js-capacity, .js-scenario")) {
+  if (event.target.matches(".js-start-date, .js-capacity, .js-human-count, .js-scenario")) {
     syncControls(event.target);
     render();
   }
 });
 document.addEventListener("change", (event) => {
-  if (event.target.matches(".js-start-date, .js-capacity, .js-scenario")) {
+  if (event.target.matches(".js-start-date, .js-capacity, .js-human-count, .js-scenario")) {
     syncControls(event.target);
     render();
   }
